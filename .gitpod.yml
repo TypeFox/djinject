@@ -1,0 +1,7 @@
+tasks:
+  - init: npm i
+    command: npm test
+
+vscode:
+  extensions:
+    - dbaeumer.vscode-eslint

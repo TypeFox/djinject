@@ -1,0 +1,16 @@
+{
+  "compilerOptions": {
+    "target": "ES2017",           // emitted JavaScript version
+    "module": "commonjs",         // generated module code
+    "lib": ["ESNext"],            // specify library files to be included in the compilation
+    "declaration": true,          // gnerates corresponding '.d.ts' file
+    "declarationMap": true,       // generates a sourcemap for each corresponding '.d.ts' file
+    "sourceMap": true,  
+    "rootDir": "./src",           // source folder
+    "outDir": "./dist",           // *.d.ts goes here
+    "strict": true,               // enable all strict type-checking options
+    "skipLibCheck": true          // skip type checking all .d.ts files
+  },
+  "include": ["src/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}

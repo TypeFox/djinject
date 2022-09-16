@@ -1,0 +1,41 @@
+{
+  "name": "ginject",
+  "version": "0.0.0",
+  "description": "Ginject is a featherweight dependency injection solution for decoupling JavaScript and Node.js apps.",
+  "keywords": [
+    "inject",
+    "dependency injection",
+    "di",
+    "inversion of control",
+    "ioc"
+  ],
+  "files": [
+    "dist"
+  ],
+  "types": "./dist/index.d.ts",
+  "main": "./dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "coverage": "vitest run --coverage",
+    "test": "vitest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/langium/ginject.git"
+  },
+  "homepage": "https://github.com/langium/ginject#readme",
+  "bugs": {
+    "url": "https://github.com/langium/ginject/issues"
+  },
+  "author": {
+    "name": "Daniel Dietrich",
+    "email": "cafebab3@gmail.com",
+    "url": "https://danieldietrich.dev"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@vitest/coverage-c8": "^0.23.2",
+    "typescript": "^4.8.3",
+    "vitest": "^0.23.2"
+  }
+}
