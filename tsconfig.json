@@ -1,15 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2017",           // emitted JavaScript version
+    "target": "ES6",              // emitted JavaScript version
+    "lib": ["ES6"],               // specify library files to be included in the compilation
     "module": "commonjs",         // generated module code
-    "lib": ["ESNext"],            // specify library files to be included in the compilation
-    "declaration": true,          // gnerates corresponding '.d.ts' file
-    "declarationMap": true,       // generates a sourcemap for each corresponding '.d.ts' file
-    "sourceMap": true,  
     "rootDir": "./src",           // source folder
     "outDir": "./dist",           // *.d.ts goes here
-    "strict": true,               // enable all strict type-checking options
-    "skipLibCheck": true          // skip type checking all .d.ts files
+    "declaration": true,          // gnerates corresponding '.d.ts' file
+    "declarationMap": true,       // generates a sourcemap for each corresponding '.d.ts' file
+    "skipLibCheck": true,         // skip type checking all .d.ts files
+    "sourceMap": true,            // generates a sourcemap for each corresponding '.ts' file
+    "strict": true                // enable all strict type-checking options
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
