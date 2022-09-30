@@ -8,60 +8,6 @@ import { describe, expect, it } from 'vitest'
 import {assert as tsafeAssert, Equals, Extends, Not } from 'tsafe';
 import { isObj, Obj } from '../src/object';
 
-type Fn = (...args: any[]) => any;
-
-describe('type Fn', () => {
-
-    it('should cover () => any', () => {
-        tsafeAssert<Extends<() => any, Fn>>();
-    });
-
-    it('should cover () => void', () => {
-        tsafeAssert<Extends<() => void, Fn>>();
-    });
-
-    it('should cover (...args: any[]) => any', () => {
-        tsafeAssert<Extends<(...args: any[]) => any, Fn>>();
-    });
-
-    it('should cover typeof fn', () => {
-        tsafeAssert<Extends<typeof fn, Fn>>();
-    });
-
-    it('should not cover undefined', () => {
-        tsafeAssert<Not<Extends<undefined, Fn>>>();
-    });
-
-    it('should not cover null', () => {
-        tsafeAssert<Not<Extends<null, Fn>>>();
-    });
-
-    it('should not cover boolean', () => {
-        tsafeAssert<Not<Extends<boolean, Fn>>>();
-    });
-
-    it('should not cover number', () => {
-        tsafeAssert<Not<Extends<number, Fn>>>();
-    });
-
-    it('should not cover string', () => {
-        tsafeAssert<Not<Extends<string, Fn>>>();
-    });
-
-    it('should not cover array', () => {
-        tsafeAssert<Not<Extends<any[], Fn>>>();
-    });
-
-    it('should not cover object', () => {
-        tsafeAssert<Not<Extends<object, Fn>>>();
-    });
-
-    it('should not cover class', () => {
-        tsafeAssert<Not<Extends<A, Fn>>>();
-    });
-
-});
-
 describe('type Obj', () => {
 
     it('should be {}', () => {

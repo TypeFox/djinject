@@ -50,9 +50,7 @@ type InternalFactory<C = unknown, T = unknown> = Factory<C, T> & { [isEager]?: b
  * @param factory
  */
  export function eager<C, T>(factory: Factory<C, T>): Factory<C, T> {
-    return (factory as InternalFactory<C, T>)[isEager]
-        ? factory
-        : Object.assign((ctr: C) => factory(ctr), { [isEager]: true } ) as InternalFactory<C, T>;
+    return (isEager in factory) ? factory : Object.assign((ctr: C) => factory(ctr), { [isEager]: true } );
 }
 
 /**
@@ -78,7 +76,7 @@ export function inject<M extends [Module, ...Module[]]>(...modules: M): Containe
     return createContainer(module);
 }
 
-function createContainer<M extends Module>(module: MergeArray<M>): Container<M> {
+function createContainer<M extends Module[]>(module: MergeArray<M>): Container<M> {
     const eagerServices = [];
     const container = proxify(module/*TODO(@@dd):, eagerServices*/);
     // TODO(@@dd): create eager services

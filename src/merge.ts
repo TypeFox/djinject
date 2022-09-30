@@ -41,8 +41,6 @@ type Head<A extends unknown[]> =
 type Tail<A extends unknown[]> =
     A extends [head: any, ...tail: infer T] ? T : never;
 
-type T = Tail<[]>;
-
 // ✅ is checks if type T1 strictly equals type T2
 type Is<T1, T2> = (<T>() => T extends T2 ? true : false) extends <T>() => T extends T1 ? true : false ? true : false;
 
