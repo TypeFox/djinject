@@ -4,7 +4,7 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { Obj, isObj, keys } from "./object";
+import { Obj } from "./object";
 import { merge, MergeArray } from "./merge";
 
 /**
@@ -17,7 +17,7 @@ const isEager = Symbol();
  * Internally used by {@link _resolve} to tag a requested dependency, directly before calling the factory.
  * This allows us to find cycles during instance creation.
  */
-const isRequested = Symbol();
+const requested = Symbol();
 
 // ✅ a module that can be passed to the inject function
 export type Module<C extends Obj<any> = any, T = C> =
@@ -83,25 +83,15 @@ function createContainer<M extends Module[]>(module: MergeArray<M>): Container<M
     return container;
 }
 
-function proxify<M extends Module[], C>(module: any, container?: C): any {
-    const obj: any = {};
-    keys(module).forEach(key => {
-        const value = module[key];
-        if (isObj(value)) {
-            obj[key] = proxify(value, container ?? obj);
-        } else if (typeof value === 'function') {
-            obj[key] = new Proxy({}, {
-                deleteProperty: () => false,
-                get: (obj, prop) => _resolve(obj, prop, module, injector || proxy),
-                getOwnPropertyDescriptor: (obj, prop) => (_resolve(obj, prop, module, injector || proxy), Object.getOwnPropertyDescriptor(obj, prop)), // used by for..in
-                has: (_, prop) => prop in module, // used by ..in..
-                ownKeys: () => Reflect.ownKeys(module) // used by for..in
-            });
-        } else {
-            throw new Error(); // TODO(@@dd): error message
-        }
+function proxify(module: any, container?: any): any {
+    const proxy: any = new Proxy({} as any, {
+        deleteProperty: () => false,
+        get: (target, prop) => resolve(target, prop, module, container || proxy),
+        getOwnPropertyDescriptor: (target, prop) => (resolve(target, prop, module, container || proxy), Object.getOwnPropertyDescriptor(target, prop)), // used by for..in
+        has: (_, prop) => prop in module, // used by ..in..
+        ownKeys: () => Reflect.ownKeys(module)
     });
-    return obj;
+    return proxy;
 }
 
 /**
@@ -112,25 +102,27 @@ function proxify<M extends Module[], C>(module: any, container?: C): any {
  * @param obj an object holding all group proxies and services
  * @param prop the key of a value within obj
  * @param module an object containing groups and service factories
- * @param injector the first level proxy that provides access to all values
+ * @param container the first level proxy that provides access to all values
  * @returns the requested value `obj[prop]`
  * @throws Error if a dependency cycle is detected
  */
-function _resolve<I, T>(obj: any, prop: PropertyKey, module: Module<I, T>, factory: I): T[keyof T] | undefined {
+ function resolve<C, T>(obj: any, prop: PropertyKey, module: any, container: any): T[keyof T] | undefined {
     if (prop in obj) {
         if (obj[prop] instanceof Error) {
             throw new Error('Construction failure. Please make sure that your dependencies are constructable.', { cause: obj[prop] });
         }
-        if (obj[prop] === isRequested) {
+        if (obj[prop] === requested) {
+            // TODO(@@dd): refer to the GitHub readme of ginject instead of langium docs
             throw new Error('Cycle detected. Please make "' + String(prop) + '" lazy. See https://langium.org/docs/di/cyclic-dependencies');
         }
         return obj[prop];
     } else if (prop in module) {
-        const value: Module<I, T[keyof T]> | ((factory: I) => T[keyof T]) = module[prop as keyof T];
-        obj[prop] = isRequested;
+        const value = module[prop];
+        obj[prop] = requested;
         try {
-            obj[prop] = (typeof value === 'function') ? value(factory) : _inject(value, factory);
+            obj[prop] = (typeof value === 'function') ? value(container) : proxify(value, container);
         } catch (error) {
+            // TODO(@@dd): create an error that isn't instanceof Error (which could be a valid service)
             obj[prop] = error instanceof Error ? error : undefined;
             throw error;
         }

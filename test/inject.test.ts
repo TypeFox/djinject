@@ -271,13 +271,13 @@ describe('The inject function', () => {
             a = 1;
         }
 
-        interface I1 {
+        interface C1 {
             groupA: {
                 service1: A
             }
         }
 
-        interface I2 {
+        interface C2 {
             groupB: {
                 groupC: {
                     service2: A
@@ -285,13 +285,13 @@ describe('The inject function', () => {
             }
         }
 
-        const m1: Module<I1> = {
+        const m1: Module<C1> = {
             groupA: {
                 service1: () => new A()
             }
         };
 
-        const m2: Module<I2> = {
+        const m2: Module<C2> = {
             groupB: {
                 groupC: {
                     service2: () => new A()
@@ -299,13 +299,13 @@ describe('The inject function', () => {
             }
         };
 
-        const m3 = { // intentionally not declared as Module<I3>
+        const m3 = { // intentionally not declared as Module<C3>
             groupB: {
                 groupC: {
-                    // injector may have an arbitrary type but
+                    // container may have an arbitrary type but
                     // the inject() call will fail for m3 if no module
-                    // exists that provides that injector
-                    service2: (injector: I1) => new B(injector.groupA.service1)
+                    // exists that provides that container
+                    service2: (ctr: C1) => new B(ctr.groupA.service1)
                 }
             },
             x: () => 1
