@@ -80,10 +80,10 @@ function createContainer<M extends Module[]>(module: MergeArray<M>): Container<M
     const eagerServices = [];
     const container = proxify(module/*TODO(@@dd):, eagerServices*/);
     // TODO(@@dd): create eager services
-    return container as Container<M>;
+    return container;
 }
 
-function proxify<M extends Record<PropertyKey, unknown>, C>(module: M, container?: C): InverseModule<M> {
+function proxify<M extends Module[], C>(module: any, container?: C): any {
     const obj: any = {};
     keys(module).forEach(key => {
         const value = module[key];
@@ -102,47 +102,7 @@ function proxify<M extends Record<PropertyKey, unknown>, C>(module: M, container
         }
     });
     return obj;
-    /*
-    } else if (typeof module === 'function') {
-        const proxy: any = new Proxy({}, {
-            deleteProperty: () => false,
-            get: (obj, prop) => _resolve(obj, prop, module, injector || proxy),
-            getOwnPropertyDescriptor: (obj, prop) => (_resolve(obj, prop, module, injector || proxy), Object.getOwnPropertyDescriptor(obj, prop)), // used by for..in
-            has: (_, prop) => prop in module, // used by ..in..
-            ownKeys: () => Reflect.ownKeys(module) // used by for..in
-        });
-        if ((t as InternalFactory)[isEager]) {
-            /* TODO(@@dd): stackOfEagerModules.push(module) 
-        }
-        return proxy;
-    } else {
-        throw new Error(''); // TODO(@@dd)
-    }
-    */
 }
-
-// ================================= BACKUP =================================
-// ================================= BACKUP =================================
-// ================================= BACKUP =================================
-
-// /**
-//  * Helper function that returns an injector by creating a proxy.
-//  * Invariant: injector is of type I. If injector is undefined, then T = I.
-//  */
-// function _inject<C, T>(module: Module<C, T>, injector?: any): C {
-//     if (injector && injector.hasOwnProperty(isEager)) {
-//         return isRequested as C;
-//     } else {
-//         const proxy: C = new Proxy({} as any, {
-//             deleteProperty: () => false,
-//             get: (obj, prop) => _resolve(obj, prop, module, injector || proxy),
-//             getOwnPropertyDescriptor: (obj, prop) => (_resolve(obj, prop, module, injector || proxy), Object.getOwnPropertyDescriptor(obj, prop)), // used by for..in
-//             has: (_, prop) => prop in module, // used by ..in..
-//             ownKeys: () => Reflect.ownKeys(module) // used by for..in
-//         });
-//         return proxy;
-//     }
-// }
 
 /**
  * Returns the value `obj[prop]`. If the value does not exist, yet, it is resolved from
