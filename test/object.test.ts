@@ -6,7 +6,9 @@
 
 import { describe, expect, it } from 'vitest'
 import {assert as tsafeAssert, Equals, Extends, Not } from 'tsafe';
-import { Fn, Obj, isObj } from '../src/base';
+import { isObj, Obj } from '../src/object';
+
+type Fn = (...args: any[]) => any;
 
 describe('type Fn', () => {
 

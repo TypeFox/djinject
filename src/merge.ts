@@ -4,10 +4,9 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { Fn, Obj, isObj, keys } from './base';
+import { isObj, keys, Obj } from './object';
 
-// ✅ merges N modules by merging them pair-wise from right to left
-export type MergeArray<M extends Record<PropertyKey, unknown>[]> =
+export type MergeArray<M extends any[]> =
     M extends [] ? {} : // no modules => empty result
     M extends [Head<M>, ...Tail<M>] ? (
         Tail<M> extends [] ? Head<M> : Merge<MergeArray<Tail<M>>, Head<M>>
@@ -34,12 +33,15 @@ type MergeObjects<S extends Record<PropertyKey, unknown>, T extends Record<Prope
 };
 
 // ✅ head of a list
-type Head<A extends any[]> = A extends [] ? never :
-    Fn<A> extends (head: infer H, ...tail: any[]) => any ? H : never;
+type Head<A extends unknown[]> =
+    A extends [] ? never :
+    A extends [head: infer H, ...tail: any[]] ? H : never;
 
 // ✅ tail of a list
-type Tail<A extends any[]> =
-    Fn<A> extends (head: any, ...tail: infer T) => any ? T : never;
+type Tail<A extends unknown[]> =
+    A extends [head: any, ...tail: infer T] ? T : never;
+
+type T = Tail<[]>;
 
 // ✅ is checks if type T1 strictly equals type T2
 type Is<T1, T2> = (<T>() => T extends T2 ? true : false) extends <T>() => T extends T1 ? true : false ? true : false;

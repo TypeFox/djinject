@@ -6,15 +6,7 @@
 
 import { describe, expect, it } from 'vitest'
 import {assert as tsafeAssert, Equals} from 'tsafe';
-import { eager, inject, Module } from '../src';
-
-describe('', () => {
-
-    it('', () => {
-
-    });
-
-});
+import { eager, inject, Module } from '../src/inject';
 
 describe('A dependency type', () => {
 
