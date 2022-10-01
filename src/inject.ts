@@ -74,14 +74,7 @@ export function eager<C, T>(factory: Factory<C, T>): Factory<C, T> {
 // ✅ inject takes modules (= dependency factories) and returns an IoC container (aka DI container) that is ready to use
 export function inject<M extends [Module, ...Module[]]>(...modules: M): Container<M> {
     const module = modules.reduce(merge, {}) as MergeArray<M>;
-    return createContainer(module);
-}
-
-function createContainer<M extends Module[]>(module: MergeArray<M>): Container<M> {
-    const eagerServices = [];
-    const container = proxify(module/*TODO(@@dd):, eagerServices*/);
-    // TODO(@@dd): create eager services
-    return container;
+    return proxify(module);
 }
 
 function proxify(module: any, container?: any): any {
