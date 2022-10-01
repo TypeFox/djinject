@@ -27,7 +27,7 @@ export type Module<C extends Obj<any> = any, T = C> =
 
 // ✅ Internal. InverseModule<Module<any, T>> := T
 type InverseModule<M> =
-    M extends (...args: any[]) => any ? ReturnType<M> : // eslint-disable-line no-unused-vars
+    M extends (...args: any[]) => any ? ReturnType<M> :
         M extends Obj<M> ? {
             [K in keyof M]: InverseModule<M[K]>
         } : never;
@@ -36,7 +36,6 @@ type InverseModule<M> =
 export type Container<M extends Module[]> = InverseModule<MergeArray<M>>;
 
 // ✅ a factory which receives the IoC container and returns a value/service (which may be a singleton value or a provider)
-// eslint-disable-next-line no-unused-vars
 export type Factory<C, T> = (ctr: C) => T;
 
 /**

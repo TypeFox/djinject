@@ -7,7 +7,7 @@
 // ✅ represents an object, i.e. an associative array with possbily no properties
 export type Obj<T> =
     T extends Record<PropertyKey, any> ? (
-        T extends (...args: any[]) => any ? never : // eslint-disable-line no-unused-vars
+        T extends (...args: any[]) => any ? never :
             T extends any[] ? never : T
     ) : never;
 

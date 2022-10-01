@@ -41,7 +41,7 @@
         "no-throw-literal": "error",                      // only throw Error but no objects {}
         "no-trailing-spaces": "error",                    // trim end of lines
         "no-unsafe-finally": "error",                     // safe try/catch/finally behavior
-        "unused-imports/no-unused-imports": "error",      // no unsused imports
+        "no-unused-vars": "off",                          // we need unused vars for proper typing
         "no-var": "error",                                // use const and let instead of var
         "prefer-const": "error",                          // use const when possible
         "quote-props": ["error", "as-needed", {           // defines how object-keys are quoted
@@ -54,6 +54,7 @@
             "asyncArrow": "always",
             "named": "never"
         }],
+        "unused-imports/no-unused-imports": "error",      // no unsused imports
         "use-isnan": "error",                             // isNaN(i) Number.isNaN(i) instead of i === NaN
 
         // List of [@typescript-eslint rules](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#supported-rules)
