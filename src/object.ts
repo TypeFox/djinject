@@ -11,10 +11,6 @@ export type Obj<T> =
             T extends any[] ? never : T
     ) : never;
 
-export type EmptyObj = {
-    [key: PropertyKey]: never;
-}
-
 // ✅ tests if a value is an object
 export function isObj<T>(t: T): t is Obj<T> {
     return t !== null && typeof t === 'object' && !Array.isArray(t);

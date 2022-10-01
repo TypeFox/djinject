@@ -4,10 +4,10 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { EmptyObj, isObj, keys, Obj } from './object';
+import { isObj, keys, Obj } from './object';
 
 export type MergeArray<M extends any[]> =
-    M extends [] ? EmptyObj : // no modules => empty result
+    M extends [] ? {} : // eslint-disable-line @typescript-eslint/ban-types
         M extends [Head<M>, ...Tail<M>] ? (
             Tail<M> extends [] ? Head<M> : Merge<MergeArray<Tail<M>>, Head<M>>
         ) : never;
@@ -22,7 +22,7 @@ export type Merge<S, T> =
             Or<Is<S, unknown>, Is<T, unknown>> extends true ? unknown :
                 S extends Record<PropertyKey, unknown>
                     ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
-                    : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never);
+                    : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never)
 
 // ✅ merge two objects
 type MergeObjects<S extends Record<PropertyKey, unknown>, T extends Record<PropertyKey, unknown>> = {

@@ -12,7 +12,7 @@ type Fn = (...args: any[]) => any;
 
 describe('type Merge', () => {
 
-    describe('totality types', () => {
+    describe('universal types', () => {
 
         it('should merge any', () => {
             tsafeAssert<Equals<Merge<any, any>, any>>();
@@ -170,6 +170,8 @@ describe('type Merge', () => {
             tsafeAssert<Equals<Merge<() => void, Fn>, () => void>>();
             tsafeAssert<Equals<Merge<Fn, () => void>, Fn>>();
         });
+
+        // TODO(@@dd): classes are functions
 
     });
 
