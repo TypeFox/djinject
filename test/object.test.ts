@@ -67,7 +67,7 @@ describe('type Obj', () => {
     });
 
     it('should never be (...args: any[]) => any', () => {
-        tsafeAssert<Equals<Obj<() => any>, never>>();
+        tsafeAssert<Equals<Obj<(...args: any[]) => any>, never>>();
     });
 
     it('should never be typeof fn', () => {
