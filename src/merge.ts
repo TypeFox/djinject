@@ -7,7 +7,7 @@
 import { isObj, keys, Obj } from './object';
 
 export type MergeArray<M extends any[]> =
-    M extends [] ? {} : // eslint-disable-line @typescript-eslint/ban-types
+    M extends [] ? {} :
         M extends [Head<M>, ...Tail<M>] ? (
             Tail<M> extends [] ? Head<M> : Merge<MergeArray<Tail<M>>, Head<M>>
         ) : never;

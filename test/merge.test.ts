@@ -4,11 +4,13 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
+/* eslint-disable no-unused-vars */
+
 import { describe, expect, it } from 'vitest'
 import {assert as tsafeAssert, Equals} from 'tsafe';
 import { merge, Merge, MergeArray } from '../src/merge';
 
-type Fn = (...args: any[]) => any;
+type Fn = () => any;
 
 describe('type Merge', () => {
 
@@ -176,7 +178,7 @@ describe('type Merge', () => {
     });
 
     describe('object types', () => {
-        
+
         describe('undefined properties', () => {
 
             it('should merge empty objects', () => {
@@ -234,7 +236,7 @@ describe('type Merge', () => {
                 type Expected = { a: never };
                 tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
             });
-            
+
             it('should never merge source: undefined with target: 1', () => {
                 type Source = { a: undefined };
                 type Target = { a: 1 };
@@ -639,7 +641,7 @@ describe('type Merge', () => {
         });
 
         describe('array properties', () => {
-            
+
             it('should merge non-empty source with empty target', () => {
                 type Source = { a: [] };
                 type Target = {};
@@ -762,7 +764,7 @@ describe('type Merge', () => {
         });
 
         describe('function properties', () => {
-            
+
             it('should merge source: Fn with target: () => void', () => {
                 type Source = { a: Fn };
                 type Target = { a: () => void };
@@ -780,7 +782,7 @@ describe('type Merge', () => {
         });
 
         describe('object properties', () => {
-            
+
             it('should merge deep properties that are assignable', () => {
                 type Source = { a: { b: 1 } };
                 type Target = { a: { b: number } };

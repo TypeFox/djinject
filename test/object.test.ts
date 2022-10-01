@@ -5,7 +5,7 @@
  ******************************************************************************/
 
 import { describe, expect, it } from 'vitest'
-import {assert as tsafeAssert, Equals, Extends, Not } from 'tsafe';
+import {assert as tsafeAssert, Equals, Extends } from 'tsafe';
 import { isObj, Obj } from '../src/object';
 
 describe('type Obj', () => {
@@ -67,7 +67,7 @@ describe('type Obj', () => {
     });
 
     it('should never be (...args: any[]) => any', () => {
-        tsafeAssert<Equals<Obj<(...args: any[]) => any>, never>>();
+        tsafeAssert<Equals<Obj<() => any>, never>>();
     });
 
     it('should never be typeof fn', () => {
@@ -89,7 +89,7 @@ describe('isObj', () => {
     it('should not accept undefined', () => {
         expect(isObj(undefined)).toBeFalsy();
     });
-    
+
     it('should not accept null', () => {
         expect(isObj(null)).toBeFalsy();
     });

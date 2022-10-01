@@ -4,6 +4,8 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
+/* eslint-disable no-unused-vars */
+
 import { describe, expect, it } from 'vitest'
 import {assert as tsafeAssert, Equals} from 'tsafe';
 import { eager, inject, Module } from '../src/inject';

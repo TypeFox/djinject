@@ -12,7 +12,7 @@
     ],
     "parser": "@typescript-eslint/parser",
     "parserOptions": {              // [typescript-eslint parser configuration](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/parser#configuration)
-        "project": "tsconfig.json", // mandatory when using types
+        "project": "tsconfig.eslint.json", // mandatory when using types
         "sourceType": "module"      // needed in order to use import declarations
     },
     "plugins": [
@@ -59,7 +59,6 @@
         "@typescript-eslint/array-type": ["error", {                // string[] instead of Array<string>
             "default": "array-simple"
         }],
-        "@typescript-eslint/ban-types": "error",                    // bans types like String in favor of string
         "@typescript-eslint/indent": "error",                       // consistent indentation
         "@typescript-eslint/consistent-type-assertions": "error",   // needed for .tsx, bad = <Foo>bar, good = bar as Foo
         "@typescript-eslint/no-misused-new": "error",               // no constructors for interfaces or new for classes
