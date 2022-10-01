@@ -17,6 +17,7 @@
   "scripts": {
     "build": "tsc",
     "coverage": "vitest run --coverage",
+    "lint": "eslint src test --ext .ts",
     "test": "vitest"
   },
   "repository": {
@@ -34,7 +35,10 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.38.1",
+    "@typescript-eslint/parser": "^5.38.1",
     "@vitest/coverage-c8": "^0.23.2",
+    "eslint": "^8.24.0",
     "tsafe": "^1.1.1",
     "typescript": "^4.8.4",
     "vitest": "^0.23.2"

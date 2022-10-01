@@ -4,13 +4,13 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { isObj, keys, Obj } from './object';
+import { EmptyObj, isObj, keys, Obj } from './object';
 
 export type MergeArray<M extends any[]> =
-    M extends [] ? {} : // no modules => empty result
-    M extends [Head<M>, ...Tail<M>] ? (
-        Tail<M> extends [] ? Head<M> : Merge<MergeArray<Tail<M>>, Head<M>>
-    ) : never;
+    M extends [] ? EmptyObj : // no modules => empty result
+        M extends [Head<M>, ...Tail<M>] ? (
+            Tail<M> extends [] ? Head<M> : Merge<MergeArray<Tail<M>>, Head<M>>
+        ) : never;
 
 // ✅ merge two arbitrary values
 // Rule 1: mergining something with never resolves to never
@@ -18,24 +18,23 @@ export type MergeArray<M extends any[]> =
 // Rule 3: mergining something with unknown resolves to unknown
 export type Merge<S, T> =
     Or<Is<S, never>, Is<T, never>> extends true ? never :
-    Or<Is<S, any>, Is<T, any>> extends true ? any :
-    Or<Is<S, unknown>, Is<T, unknown>> extends true ? unknown :
-    S extends Record<PropertyKey, unknown>
-        ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
-        : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never);
+        Or<Is<S, any>, Is<T, any>> extends true ? any :
+            Or<Is<S, unknown>, Is<T, unknown>> extends true ? unknown :
+                S extends Record<PropertyKey, unknown>
+                    ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
+                    : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never);
 
 // ✅ merge two objects
 type MergeObjects<S extends Record<PropertyKey, unknown>, T extends Record<PropertyKey, unknown>> = {
-    [K in keyof S | keyof T]:
-        K extends keyof S
-            ? (K extends keyof T ? Merge<S[K], T[K]> : S[K])
-            : (K extends keyof T ? T[K] : never)
+    [K in keyof S | keyof T]: K extends keyof S
+        ? (K extends keyof T ? Merge<S[K], T[K]> : S[K])
+        : (K extends keyof T ? T[K] : never)
 };
 
 // ✅ head of a list
 type Head<A extends unknown[]> =
     A extends [] ? never :
-    A extends [head: infer H, ...tail: any[]] ? H : never;
+        A extends [head: infer H, ...tail: any[]] ? H : never;
 
 // ✅ tail of a list
 type Tail<A extends unknown[]> =

@@ -7,12 +7,15 @@
 // ✅ represents an object, i.e. an associative array with possbily no properties
 export type Obj<T> =
     T extends Record<PropertyKey, any> ? (
-        T extends (...args: any[]) => any ? never :
-        T extends any[] ? never :
-        T
+        T extends () => any ? never :
+            T extends any[] ? never : T
     ) : never;
 
-// ✅ tests if a value is an object   
+export type EmptyObj = {
+    [key: PropertyKey]: never;
+}
+
+// ✅ tests if a value is an object
 export function isObj<T>(t: T): t is Obj<T> {
     return t !== null && typeof t === 'object' && !Array.isArray(t);
 }

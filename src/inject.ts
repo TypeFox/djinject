@@ -27,15 +27,16 @@ export type Module<C extends Obj<any> = any, T = C> =
 
 // ✅ Internal. InverseModule<Module<any, T>> := T
 type InverseModule<M> =
-    M extends (...args: any[]) => any ? ReturnType<M> :
-    M extends Obj<M> ? {
-        [K in keyof M]: InverseModule<M[K]>
-    } : never;
+    M extends () => any ? ReturnType<M> :
+        M extends Obj<M> ? {
+            [K in keyof M]: InverseModule<M[K]>
+        } : never;
 
 // ✅ transforms a list of modules to an IoC container
 export type Container<M extends Module[]> = InverseModule<MergeArray<M>>;
 
 // ✅ a factory which receives the IoC container and returns a value/service (which may be a singleton value or a provider)
+// eslint-disable-next-line no-unused-vars
 export type Factory<C, T> = (ctr: C) => T;
 
 /**
@@ -46,10 +47,10 @@ type InternalFactory<C = unknown, T = unknown> = Factory<C, T> & { [isEager]?: b
 
 /**
  * Decorates an {@link Injector} for eager initialization with {@link inject}.
- * 
+ *
  * @param factory
  */
- export function eager<C, T>(factory: Factory<C, T>): Factory<C, T> {
+export function eager<C, T>(factory: Factory<C, T>): Factory<C, T> {
     return (isEager in factory) ? factory : Object.assign((ctr: C) => factory(ctr), { [isEager]: true } );
 }
 
@@ -106,7 +107,7 @@ function proxify(module: any, container?: any): any {
  * @returns the requested value `obj[prop]`
  * @throws Error if a dependency cycle is detected
  */
- function resolve<C, T>(obj: any, prop: PropertyKey, module: any, container: any): T[keyof T] | undefined {
+function resolve<T>(obj: any, prop: PropertyKey, module: any, container: any): T[keyof T] | undefined {
     if (prop in obj) {
         if (obj[prop] instanceof Error) {
             throw new Error('Construction failure. Please make sure that your dependencies are constructable.', { cause: obj[prop] });
