@@ -27,7 +27,7 @@ export type Module<C extends Obj<any> = any, T = C> =
 
 // ✅ Internal. InverseModule<Module<any, T>> := T
 type InverseModule<M> =
-    M extends () => any ? ReturnType<M> :
+    M extends (...args: any[]) => any ? ReturnType<M> : // eslint-disable-line no-unused-vars
         M extends Obj<M> ? {
             [K in keyof M]: InverseModule<M[K]>
         } : never;
