@@ -4,8 +4,6 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { isObj, keys, Obj } from './object';
-
 export type MergeArray<M extends any[]> =
     M extends [] ? {} :
         M extends [Head<M>, ...Tail<M>] ? (
@@ -46,9 +44,21 @@ type Is<T1, T2> = (<T>() => T extends T2 ? true : false) extends <T>() => T exte
 // ✅ logical or tests if condition C1 or condition C2 is true
 type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 extends true ? true : false;
 
+// ✅ represents an object, i.e. an associative array with possbily no properties
+type Obj<T> =
+    T extends Record<PropertyKey, any> ? (
+        T extends (...args: any[]) => any ? never :
+            T extends any[] ? never : T
+    ) : never;
+
+// ✅ tests if a value is an object
+function isObj<T>(t: T): t is Obj<T> {
+    return t !== null && typeof t === 'object' && !Array.isArray(t);
+}
+
 // ✅ merge two objects, the signature is compatible with the reducer callback of Array.prototype.reduce
 export function merge<S, T>(target: Obj<T>, source: Obj<S>): Merge<S, T> {
-    keys(source).forEach(key => {
+    [...Object.keys(source), ...Object.getOwnPropertySymbols(source)].forEach(key => {
         const sourceValue = source[key];
         const targetValue = target[key];
         (target as any)[key] = isObj(sourceValue) && isObj(targetValue) ? merge(targetValue, sourceValue) : sourceValue;

@@ -4,7 +4,6 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { Obj } from "./object";
 import { merge, MergeArray } from "./merge";
 
 /**
@@ -20,17 +19,14 @@ const isEager = Symbol();
 const requested = Symbol();
 
 // ✅ a module that can be passed to the inject function
-export type Module<C extends Obj<any> = any, T = C> =
-    T extends Obj<T> ? { // ensure C and T are real ojects { ... }
-        [K in keyof T]: Module<C, T[K]> | Factory<C, T[K]> // it is up to the user to define the factories within the object hierarchy
-    } : never;
+export type Module<C = any, T = C> = { // ensure C and T are real ojects { ... }
+    [K in keyof T]: Module<C, T[K]> | Factory<C, T[K]> // it is up to the user to define the factories within the object hierarchy
+};
 
 // ✅ Internal. InverseModule<Module<any, T>> := T
-type InverseModule<M> =
-    M extends (...args: any[]) => any ? ReturnType<M> :
-        M extends Obj<M> ? {
-            [K in keyof M]: InverseModule<M[K]>
-        } : never;
+type InverseModule<T> = T extends (...args: any[]) => any ? ReturnType<T> : {
+    [K in keyof T]: InverseModule<T[K]>
+};
 
 // ✅ transforms a list of modules to an IoC container
 export type Container<M extends Module[]> = InverseModule<MergeArray<M>>;
@@ -71,6 +67,7 @@ export function eager<C, T>(factory: Factory<C, T>): Factory<C, T> {
  * @returns a new object of type I
  */
 // ✅ inject takes modules (= dependency factories) and returns an IoC container (aka DI container) that is ready to use
+// TODO(@@dd): verify that the container contains all dependencies that are needed
 export function inject<M extends [Module, ...Module[]]>(...modules: M): Container<M> {
     const module = modules.reduce(merge, {}) as MergeArray<M>;
     return proxify(module);
