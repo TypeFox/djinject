@@ -1,7 +1,7 @@
 {
   "name": "ginject",
   "version": "0.0.0",
-  "description": "Ginject is a featherweight dependency injection solution for decoupling JavaScript and Node.js apps.",
+  "description": "Ginject is a featherweight and typesafe dependency injection library for decoupling JavaScript and Node.js apps.",
   "keywords": [
     "inject",
     "dependency injection",
@@ -15,7 +15,9 @@
   "types": "./dist/index.d.ts",
   "main": "./dist/index.js",
   "scripts": {
+    "prepare": "npm run clean && npm run build && npm run lint",
     "build": "tsc",
+    "clean": "shx rm -rf dist",
     "coverage": "vitest run --coverage",
     "lint": "eslint src test --ext .ts",
     "test": "vitest"
@@ -40,6 +42,7 @@
     "@vitest/coverage-c8": "^0.23.2",
     "eslint": "^8.24.0",
     "eslint-plugin-unused-imports": "^2.0.0",
+    "shx": "^0.3.4",
     "tsafe": "^1.1.1",
     "typescript": "^4.8.4",
     "vitest": "^0.23.2"
