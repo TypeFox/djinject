@@ -4,7 +4,7 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-export type MergeArray<M extends any[]> =
+export type MergeArray<M extends unknown[]> =
     M extends [] ? {} :
         M extends [Head<M>, ...Tail<M>] ? (
             Tail<M> extends [] ? Head<M> : Merge<MergeArray<Tail<M>>, Head<M>>
@@ -32,11 +32,11 @@ type MergeObjects<S extends Record<PropertyKey, unknown>, T extends Record<Prope
 // ✅ head of a list
 type Head<A extends unknown[]> =
     A extends [] ? never :
-        A extends [head: infer H, ...tail: any[]] ? H : never;
+        A extends [head: infer H, ...tail: unknown[]] ? H : never;
 
 // ✅ tail of a list
 type Tail<A extends unknown[]> =
-    A extends [head: any, ...tail: infer T] ? T : never;
+    A extends [head: unknown, ...tail: infer T] ? T : never;
 
 // ✅ is checks if type T1 strictly equals type T2
 type Is<T1, T2> = (<T>() => T extends T2 ? true : false) extends <T>() => T extends T1 ? true : false ? true : false;
@@ -44,11 +44,14 @@ type Is<T1, T2> = (<T>() => T extends T2 ? true : false) extends <T>() => T exte
 // ✅ logical or tests if condition C1 or condition C2 is true
 type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 extends true ? true : false;
 
+// ✅ represents a function
+export type Fn = (...args: any[]) => any;
+
 // ✅ represents an object, i.e. an associative array with possbily no properties
 type Obj<T> =
-    T extends Record<PropertyKey, any> ? (
-        T extends (...args: any[]) => any ? never :
-            T extends any[] ? never : T
+    T extends Record<PropertyKey, unknown> ? (
+        T extends Fn ? never :
+            T extends unknown[] ? never : T
     ) : never;
 
 // ✅ tests if a value is an object
@@ -67,6 +70,7 @@ export function merge<S, T>(target: Obj<T>, source: Obj<S>): Merge<S, T> {
 }
 
 // ✅ returns object keys and symbols
-export function keys<T>(t: Obj<T>): PropertyKey[] {
-    return [...Object.keys(t), ...Object.getOwnPropertySymbols(t)];
+export function keys<T>(t: T): Array<keyof T> {
+    // TODO(@@dd): remove type cast
+    return [...Object.keys(t as Obj<T>), ...Object.getOwnPropertySymbols(t)] as Array<keyof T>;
 }

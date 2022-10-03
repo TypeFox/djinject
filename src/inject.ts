@@ -4,7 +4,7 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { keys, merge, MergeArray } from "./merge";
+import { keys, merge, Fn, MergeArray } from "./merge";
 
 /**
  * Internally used by {@link eager} to tag an injector.
@@ -23,8 +23,8 @@ export type Module<C = any, T = C> = { // ensure C and T are real ojects { ... }
     [K in keyof T]: Module<C, T[K]> | Factory<C, T[K]> // it is up to the user to define the factories within the object hierarchy
 };
 
-// ✅ Internal. InverseModule<Module<any, T>> := T
-type InverseModule<T> = T extends (...args: any[]) => any ? ReturnType<T> : {
+// ✅ Internal
+type InverseModule<T> = T extends Fn ? ReturnType<T> : {
     [K in keyof T]: InverseModule<T[K]>
 };
 
@@ -33,12 +33,6 @@ export type Container<M extends Module[]> = InverseModule<MergeArray<M>>;
 
 // ✅ a factory which receives the IoC container and returns a value/service (which may be a singleton value or a provider)
 export type Factory<C, T> = (ctr: C) => T;
-
-/**
- * An internal type that reflects that an {@link Injector} will be eagerly initialized.
- * See {@link eager}.
- */
-type InternalFactory<C = unknown, T = unknown> = Factory<C, T> & { [isEager]?: boolean };
 
 /**
  * Decorates an {@link Injector} for eager initialization with {@link inject}.
@@ -75,11 +69,11 @@ export function inject<M extends [Module, ...Module[]]>(...modules: M): Containe
     return container;
 }
 
-function initializeEagerServices(module: any, container: any): void {
+function initializeEagerServices<C, T, M extends Module<C, T>>(module: M, container: C): void {
     keys(module).forEach(key => {
         const value = module[key];
         if (typeof value === 'function') {
-            value[isEager] && value(container);
+            (isEager in value) && value(container);
         } else {
             initializeEagerServices(value, container);
         }
@@ -112,6 +106,7 @@ function proxify(module: any, container?: any, path?: string): any {
 function resolve<T>(obj: any, prop: PropertyKey, module: any, container: any, parentPath?: string): T[keyof T] | undefined {
     const path = (parentPath ? '.' : '') + String(prop);
     if (prop in obj) {
+        // TODO(@@dd): create an error that isn't instanceof Error (which could be a valid service)
         if (obj[prop] instanceof Error) {
             throw new Error('Construction failure: ' + path);
         }

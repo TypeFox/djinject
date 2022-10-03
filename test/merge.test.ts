@@ -5,10 +5,8 @@
  ******************************************************************************/
 
 import { describe, expect, it } from 'vitest'
-import {assert as tsafeAssert, Equals} from 'tsafe';
-import { merge, Merge, MergeArray } from '../src/merge';
-
-type Fn = (...args: any[]) => any;
+import { assert as tsafeAssert, Equals } from 'tsafe';
+import { merge, Fn, Merge, MergeArray } from '../src/merge';
 
 describe('type Merge', () => {
 
