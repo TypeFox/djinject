@@ -70,7 +70,22 @@ export function eager<C, T>(factory: Factory<C, T>): Factory<C, T> {
 // TODO(@@dd): verify that the container contains all dependencies that are needed
 export function inject<M extends [Module, ...Module[]]>(...modules: M): Container<M> {
     const module = modules.reduce(merge, {}) as MergeArray<M>;
-    return proxify(module);
+    const container = proxify(module);
+    initializeEagerServices(module, container);
+    return container;
+}
+
+function initializeEagerServices(module: any, container: any): any {
+    [...Object.keys(module), ...Object.getOwnPropertySymbols(module)].forEach(key => {
+        const value = module[key];
+        if (typeof value === 'function') {
+            if (value[isEager]) {
+                value(container);
+            }
+        } else {
+            initializeEagerServices(value, container);
+        }
+    });
 }
 
 function proxify(module: any, container?: any): any {
