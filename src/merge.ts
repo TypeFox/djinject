@@ -30,12 +30,12 @@ type MergeObjects<S extends Record<PropertyKey, unknown>, T extends Record<Prope
 };
 
 // ✅ head of a list
-type Head<A extends any[]> =
+type Head<A extends unknown[]> =
     A extends [] ? never :
         A extends [head: infer H, ...tail: unknown[]] ? H : never;
 
 // ✅ tail of a list
-type Tail<A extends any[]> =
+type Tail<A extends unknown[]> =
     A extends [head: unknown, ...tail: infer T] ? T : never;
 
 // ✅ is checks if type T1 strictly equals type T2
@@ -48,7 +48,7 @@ type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 ex
 export type Fn = (...args: any[]) => any;
 
 // ✅ represents an object, i.e. an associative array with possbily no properties
-type Obj<T> =
+export type Obj<T> =
     T extends Record<PropertyKey, unknown> ? (
         T extends Fn ? never :
             T extends unknown[] ? never : T

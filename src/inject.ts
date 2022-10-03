@@ -4,7 +4,7 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { keys, merge, Fn, MergeArray } from "./merge";
+import { keys, merge, Fn, MergeArray, Obj } from "./merge";
 
 /**
  * Internally used by {@link eager} to tag an injector.
@@ -103,7 +103,7 @@ function proxify<C, T>(module: Module<C, T>, container?: C, path?: string): T {
  * @returns the requested value `obj[prop]`
  * @throws Error if a dependency cycle is detected
  */
-function resolve<T>(obj: any, prop: PropertyKey, module: any, container: any, parentPath?: string): T[keyof T] | undefined {
+function resolve<C, T, M extends Module<C, T>, P extends PropertyKey>(obj: Obj<T>, prop: P, module: M, container: C, parentPath?: string): Obj<T>[P] | undefined {
     const path = (parentPath ? '.' : '') + String(prop);
     if (prop in obj) {
         // TODO(@@dd): create an error that isn't instanceof Error (which could be a valid service)
@@ -116,13 +116,13 @@ function resolve<T>(obj: any, prop: PropertyKey, module: any, container: any, pa
         }
         return obj[prop];
     } else if (prop in module) {
-        const value = module[prop];
-        obj[prop] = requested;
+        const value = (module as any)[prop];
+        (obj as any)[prop] = requested;
         try {
             obj[prop] = (typeof value === 'function') ? value(container) : proxify(value, container, (path ? '.' : ''));
         } catch (error) {
             // TODO(@@dd): create an error that isn't instanceof Error (which could be a valid service)
-            obj[prop] = error instanceof Error ? error : undefined;
+            (obj as any)[prop] = error instanceof Error ? error : undefined;
             throw error;
         }
         return obj[prop];
