@@ -58,10 +58,15 @@ function isObj<T>(t: T): t is Obj<T> {
 
 // ✅ merge two objects, the signature is compatible with the reducer callback of Array.prototype.reduce
 export function merge<S, T>(target: Obj<T>, source: Obj<S>): Merge<S, T> {
-    [...Object.keys(source), ...Object.getOwnPropertySymbols(source)].forEach(key => {
+    keys(source).forEach(key => {
         const sourceValue = source[key];
         const targetValue = target[key];
         (target as any)[key] = isObj(sourceValue) && isObj(targetValue) ? merge(targetValue, sourceValue) : sourceValue;
     });
     return target as Merge<S, T>;
+}
+
+// ✅ returns object keys and symbols
+export function keys<T>(t: Obj<T>): PropertyKey[] {
+    return [...Object.keys(t), ...Object.getOwnPropertySymbols(t)];
 }

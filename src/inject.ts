@@ -4,7 +4,7 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { merge, MergeArray } from "./merge";
+import { keys, merge, MergeArray } from "./merge";
 
 /**
  * Internally used by {@link eager} to tag an injector.
@@ -75,24 +75,22 @@ export function inject<M extends [Module, ...Module[]]>(...modules: M): Containe
     return container;
 }
 
-function initializeEagerServices(module: any, container: any): any {
-    [...Object.keys(module), ...Object.getOwnPropertySymbols(module)].forEach(key => {
+function initializeEagerServices(module: any, container: any): void {
+    keys(module).forEach(key => {
         const value = module[key];
         if (typeof value === 'function') {
-            if (value[isEager]) {
-                value(container);
-            }
+            value[isEager] && value(container);
         } else {
             initializeEagerServices(value, container);
         }
     });
 }
 
-function proxify(module: any, container?: any): any {
+function proxify(module: any, container?: any, path?: string): any {
     const proxy: any = new Proxy({} as any, {
         deleteProperty: () => false,
-        get: (target, prop) => resolve(target, prop, module, container || proxy),
-        getOwnPropertyDescriptor: (target, prop) => (resolve(target, prop, module, container || proxy), Object.getOwnPropertyDescriptor(target, prop)), // used by for..in
+        get: (target, prop) => resolve(target, prop, module, container || proxy, path),
+        getOwnPropertyDescriptor: (target, prop) => (resolve(target, prop, module, container || proxy, path), Object.getOwnPropertyDescriptor(target, prop)), // used by for..in
         has: (_, prop) => prop in module, // used by ..in..
         ownKeys: () => Reflect.ownKeys(module)
     });
@@ -111,21 +109,22 @@ function proxify(module: any, container?: any): any {
  * @returns the requested value `obj[prop]`
  * @throws Error if a dependency cycle is detected
  */
-function resolve<T>(obj: any, prop: PropertyKey, module: any, container: any): T[keyof T] | undefined {
+function resolve<T>(obj: any, prop: PropertyKey, module: any, container: any, parentPath?: string): T[keyof T] | undefined {
+    const path = (parentPath ? '.' : '') + String(prop);
     if (prop in obj) {
         if (obj[prop] instanceof Error) {
-            throw new Error('Construction failure. Please make sure that your dependencies are constructable.', { cause: obj[prop] });
+            throw new Error('Construction failure: ' + path);
         }
         if (obj[prop] === requested) {
             // TODO(@@dd): refer to the GitHub readme of ginject instead of langium docs
-            throw new Error('Cycle detected. Please make "' + String(prop) + '" lazy. See https://langium.org/docs/di/cyclic-dependencies');
+            throw new Error('Cycle detected. Please make ' + path + ' lazy. See https://github.com/langium/ginject#cyclic-dependencies');
         }
         return obj[prop];
     } else if (prop in module) {
         const value = module[prop];
         obj[prop] = requested;
         try {
-            obj[prop] = (typeof value === 'function') ? value(container) : proxify(value, container);
+            obj[prop] = (typeof value === 'function') ? value(container) : proxify(value, container, (path ? '.' : ''));
         } catch (error) {
             // TODO(@@dd): create an error that isn't instanceof Error (which could be a valid service)
             obj[prop] = error instanceof Error ? error : undefined;

@@ -247,7 +247,7 @@ describe('The inject function', () => {
         }
         expect(() =>
             inject({ a: (ctr: API) => new A(ctr), b: (ctr: API) => new B(ctr) }).a
-        ).toThrowError('Cycle detected. Please make "a" lazy. See https://langium.org/docs/di/cyclic-dependencies');
+        ).toThrowError('Cycle detected. Please make a lazy. See https://github.com/langium/ginject#cyclic-dependencies');
     });
 
     it('should throw when cyclic dependency is accessed during factory function call', () => {
@@ -256,7 +256,7 @@ describe('The inject function', () => {
         const createB = ({ a }: API) => ({ b: a.a });
         expect(() =>
             inject({ a: createA, b: createB }).a
-        ).toThrowError('Cycle detected. Please make "a" lazy. See https://langium.org/docs/di/cyclic-dependencies');
+        ).toThrowError('Cycle detected. Please make a lazy. See https://github.com/langium/ginject#cyclic-dependencies');
     });
 
     it('should merge groups', () => {
