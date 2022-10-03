@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES6",              // emitted JavaScript version
-    "lib": ["ESNext"],               // specify library files to be included in the compilation
+    "lib": ["ES6"],               // specify library files to be included in the compilation
     "module": "commonjs",         // generated module code
     "rootDir": "./src",           // source folder
     "outDir": "./dist",           // *.d.ts goes here
