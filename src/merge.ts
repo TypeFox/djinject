@@ -30,12 +30,12 @@ type MergeObjects<S extends Record<PropertyKey, unknown>, T extends Record<Prope
 };
 
 // ✅ head of a list
-type Head<A extends unknown[]> =
+type Head<A extends any[]> =
     A extends [] ? never :
         A extends [head: infer H, ...tail: unknown[]] ? H : never;
 
 // ✅ tail of a list
-type Tail<A extends unknown[]> =
+type Tail<A extends any[]> =
     A extends [head: unknown, ...tail: infer T] ? T : never;
 
 // ✅ is checks if type T1 strictly equals type T2

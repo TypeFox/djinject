@@ -322,6 +322,13 @@ describe('The inject function', () => {
         expect(x).toBe(1);
     });
 
+    it('should disallow to use wrong containers types', () => {
+        inject({
+            // @ts-expect-error
+            hi: (ctr: false) => 'Hi!'
+        });
+    })
+
 });
 
 describe('The inject result', () => {

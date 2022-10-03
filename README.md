@@ -30,14 +30,14 @@ npm i ginject
 Start to decouple your application
 
 ```ts
-import { inject } from 'ginject'
+import { inject } from '.'
 
 // create an inversion of control container
 const ctr = inject({
     hi: () => 'Hi!'
 });
 
-// 
+// prints "Hi!"
 console.log(ctr.hi);
 ```
 

@@ -63,7 +63,7 @@ export function eager<C, T>(factory: Factory<C, T>): Factory<C, T> {
 // ✅ inject takes modules (= dependency factories) and returns an IoC container (aka DI container) that is ready to use
 // TODO(@@dd): verify that the container contains all dependencies that are needed
 export function inject<M extends [Module, ...Module[]]>(...modules: M): Container<M> {
-    const module = modules.reduce(merge, {}) as MergeArray<M>;
+    const module = modules.reduce(merge, {});
     const container = proxify(module);
     initializeEagerServices(module, container);
     return container;
@@ -80,8 +80,8 @@ function initializeEagerServices<C, T, M extends Module<C, T>>(module: M, contai
     });
 }
 
-function proxify(module: any, container?: any, path?: string): any {
-    const proxy: any = new Proxy({} as any, {
+function proxify<C, T>(module: Module<C, T>, container?: C, path?: string): T {
+    const proxy: any = new Proxy({}, {
         deleteProperty: () => false,
         get: (target, prop) => resolve(target, prop, module, container || proxy, path),
         getOwnPropertyDescriptor: (target, prop) => (resolve(target, prop, module, container || proxy, path), Object.getOwnPropertyDescriptor(target, prop)), // used by for..in
