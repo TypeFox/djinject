@@ -263,13 +263,14 @@ describe('The inject function', () => {
     it('should merge groups', () => {
 
         class A {
+            a = 1
         }
 
         class B extends A {
             constructor(a: A) {
                 super();
             }
-            a = 1;
+            b = 1;
         }
 
         interface C1 {
@@ -430,7 +431,7 @@ describe('The inject function', () => {
             }
         });
         tsafeAssert<Equals<typeof container.a, number>>();
-        tsafeAssert<Equals<typeof container.b.c, () => 'salut'>>();
+        tsafeAssert<Equals<typeof container.b.c, () => string>>();
         tsafeAssert<Equals<typeof container.d.e, B>>();
     });
 
