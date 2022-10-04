@@ -30,15 +30,30 @@ npm i ginject
 Start to decouple your application
 
 ```ts
-import { inject } from '.'
+import { inject } from 'ginject';
 
 // create an inversion of control container
 const ctr = inject({
-    hi: () => 'Hi!'
+    hi: () => 'Hi!',
+    sayHi: (ctr) => () => { console.log(ctr.hi) }
 });
 
-// prints "Hi!"
-console.log(ctr.hi);
+// prints 'Hi!'
+ctr.sayHi();
+```
+
+## Multiple Modules
+
+```ts
+const ctr = inject({
+    hi: () => 'Hi!',
+    sayHi: (ctr) => () => { console.log(ctr.hi) }
+}, {
+    hi: () => '¡Hola!'
+});
+
+// prints '¡Hola!'
+ctr.sayHi();
 ```
 
 ## Cyclic Dependencies
