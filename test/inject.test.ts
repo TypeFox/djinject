@@ -379,7 +379,23 @@ describe('The inject function', () => {
         class B extends A {
             b = 'b'
         }
-        const container = inject({ a: () => 1, b: { c: () => '' }, d: { e: () => new A() } }, { a: () => 2, b: { c: () => 'hallo' }, d: { e: () => new B() } });
+        const container = inject({
+            a: () => 1,
+            b: {
+                c: () => ''
+            },
+            d: {
+                e: () => new A()
+            }
+        }, {
+            a: () => 2,
+            b: {
+                c: () => 'hallo'
+            },
+            d: {
+                e: () => new B()
+            }
+        });
         tsafeAssert<Equals<typeof container.a, number>>();
         tsafeAssert<Equals<typeof container.b.c, string>>();
         tsafeAssert<Equals<typeof container.d.e, B>>();
@@ -392,9 +408,29 @@ describe('The inject function', () => {
         class B extends A {
             b = 'b'
         }
-        const container = inject({ a: () => 1, b: { c: () => () => '' }, d: { e: () => new A() } }, { a: () => 2, b: { c: () => () => 'hallo' }, d: { e: () => new B() } });
+        const container = inject({
+            a: () => 1,
+            b: {
+                c: () => () => ''
+            },
+            d: {
+                e: () => new A()
+            }
+        }, {
+            a: () => 2,
+            b: {
+                c: () => () => 'hallo'
+            },
+            d: {
+                e: () => new B()
+            }
+        }, {
+            b: {
+                c: () => () => 'salut'
+            }
+        });
         tsafeAssert<Equals<typeof container.a, number>>();
-        tsafeAssert<Equals<typeof container.b.c, () => string>>();
+        tsafeAssert<Equals<typeof container.b.c, () => 'salut'>>();
         tsafeAssert<Equals<typeof container.d.e, B>>();
     });
 

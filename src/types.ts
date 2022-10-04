@@ -34,7 +34,7 @@ export type Merge<S, T> =
             Or<Is<S, unknown>, Is<T, unknown>> extends true ? unknown :
                 S extends Record<PropertyKey, unknown>
                     ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
-                    : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never); // TODO(@@dd): S
+                    : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never); // TODO(S extends T): infer curried function types
 
 type MergeObjects<S extends Record<PropertyKey, unknown>, T extends Record<PropertyKey, unknown>> =
     Union<{
