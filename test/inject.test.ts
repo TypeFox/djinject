@@ -312,15 +312,15 @@ describe('The inject function', () => {
             x: () => 1
         };
 
-        const xxx = inject(m1, m2, m3);
+        const testee = inject(m1, m2, m3);
 
-        const a: A = xxx.groupA.service1; // infers A
-        const ab: A & B = xxx.groupB.groupC.service2; // infers A & B
-        const x: number = xxx.x; // infers number
+        tsafeAssert<Equals<typeof testee.groupA.service1, A>>();
+        tsafeAssert<Equals<typeof testee.groupB.groupC.service2, B>>();
+        tsafeAssert<Equals<typeof testee.x, number>>();
 
-        expect(a).toBeInstanceOf(A);
-        expect(ab).toBeInstanceOf(B);
-        expect(x).toBe(1);
+        expect(testee.groupA.service1).toBeInstanceOf(A);
+        expect(testee.groupB.groupC.service2).toBeInstanceOf(B);
+        expect(testee.x).toBe(1);
     });
 
     it('should infer right container type given an ad-hoc module', () => {
