@@ -6,7 +6,10 @@
 
 import { describe, expect, it } from 'vitest'
 import { assert as tsafeAssert, Equals } from 'tsafe';
-import { merge, Fn, Merge, MergeArray } from '../src/merge';
+import { merge } from '../src/merge';
+import { Merge, MergeModules } from '../src/types';
+
+type Fn = (...args: any[]) => any;
 
 describe('type Merge', () => {
 
@@ -802,15 +805,15 @@ describe('type Merge', () => {
 describe('type MergeArray', () => {
 
     it('should merge empty array', () => {
-        tsafeAssert<Equals<MergeArray<[]>, {}>>();
+        tsafeAssert<Equals<MergeModules<[]>, {}>>();
     });
 
     it('should merge array with one element', () => {
-        tsafeAssert<Equals<MergeArray<[{ a: 1 }]>, { a: 1 }>>();
+        tsafeAssert<Equals<MergeModules<[{ a: 1 }]>, { a: 1 }>>();
     });
 
     it('should merge array with two elements', () => {
-        tsafeAssert<Equals<MergeArray<[{ a: 1 }, { b: true }]>, { a: 1, b: true }>>();
+        tsafeAssert<Equals<MergeModules<[{ a: 1 }, { b: true }]>, { a: 1, b: true }>>();
     });
 
     it('should merge array with three elements', () => {
@@ -829,7 +832,7 @@ describe('type MergeArray', () => {
             c: 1,
             d: never
         };
-        tsafeAssert<Equals<MergeArray<Input>, Expected>>();
+        tsafeAssert<Equals<MergeModules<Input>, Expected>>();
     });
 
     it('should deep merge array with three elements', () => {
@@ -852,7 +855,7 @@ describe('type MergeArray', () => {
             },
             e: 1
         };
-        tsafeAssert<Equals<MergeArray<Input>, Expected>>();
+        tsafeAssert<Equals<MergeModules<Input>, Expected>>();
     });
 
 });

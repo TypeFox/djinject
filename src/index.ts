@@ -4,4 +4,5 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-export { inject, eager, Factory, Module, Container } from './inject';
+export { eager, inject } from './inject';
+export { Container, Factory, Module } from './types';

@@ -6,7 +6,8 @@
 
 import { describe, expect, it } from 'vitest'
 import { assert as tsafeAssert, Equals } from 'tsafe';
-import { eager, inject, Module } from '../src/inject';
+import { eager, inject } from '../src/inject';
+import { Module } from '../src/types';
 
 describe('A dependency type', () => {
 
@@ -322,12 +323,87 @@ describe('The inject function', () => {
         expect(x).toBe(1);
     });
 
+    it('should infer right container type given an ad-hoc module', () => {
+        const testee = inject({
+            hi: () => 'Hi!',
+            sayHi: (ctr) => () => {
+                tsafeAssert<Equals<typeof ctr, {
+                    hi: string,
+                    sayHi: (ctr: typeof ctr) => string
+                }>>();
+                return ctr.hi;
+            }
+        });
+        expect(testee.sayHi()).toBe('Hi!');
+    });
+
+    it('should infer right container type given an explicit module', () => {
+        type Services = {
+            hi: string,
+            sayHi: () => string
+        };
+        const module: Module<Services> = {
+            hi: () => 'Hi!',
+            sayHi: (ctr) => () => {
+                tsafeAssert<Equals<typeof ctr, {
+                    hi: string,
+                    sayHi: () => string
+                }>>();
+                return ctr.hi;
+            }
+        };
+        const testee = inject(module);
+        expect(testee.sayHi()).toBe('Hi!');
+    });
+
+    it('should overwrite a particular service', () => {
+        const testee = inject({
+            hi: () => 'Hi!',
+            sayHi: (ctr) => () => {
+                tsafeAssert<Equals<typeof ctr, {
+                    hi: string,
+                    sayHi: (ctr: typeof ctr) => void
+                }>>();
+                return ctr.hi;
+            }
+        }, {
+            hi: () => '¡Hola!'
+        });
+        expect(testee.sayHi()).toBe('¡Hola!');
+    });
+
+    it('sould infer the type of factories of mergable modules', () => {
+        class A {
+            a = 'a'
+        }
+        class B extends A {
+            b = 'b'
+        }
+        const container = inject({ a: () => 1, b: { c: () => '' }, d: { e: () => new A() } }, { a: () => 2, b: { c: () => 'hallo' }, d: { e: () => new B() } });
+        tsafeAssert<Equals<typeof container.a, number>>();
+        tsafeAssert<Equals<typeof container.b.c, string>>();
+        tsafeAssert<Equals<typeof container.d.e, B>>();
+    });
+
+    it('sould infer the type of curried factories of non-mergable modules', () => {
+        class A {
+            a = 'a'
+        }
+        class B extends A {
+            b = 'b'
+        }
+        const container = inject({ a: () => 1, b: { c: () => () => '' }, d: { e: () => new A() } }, { a: () => 2, b: { c: () => () => 'hallo' }, d: { e: () => new B() } });
+        tsafeAssert<Equals<typeof container.a, number>>();
+        tsafeAssert<Equals<typeof container.b.c, () => string>>();
+        tsafeAssert<Equals<typeof container.d.e, B>>();
+    });
+
     it('should disallow to use wrong containers types', () => {
         inject({
             // @ts-expect-error
             hi: (ctr: false) => 'Hi!'
         });
-    })
+    });
 
 });
 
