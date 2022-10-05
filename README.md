@@ -130,8 +130,3 @@ const module: Module<Context> = {
 | requirements     |     none     | decorators / reflect-metadata |
 | style            |  functional  |           imperative          |
 | API surface area | one function |           non-trivial         |
-
-* Size / Zero Dependencies
-* API Surface Area
-* Non-Intrusive / Self Contained
-* Typesafe
