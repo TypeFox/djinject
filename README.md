@@ -44,53 +44,81 @@ console.log(ctr.sayHi('Ginject'));
 
 ## API
 
-```ts
-class Service {}                     // A service is a dependency.
-const factory = () => new Service(); // Lazily creates a dependency.
-const module = {                     // A module contains
-  group: { service: factory }        //   1. nested groups (optional)
-}                                    //   2. service factories (required)
-const container = inject(module);    // Inject turns a module into a container.
-```
-
-TODO(@@dd): use terminology of [Google Juice](https://github.com/google/guice) and [Inversify](https://inversify.io)
-
-## Module Definitions
-
-### Factories
-
-* constants
-* singletons
-* providers
-* action handlers
+### Terminology
 
 ```ts
-const ctr = inject({
-    hi: () => 'Hi',
-    sayHi: () => (name: string) => {
-      console.log(`Starting: ${new Date().getTime()}`);
-      const greet = `${ctr.hi} ${name}!`;
-      console.log(`Finished: ${new Date().getTime()}`);
-      return greet;
+import { inject, Module } from 'ginject';
+
+// Defining a context of dependencies
+type Context = {
+    group: {
+        service: Service // any JS type, e.g. a class
     }
-});
+}
+
+// A module contains nested groups (optional) and service factories
+const module: Module<Context> = {
+    group: {
+        // a service factory of type Factory<Context, Service>
+        service: (ctx: Context) => new Service(ctr)
+    }
+}
+
+// A container of type Container<Module<Context>>
+const container = inject(module);
+
+// Services can be obtained from the container
+const service = container.group.service;
 ```
 
-### Lazy vs Eager Initialization
+Factories may return
 
-## Rebinding Dependencies
+* constants/singletons (primitive values, functions, arrays, classes)
+* providers `() => T`, where `T` may be any type
+
+### Eager vs lazy initialization
+
+```diff
+- import { inject, Module } from 'ginject';
++ import { eager, inject, Module } from 'ginject';
+
+const module: Module<Context> = {
+    group: {
+-        service: (ctx: Context) => new Service(ctr)
++        service: eager((ctx: Context) => new Service(ctr))
+    }
+}
+```
+
+A dependency `container.group.service` is _lazily_ initialized on the first access.
+When a factory is turned _eager_, the dependency is initialized on the `inject` call.
+
+### Rebinding dependencies
+
+TODO(@@dd): rebinding dependencies
+
+### Partial modules
+
+TODO(@@dd): partial modules
+
+### Action handlers
+
+```diff
+const module: Module<Context> = {
+    group: {
+        service: (ctx: Context) => {
++            console.log('Before');
+            const service = new Service(ctr);
++            console.log('After');
+            return service;
+        }
+    }
+}
+```
 
 ### Cyclic Dependencies
 
 ### Asynchronous Factories
-
-### Ad-Hoc Modules
-
-### Factoring out Modules
-
-## Type Safety
-
-### Validation
 
 ## Ginject vs Inversify
 
