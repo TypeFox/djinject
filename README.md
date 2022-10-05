@@ -42,7 +42,7 @@ const ctr = inject({
 ctr.sayHi();
 ```
 
-## Multiple Modules
+## Rebinding Dependencies
 
 ```ts
 const ctr = inject({
@@ -56,6 +56,20 @@ const ctr = inject({
 ctr.sayHi();
 ```
 
+## Modules
+
+### Factories
+
+### Ad-Hoc Modules
+
+### Factoring out Modules
+
+## Lazy vs Eager Initialization
+
 ## Cyclic Dependencies
 
+## Asynchronous Factories
+
 ## Type Safety
+
+### Validation
