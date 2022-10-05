@@ -9,7 +9,7 @@ import { Module, Container, Factory } from "./types";
 
 const isEager = Symbol();
 
-const requested = Symbol();
+const isRequested = Symbol();
 
 export function inject<M extends Module<any>[]>(...modules: M): Container<M> {
     const module = modules.reduce(merge, {});
@@ -51,14 +51,14 @@ function resolve<C, T extends Record<PropertyKey, unknown>, M extends Module<C, 
         if (obj[prop] instanceof Error) {
             throw new Error('Construction failure: ' + path);
         }
-        if (obj[prop] === requested) {
+        if (obj[prop] === isRequested) {
             // TODO(@@dd): list all involved dependencies? this may be misleading in the case of transitive dependencies
             throw new Error('Cycle detected. Please make ' + path + ' lazy. See https://github.com/langium/ginject#cyclic-dependencies');
         }
         return obj[prop];
     } else if (prop in module) {
         const value = (module as any)[prop];
-        (obj as any)[prop] = requested;
+        (obj as any)[prop] = isRequested;
         try {
             obj[prop] = (typeof value === 'function') ? value(container) : proxify(value, container, (path ? '.' : ''));
         } catch (error) {
