@@ -9,15 +9,17 @@
 
 <div id="badges" align="center">
 
-  [![npm](https://img.shields.io/npm/v/ginject)](https://www.npmjs.com/package/ginject)
-  [![Build](https://github.com/langium/ginject/actions/workflows/build.yml/badge.svg)](https://github.com/langium/ginject/actions/workflows/build.yml)
-  [![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/langium/ginject)
+[![npm](https://img.shields.io/npm/v/ginject)](https://www.npmjs.com/package/ginject)
+[![Build](https://github.com/langium/ginject/actions/workflows/build.yml/badge.svg)](https://github.com/langium/ginject/actions/workflows/build.yml)
+[![Gitpod Ready-to-Code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod)](https://gitpod.io/#https://github.com/langium/ginject)
 
 </div>
 
 <hr>
 
 Ginject is a TODO(@@dd): short description
+
+<div id="ginject vs inversify" align="center">
 
 |                  |    ginject   |            inversify          |
 |------------------|:------------:|:-----------------------------:|
@@ -27,6 +29,8 @@ Ginject is a TODO(@@dd): short description
 | requirements     |     none     | decorators / reflect-metadata |
 | style            |  functional  |           imperative          |
 | API surface area | one function |           non-trivial         |
+
+</div>
 
 ## Quickstart
 
