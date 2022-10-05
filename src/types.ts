@@ -14,17 +14,18 @@ export type Factory<C, T> = (ctr: C) => T;
 export type Container<M> =
     M extends Module<unknown>[] ? Container<MergeModules<M>> :
         M extends EmptyObject ? EmptyObject :
+            // TODO(@@dd): handle functions first because classes are objects and function
             M extends Module<infer C, infer T> ? Validate<C, T> :
                 never;
 
-type Validate<C, T> = never; // TODO(@@dd): validate factory arguments
+type Validate<C, T> = T; // TODO(@@dd): validate factory arguments
 
 type EmptyObject = {
     [key: PropertyKey]: never
 };
 
 export type MergeModules<M extends Module<unknown>[]> =
- M extends [] ? {} :
+ M extends [] ? EmptyObject:
      M extends [Head<M>, ...Tail<M>] ? (
          Tail<M> extends [] ? Head<M> :
              Tail<M> extends Module<unknown>[] ? Merge<MergeModules<Tail<M>>, Head<M>> :
@@ -35,6 +36,7 @@ export type Merge<S, T> =
     Or<Is<S, never>, Is<T, never>> extends true ? never :
         Or<Is<S, any>, Is<T, any>> extends true ? any :
             Or<Is<S, unknown>, Is<T, unknown>> extends true ? unknown :
+                // TODO(@@dd): handle functions first because classes are objects and function
                 S extends Record<PropertyKey, unknown>
                     ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
                     : T extends Record<PropertyKey, unknown> ? never : Extends<S, T>;
@@ -50,7 +52,7 @@ type Extends<T1, T2> =
     T1 extends T2 ? T1 :
         T1 extends Obj<T1> ? T2 extends Obj<T2> ? never : never :
             T1 extends unknown[] ? T2 extends unknown[] ? T1 extends T2 ? T1 : [Extends<Head<T1>, Head<T2>>, ...Extends<Tail<T1>, Tail<T2>>] : never :
-                T1 extends (() => infer R1) ? T2 extends (() => infer R2) ? () => Extends<R1, R2> : never : // TODO(@@dd): consider argument types
+                T1 extends ((...args: any[]) => infer R1) ? T2 extends ((...args: any[]) => infer R2) ? () => Extends<R1, R2> : never : // TODO(@@dd): consider argument types
                     T1 extends boolean ? T2 extends boolean ? boolean : never :
                         T1 extends number ? T2 extends number ? number : never :
                             T1 extends string ? T2 extends string ? string : never :
@@ -58,7 +60,7 @@ type Extends<T1, T2> =
 
 type Obj<T> =
     T extends Record<PropertyKey, unknown> ? (
-        T extends () => unknown ? never :
+        T extends (...args: any[]) => any ? never :
             T extends unknown[] ? never : T
     ) : never;
 
