@@ -52,7 +52,7 @@ function resolve<C, T extends Record<PropertyKey, unknown>, M extends Module<C, 
             throw new Error('Construction failure: ' + path);
         }
         if (obj[prop] === requested) {
-            // TODO(@@dd): refer to the GitHub readme of ginject instead of langium docs
+            // TODO(@@dd): list all involved dependencies? this may be misleading in the case of transitive dependencies
             throw new Error('Cycle detected. Please make ' + path + ' lazy. See https://github.com/langium/ginject#cyclic-dependencies');
         }
         return obj[prop];
