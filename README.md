@@ -73,3 +73,10 @@ ctr.sayHi();
 ## Type Safety
 
 ### Validation
+
+## Ginject vs Inversify
+
+* Size / Zero Dependencies
+* API Surface Area
+* Non-Intrusive / Self Contained
+* Typesafe
