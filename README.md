@@ -42,19 +42,9 @@ const ctr = inject({
 ctr.sayHi();
 ```
 
-## Rebinding Dependencies
+## API
 
-```ts
-const ctr = inject({
-    hi: () => 'Hi!',
-    sayHi: (ctr) => () => { console.log(ctr.hi) }
-}, {
-    hi: () => '¡Hola!'
-});
-
-// prints '¡Hola!'
-ctr.sayHi();
-```
+TODO(@@dd): use terminology of [Google Juice](https://github.com/google/guice) and [Inversify](https://inversify.io)
 
 ## Module Definitions
 
@@ -65,6 +55,8 @@ ctr.sayHi();
 * providers
 
 ### Lazy vs Eager Initialization
+
+## Rebinding Dependencies
 
 ### Cyclic Dependencies
 
