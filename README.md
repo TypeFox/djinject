@@ -72,14 +72,14 @@ TODO(@@dd): use terminology of [Google Juice](https://github.com/google/guice) a
 
 ## Ginject vs Inversify
 
-|           | ginject  | inversify |
-|-----------|:----------:|:-----------:|
-| minified  |   1 KB   |   45 KB   |
-| gzipped   |   0.5 KB |   11 KB   |
-| typesafe  |    ✅    |    ❌     |
-| requirements | none   | decorators / reflect-metadata |
-| style     | functional | imperative |
-| API surface area | one function | non-trivial |
+|                  |    ginject   |            inversify          |
+|------------------|:------------:|:-----------------------------:|
+| minified         |     1 KB     |             45 KB             |
+| gzipped          |    0.5 KB    |             11 KB             |
+| typesafe         |      ✅      |               ❌               |
+| requirements     |     none     | decorators / reflect-metadata |
+| style            |  functional  |           imperative          |
+| API surface area | one function |           non-trivial         |
 
 * Size / Zero Dependencies
 * API Surface Area
