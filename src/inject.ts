@@ -11,7 +11,7 @@ const isEager = Symbol();
 
 const requested = Symbol();
 
-export function inject<M extends Array<Module<any>>>(...modules: M): Container<M> {
+export function inject<M extends Module<any>[]>(...modules: M): Container<M> {
     const module = modules.reduce(merge, {});
     const container = proxify(module);
     initializeEagerServices(module, container);

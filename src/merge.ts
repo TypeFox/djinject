@@ -19,6 +19,6 @@ function isObj(t: any): t is Record<PropertyKey, unknown> {
     return t !== null && typeof t === 'object' && !Array.isArray(t);
 }
 
-export function keys<T extends Record<PropertyKey, unknown>>(t: T): Array<keyof T> {
+export function keys<T extends Record<PropertyKey, unknown>>(t: T): (keyof T)[] {
     return [...Object.keys(t), ...Object.getOwnPropertySymbols(t)];
 }

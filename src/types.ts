@@ -12,7 +12,7 @@ export type Factory<C, T> = (ctr: C) => T;
 
 // TODO(@@dd): whether to infer container type C of Module<C, T> or not?
 export type Container<M> =
-    M extends Array<Module<unknown>> ? Container<MergeModules<M>> :
+    M extends Module<unknown>[] ? Container<MergeModules<M>> :
         M extends EmptyObject ? EmptyObject :
             M extends Module<infer C, infer T> ? Validate<C, T> :
                 never;
@@ -23,11 +23,11 @@ type EmptyObject = {
     [key: PropertyKey]: never
 };
 
-export type MergeModules<M extends Array<Module<unknown>>> =
+export type MergeModules<M extends Module<unknown>[]> =
  M extends [] ? {} :
      M extends [Head<M>, ...Tail<M>] ? (
          Tail<M> extends [] ? Head<M> :
-             Tail<M> extends Array<Module<unknown>> ? Merge<MergeModules<Tail<M>>, Head<M>> :
+             Tail<M> extends Module<unknown>[] ? Merge<MergeModules<Tail<M>>, Head<M>> :
                  never
      ) : never;
 

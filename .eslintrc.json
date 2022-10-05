@@ -64,7 +64,7 @@
         // List of [@typescript-eslint rules](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#supported-rules)
         "@typescript-eslint/adjacent-overload-signatures": "error", // grouping same method names
         "@typescript-eslint/array-type": ["error", {                // string[] instead of Array<string>
-            "default": "array-simple"
+            "default": "array"
         }],
         "@typescript-eslint/indent": "error",                        // consistent indentation
         "@typescript-eslint/consistent-type-assertions": "error",    // needed for .tsx, bad = <Foo>bar, good = bar as Foo
