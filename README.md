@@ -17,26 +17,24 @@
 
 <br><br>
 
+Ginject is a TODO(@@dd): short description
+
+<br><br>
+
 <div id="ginject vs inversify" align="center">
 
-|                  |    ginject   |            inversify          |
-|------------------|:------------:|:-----------------------------:|
+|                  |   ginject  |  inversify  |
+|------------------|:----------:|:-----------:|
 | minified         | [![minified size](https://img.shields.io/bundlephobia/min/ginject?label=&style=flat-square)](https://bundlephobia.com/result?p=ginject@latest) | [![minified size](https://img.shields.io/bundlephobia/min/inversify?label=&style=flat-square)](https://bundlephobia.com/result?p=inversify@latest) |
-| minzipped          | [![minzipped size](https://img.shields.io/bundlephobia/minzip/ginject?label=&style=flat-square)](https://bundlephobia.com/result?p=ginject@latest) | [![minzipped size](https://img.shields.io/bundlephobia/minzip/inversify?label=&style=flat-square)](https://bundlephobia.com/result?p=inversify@latest) |
-| typesafe         |      ✅      |               ❌               |
-| requirements     |     none     | decorators / reflect-metadata |
-| style            |  functional  |           imperative          |
-| API surface area | one function |           non-trivial         |
+| minzipped        | [![minzipped size](https://img.shields.io/bundlephobia/minzip/ginject?label=&style=flat-square)](https://bundlephobia.com/result?p=ginject@latest) | [![minzipped size](https://img.shields.io/bundlephobia/minzip/inversify?label=&style=flat-square)](https://bundlephobia.com/result?p=inversify@latest) |
+| typesafe         |      ✅    |      ❌      |
+| requirements     |    none    | decorators  |
+| style            | functional | imperative  |
+| API surface area |    tiny    | non-trivial |
 
 </div>
 
 <br><br>
-
-<hr>
-
-<br><br>
-
-Ginject is a TODO(@@dd): short description
 
 ## Quickstart
 
