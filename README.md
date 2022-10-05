@@ -17,7 +17,16 @@
 
 <hr>
 
-Ginject is a ...
+Ginject is a TODO(@@dd): short description
+
+|                  |    ginject   |            inversify          |
+|------------------|:------------:|:-----------------------------:|
+| minified         |     1 KB     |             45 KB             |
+| gzipped          |    0.5 KB    |             11 KB             |
+| typesafe         |      ✅      |               ❌               |
+| requirements     |     none     | decorators / reflect-metadata |
+| style            |  functional  |           imperative          |
+| API surface area | one function |           non-trivial         |
 
 ## Quickstart
 
@@ -119,14 +128,3 @@ const module: Module<Context> = {
 ### Cyclic Dependencies
 
 ### Asynchronous Factories
-
-## Ginject vs Inversify
-
-|                  |    ginject   |            inversify          |
-|------------------|:------------:|:-----------------------------:|
-| minified         |     1 KB     |             45 KB             |
-| gzipped          |    0.5 KB    |             11 KB             |
-| typesafe         |      ✅      |               ❌               |
-| requirements     |     none     | decorators / reflect-metadata |
-| style            |  functional  |           imperative          |
-| API surface area | one function |           non-trivial         |
