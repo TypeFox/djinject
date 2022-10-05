@@ -56,19 +56,23 @@ const ctr = inject({
 ctr.sayHi();
 ```
 
-## Modules
+## Module Definitions
 
 ### Factories
+
+* constants
+* singletons
+* providers
+
+### Lazy vs Eager Initialization
+
+### Cyclic Dependencies
+
+### Asynchronous Factories
 
 ### Ad-Hoc Modules
 
 ### Factoring out Modules
-
-## Lazy vs Eager Initialization
-
-## Cyclic Dependencies
-
-## Asynchronous Factories
 
 ## Type Safety
 
