@@ -15,10 +15,6 @@
 
 </div>
 
-<hr>
-
-Ginject is a TODO(@@dd): short description
-
 <div id="ginject vs inversify" align="center">
 
 |                  |    ginject   |            inversify          |
@@ -31,6 +27,10 @@ Ginject is a TODO(@@dd): short description
 | API surface area | one function |           non-trivial         |
 
 </div>
+
+<hr>
+
+Ginject is a TODO(@@dd): short description
 
 ## Quickstart
 
