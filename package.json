@@ -10,13 +10,26 @@
     "ioc"
   ],
   "files": [
-    "lib"
+    "lib",
+    "src"
   ],
-  "type": "module",
-  "types": "./lib/index.d.ts",
-  "main": "./lib/index.js",
+  "types": "lib/index.d.ts",
+  "main": "lib/index.js",
+  "module": "lib/ginject.module.js",
+  "umd:main": "lib/ginject.umd.js",
+  "unpkg": "lib/ginject.min.js",
+  "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "browser": "./lib/ginject.module.js",
+      "umd": "./lib/ginject.umd.js",
+      "import": "./lib/ginject.mjs",
+      "require": "./lib/ginject.js"
+    }
+  },
   "scripts": {
-    "prepare": "npm run clean && npm run build && npm run lint",
+    "prepare": "npm run clean && npm run build && npm run lint && npm run bundle",
     "build": "tsc",
     "bundle": "microbundle",
     "clean": "shx rm -rf lib",
