@@ -3,7 +3,7 @@
     <img alt="Ginject Logo" width="450" src="https://user-images.githubusercontent.com/743833/193610222-cf9a7feb-b1d9-4d5c-88de-6ce9fbca8299.png">
   </a>
   <h3>
-    Featherweight and typesafe dependency injection
+    Dependency injection done right.
   </h3>
 </div>
 
@@ -15,11 +15,15 @@
 
 </div>
 
-<br><br>
+<br>
 
-Ginject is a TODO(@@dd): short description
+**Ginject** [ʤɪnject] is a typesafe and functional dependency injection library for Node.js and JavaScript, powered by TypeScript. **Ginject**'s main goal is to increase the developer experience by keeping dependencies in central module definitions and by using TypeScript's type system to remove runtime errors.
 
-<br><br>
+The concept of a central module definition is heavily inspired by [Google Guice](https://github.com/google/guice). However, **Ginject** is going further by lifting the API to the functional level, it is relying on plain vanilla JS functions instead of an internal DSL.
+
+Despite its simplicity, **ginject** is powerful enough to cover all features provided by [Inversify](https://github.com/inversify/InversifyJS). Direct support for classes and constructors, property injection, rebinding dependencies and dependency cycle detection are only a few features to mention.
+
+<br>
 
 <div id="ginject vs inversify" align="center">
 
@@ -34,66 +38,65 @@ Ginject is a TODO(@@dd): short description
 
 </div>
 
-<br><br>
+<br>
 
 ## Quickstart
 
-Add _ginject_ to your project
+The first step is to add **ginject** to your application.
 
 ```sh
 npm i ginject
 ```
 
-Start to decouple your application
+Bascially, the only thing needed is to define **modules** of **factories** and finally call **inject**. The resulting **container** provides concrete **instances**.
 
 ```ts
 import { inject } from 'ginject';
 
 // create an inversion of control container
-const ctr = inject({
+const container = inject({
     hi: () => 'Hi',
-    sayHi: () => (name: string) => `${ctr.hi} ${name}!`
+    sayHi: () => (name: string) => `${container.hi} ${name}!`
 });
 
 // prints 'Hi Ginject!'
-console.log(ctr.sayHi('Ginject'));
+console.log(container.sayHi('Ginject'));
 ```
 
 ## API
 
 ### Terminology
 
+The **inject** function is turning **modules** into a **container**. A module is a plain vanilla JS object, composed of nested **groups** and **dependency factories**. Factories may return any JS value, e.g. constants, singletons and providers. Unlike [Inversify](https://github.com/inversify/InversifyJS), there is no need to decorate classes.
+
 ```ts
 import { inject, Module } from 'ginject';
 
-// Defining a context of dependencies
+// Defining a _context_ of dependencies
 type Context = {
     group: {
-        service: Service // any JS type, e.g. a class
+        value: Value // any JS type, here a class
     }
 }
 
-// A module contains nested groups (optional) and service factories
+// A _module_ contains nested _groups_ (optional) and _factories_
 const module: Module<Context> = {
     group: {
-        // a service factory of type Factory<Context, Service>
-        service: (ctx: Context) => new Service(ctr)
+        // a factory of type Factory<Context, Value>
+        value: (ctx: Context) => new Value(ctx)
     }
 }
 
-// A container of type Container<Module<Context>>
+// A _container_ of type Container<Module<Context>> = Context
 const container = inject(module);
 
-// Services can be obtained from the container
-const service = container.group.service;
+// Values can be obtained from the container
+const value = container.group.value;
 ```
 
-Factories may return
-
-* constants/singletons (primitive values, functions, arrays, classes)
-* providers `() => T`, where `T` may be any type
-
 ### Eager vs lazy initialization
+
+A dependency `container.group.value` is _lazily_ initialized when first accessed on the container. Turn a factory _eager_ to initialize the dependency at the time of the `inject` call.
 
 ```diff
 - import { inject, Module } from 'ginject';
@@ -101,14 +104,11 @@ Factories may return
 
 const module: Module<Context> = {
     group: {
--        service: (ctx: Context) => new Service(ctr)
-+        service: eager((ctx: Context) => new Service(ctr))
+-        value: (ctx: Context) => new Value(ctx)
++        value: eager((ctx: Context) => new Value(ctx))
     }
 }
 ```
-
-A dependency `container.group.service` is _lazily_ initialized on the first access.
-When a factory is turned _eager_, the dependency is initialized on the `inject` call.
 
 ### Rebinding dependencies
 
@@ -123,11 +123,11 @@ TODO(@@dd): partial modules
 ```diff
 const module: Module<Context> = {
     group: {
-        service: (ctx: Context) => {
+        value: (ctx) => {
 +            console.log('Before');
-            const service = new Service(ctr);
+            const value = new Value(ctx);
 +            console.log('After');
-            return service;
+            return value;
         }
     }
 }

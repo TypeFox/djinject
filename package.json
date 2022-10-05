@@ -1,7 +1,7 @@
 {
   "name": "ginject",
   "version": "0.0.0",
-  "description": "Ginject is a featherweight and typesafe dependency injection library for decoupling JavaScript and Node.js apps.",
+  "description": "Dependency injection done right.",
   "keywords": [
     "inject",
     "dependency injection",
