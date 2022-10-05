@@ -34,15 +34,24 @@ import { inject } from 'ginject';
 
 // create an inversion of control container
 const ctr = inject({
-    hi: () => 'Hi!',
-    sayHi: (ctr) => () => { console.log(ctr.hi) }
+    hi: () => 'Hi',
+    sayHi: () => (name: string) => `${ctr.hi} ${name}!`
 });
 
-// prints 'Hi!'
-ctr.sayHi();
+// prints 'Hi Ginject!'
+console.log(ctr.sayHi('Ginject'));
 ```
 
 ## API
+
+```ts
+class Service {}                     // A service is a dependency.
+const factory = () => new Service(); // Lazily creates a dependency.
+const module = {                     // A module contains
+  group: { service: factory }        //   1. nested groups (optional)
+}                                    //   2. service factories (required)
+const container = inject(module);    // Inject turns a module into a container.
+```
 
 TODO(@@dd): use terminology of [Google Juice](https://github.com/google/guice) and [Inversify](https://inversify.io)
 
@@ -53,6 +62,19 @@ TODO(@@dd): use terminology of [Google Juice](https://github.com/google/guice) a
 * constants
 * singletons
 * providers
+* action handlers
+
+```ts
+const ctr = inject({
+    hi: () => 'Hi',
+    sayHi: () => (name: string) => {
+      console.log(`Starting: ${new Date().getTime()}`);
+      const greet = `${ctr.hi} ${name}!`;
+      console.log(`Finished: ${new Date().getTime()}`);
+      return greet;
+    }
+});
+```
 
 ### Lazy vs Eager Initialization
 
