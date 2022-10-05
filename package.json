@@ -31,7 +31,7 @@
   "scripts": {
     "prepare": "npm run clean && npm run build && npm run lint && npm run bundle",
     "build": "tsc",
-    "bundle": "microbundle",
+    "bundle": "microbundle build -o lib/ginject.js --name ginject",
     "clean": "shx rm -rf lib",
     "coverage": "vitest run --coverage",
     "lint": "eslint src test --ext .ts",
