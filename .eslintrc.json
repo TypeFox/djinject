@@ -17,6 +17,7 @@
     },
     "plugins": [
         "@typescript-eslint",
+        "typescript-enum",
         "unused-imports"
     ],
     "rules": {
@@ -56,6 +57,9 @@
         }],
         "unused-imports/no-unused-imports": "error",                // no unsused imports
         "use-isnan": "error",                                       // isNaN(i) Number.isNaN(i) instead of i === NaN
+
+        // List of [typescript-enum rules](https://github.com/shian15810/eslint-plugin-typescript-enum)
+        "typescript-enum/no-enum": "error",                         // disallow enums, see https://2ality.com/2020/02/enum-alternatives-typescript.html
 
         // List of [@typescript-eslint rules](https://github.com/typescript-eslint/typescript-eslint/tree/master/packages/eslint-plugin#supported-rules)
         "@typescript-eslint/adjacent-overload-signatures": "error", // grouping same method names
