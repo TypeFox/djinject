@@ -10,14 +10,14 @@
     "ioc"
   ],
   "files": [
-    "dist"
+    "lib"
   ],
-  "types": "./dist/index.d.ts",
-  "main": "./dist/index.js",
+  "types": "./lib/index.d.ts",
+  "main": "./lib/index.js",
   "scripts": {
     "prepare": "npm run clean && npm run build && npm run lint",
     "build": "tsc",
-    "clean": "shx rm -rf dist",
+    "clean": "shx rm -rf lib",
     "coverage": "vitest run --coverage",
     "lint": "eslint src test --ext .ts",
     "test": "vitest"
