@@ -12,8 +12,10 @@ export type Factory<C, T> = (ctr: C) => T;
 
 export type Container<M> =
     M extends Module[] ? Container<MergeArray<M>> :
-        M extends Module<infer T> ? T :
+        M extends Module<infer T> ? Validate<T, ReflectContainer<M>> :
             never;
+
+type Validate<T, C> = T extends C ? T : never;
 
 export type MergeArray<M extends unknown[]> =
     M extends [Head<M>, ...Tail<M>] ? (
@@ -48,9 +50,9 @@ type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 ex
 
 type Union<T> = T extends Record<PropertyKey, unknown> ? { [K in keyof T]: T[K] } : T;
 
-export type ReflectContainer<T> = Union<T extends Record<PropertyKey, unknown>
+export type ReflectContainer<T> = T extends Record<PropertyKey, unknown>
     ? MergeObjects<FunctionArgs<PickByValue<T, (...args: any[]) => any>>, ReflectContainer<UnionToIntersection<Values<PickByValue<T, Record<PropertyKey, unknown>>>>>>
-    : unknown>;
+    : unknown;
 
 type FunctionArgs<T> = T[keyof T] extends (arg0: infer A) => any ? A : never;
 
