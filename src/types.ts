@@ -4,8 +4,8 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-export type Module<T = unknown> = {
-    [K in keyof T]: Module<T[K]> | Factory<any, T[K]>
+export type Module<C = unknown, T = C> = {
+    [K in keyof T]: Module<T[K]> | Factory<C, T[K]>
 };
 
 export type Factory<C, T> = (ctr: C) => T;
