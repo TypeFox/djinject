@@ -5,7 +5,7 @@
  ******************************************************************************/
 
 export type Module<C = unknown, T = C> = {
-    [K in keyof T]: Module<T[K]> | Factory<C, T[K]>
+    [K in keyof T]: Module<C, T[K]> | Factory<C, T[K]>
 };
 
 export type Factory<C, T> = (ctr: C) => T;
