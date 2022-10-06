@@ -22,7 +22,7 @@ export function eager<C, T>(factory: Factory<C, T>): Factory<C, T> {
     return (isEager in factory) ? factory : Object.assign((ctr: C) => factory(ctr), { [isEager]: true } );
 }
 
-function initializeEagerServices<C, T, M extends Module<C, T>>(module: M, container: C): void {
+function initializeEagerServices<T, M extends Module<T>>(module: M, container: any): void {
     keys(module).forEach(key => {
         const value = module[key];
         if (typeof value === 'function') {
@@ -33,7 +33,7 @@ function initializeEagerServices<C, T, M extends Module<C, T>>(module: M, contai
     });
 }
 
-function proxify<C, T>(module: Module<C,T>, container?: C, path: string = ''): T {
+function proxify<C, T>(module: Module<T>, container?: C, path: string = ''): T {
     const resolve = (obj: any, prop: PropertyKey, proxy: T) => {
         const name = path + '[' + String(prop) + ']';
         if (obj[prop] === isRequested) {

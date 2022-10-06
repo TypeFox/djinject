@@ -324,7 +324,7 @@ describe('The inject function', () => {
     it('should infer right container type given an ad-hoc module', () => {
         const testee = inject({
             hi: () => 'Hi!',
-            sayHi: (ctr) => () => {
+            sayHi: (ctr: { hi: '' }) => () => {
                 tsafeAssert<Equals<typeof ctr, {
                     hi: string,
                     sayHi: (ctr: typeof ctr) => string
@@ -409,7 +409,7 @@ describe('The inject function', () => {
         const container = inject({
             a: () => 1,
             b: {
-                c: () => () => ''
+                c: () => () => '' as string
             },
             d: {
                 e: () => new A()
@@ -417,14 +417,14 @@ describe('The inject function', () => {
         }, {
             a: () => 2,
             b: {
-                c: () => () => 'hallo'
+                c: () => () => 'hallo' as string
             },
             d: {
                 e: () => new B()
             }
         }, {
             b: {
-                c: () => () => 'salut'
+                c: () => () => 'salut' as string
             }
         });
         tsafeAssert<Equals<typeof container.a, number>>();
