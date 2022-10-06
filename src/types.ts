@@ -10,26 +10,17 @@ export type Module<C, T = C> = {
 
 export type Factory<C, T> = (ctr: C) => T;
 
-// TODO(@@dd): whether to infer container type C of Module<C, T> or not?
 export type Container<M> =
     M extends Module<unknown>[] ? Container<MergeModules<M>> :
-        M extends EmptyObject ? EmptyObject :
-            // TODO(@@dd): handle functions first because classes are objects and function
-            M extends Module<infer C, infer T> ? Validate<C, T> :
-                never;
-
-type Validate<C, T> = T; // TODO(@@dd): validate factory arguments
-
-type EmptyObject = {
-    [key: PropertyKey]: never
-};
+        M extends Module<any, infer T> ? T :
+            never;
 
 export type MergeModules<M extends Module<unknown>[]> =
-     M extends [Head<M>, ...Tail<M>] ? (
-         Tail<M> extends [] ? Head<M> :
-             Tail<M> extends Module<unknown>[] ? Merge<MergeModules<Tail<M>>, Head<M>> :
-                 never
-     ) : never;
+    M extends [Head<M>, ...Tail<M>] ? (
+        Tail<M> extends [] ? Head<M> :
+            Tail<M> extends Module<unknown>[] ? Merge<MergeModules<Tail<M>>, Head<M>> :
+                never
+    ) : never;
 
 export type Merge<S, T> =
     Or<Is<S, never>, Is<T, never>> extends true ? never :
@@ -47,8 +38,8 @@ type MergeObjects<S extends Record<PropertyKey, unknown>, T extends Record<Prope
             : (K extends keyof T ? T[K] : never)
     }>;
 
-// TODO(@@dd): Extends
 type Extends<T1, T2> = T1 extends T2 ? T1 : never;
+// TODO(@@dd):
 type Extends2<T1, T2> =
     T1 extends T2 ? T1 :
         T1 extends Obj<T1> ? T2 extends Obj<T2> ? never : never :
