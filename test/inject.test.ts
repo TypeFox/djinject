@@ -150,8 +150,10 @@ describe('A cyclic dependency', () => {
 describe('The dependency initialization', () => {
 
     it('should not inject null', () => {
-        // @ts-expect-error
-        inject(null);
+        expect(() => {
+            // @ts-expect-error
+            inject(null);
+        }).toThrow();
     });
 
     it('should not inject true', () => {
