@@ -858,6 +858,15 @@ describe('type MergeArray', () => {
         tsafeAssert<Equals<MergeModules<Input>, Expected>>();
     });
 
+    it('should not merge non-modules', () => {
+        type Input = [
+            { a: number }, // intentionally no factory functions!
+            { b: string }
+        ];
+        // @ts-expect-error
+        type T = MergeModules<Input>;
+    });
+
 });
 
 describe('merge', () => {
