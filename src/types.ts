@@ -47,3 +47,15 @@ type Is<T1, T2> = (<T>() => T extends T2 ? true : false) extends <T>() => T exte
 type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 extends true ? true : false;
 
 type Union<T> = T extends Record<PropertyKey, unknown> ? { [K in keyof T]: T[K] } : T;
+
+export type ReflectContainer<T> = Union<T extends Record<PropertyKey, unknown>
+    ? Union<FunctionArgs<PickByValue<T, (...args: any[]) => any>>> & ReflectContainer<Union<UnionToIntersection<Values<PickByValue<T, Record<PropertyKey, unknown>>>>>>
+    : unknown>;
+
+type FunctionArgs<T> = T[keyof T] extends (arg0: infer A) => any ? A : never;
+
+type PickByValue<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? K : never }[keyof T]>;
+
+type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends ((arg: infer I) => void) ? I : never
+
+type Values<T> = T[keyof T];
