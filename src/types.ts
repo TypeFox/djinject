@@ -12,7 +12,7 @@ export type Factory<C, T> = (ctr: C) => T;
 
 export type Container<M> =
     M extends Module[] ? Container<MergeModules<M>> :
-        M extends Module<infer T> ? T :
+        M extends Module<any, infer T> ? T :
             never;
 
 export type MergeModules<M extends Module[]> =
