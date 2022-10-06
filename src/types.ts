@@ -25,7 +25,6 @@ type EmptyObject = {
 };
 
 export type MergeModules<M extends Module<unknown>[]> =
- M extends [] ? EmptyObject:
      M extends [Head<M>, ...Tail<M>] ? (
          Tail<M> extends [] ? Head<M> :
              Tail<M> extends Module<unknown>[] ? Merge<MergeModules<Tail<M>>, Head<M>> :
@@ -48,7 +47,9 @@ type MergeObjects<S extends Record<PropertyKey, unknown>, T extends Record<Prope
             : (K extends keyof T ? T[K] : never)
     }>;
 
-type Extends<T1, T2> =
+// TODO(@@dd): Extends
+type Extends<T1, T2> = T1 extends T2 ? T1 : never;
+type Extends2<T1, T2> =
     T1 extends T2 ? T1 :
         T1 extends Obj<T1> ? T2 extends Obj<T2> ? never : never :
             T1 extends unknown[] ? T2 extends unknown[] ? T1 extends T2 ? T1 : [Extends<Head<T1>, Head<T2>>, ...Extends<Tail<T1>, Tail<T2>>] : never :

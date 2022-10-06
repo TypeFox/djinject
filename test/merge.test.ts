@@ -805,7 +805,7 @@ describe('type Merge', () => {
 describe('type MergeArray', () => {
 
     it('should merge empty array', () => {
-        tsafeAssert<Equals<MergeModules<[]>, {}>>();
+        tsafeAssert<Equals<MergeModules<[]>, never>>();
     });
 
     it('should merge array with one element', () => {

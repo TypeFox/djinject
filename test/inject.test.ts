@@ -195,9 +195,6 @@ describe('The inject function', () => {
         expect(() =>
             result.second
         ).toThrowError('construction error');
-        expect(() =>
-            result.second
-        ).toThrowError(/Construction failure/); //where cause is Error('construction error')
     });
 
     it('should work with objects', () => {
@@ -248,7 +245,7 @@ describe('The inject function', () => {
         }
         expect(() =>
             inject({ a: (ctr: API) => new A(ctr), b: (ctr: API) => new B(ctr) }).a
-        ).toThrowError('Cycle detected. Please make a lazy. See https://github.com/langium/ginject#cyclic-dependencies');
+        ).toThrowError('Cyclic dependency [a]. See https://github.com/langium/ginject#cyclic-dependencies');
     });
 
     it('should throw when cyclic dependency is accessed during factory function call', () => {
@@ -257,7 +254,7 @@ describe('The inject function', () => {
         const createB = ({ a }: API) => ({ b: a.a });
         expect(() =>
             inject({ a: createA, b: createB }).a
-        ).toThrowError('Cycle detected. Please make a lazy. See https://github.com/langium/ginject#cyclic-dependencies');
+        ).toThrowError('Cyclic dependency [a]. See https://github.com/langium/ginject#cyclic-dependencies');
     });
 
     it('should merge groups', () => {

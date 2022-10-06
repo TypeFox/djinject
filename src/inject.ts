@@ -33,41 +33,25 @@ function initializeEagerServices<C, T, M extends Module<C, T>>(module: M, contai
     });
 }
 
-function proxify<C, T>(module: Module<C, T>, container?: C, path?: string): T {
+function proxify<C, T>(module: Module<C,T>, container?: C, path: string = ''): T {
+    const resolve = (obj: any, prop: PropertyKey, proxy: T) => {
+        const name = path + '[' + String(prop) + ']';
+        if (obj[prop] === isRequested) {
+            throw new Error('Cyclic dependency ' + name + '. See https://github.com/langium/ginject#cyclic-dependencies');
+        }
+        const ctx = container || proxy;
+        const val = (module as any)[prop];
+        return (prop in obj) ? obj[prop] : (prop in module) ? (
+            obj[prop] = isRequested,
+            obj[prop] = (typeof val === 'function') ? val(ctx) : proxify(val, ctx, name)
+        ) : undefined;
+    };
     const proxy: any = new Proxy({}, {
         deleteProperty: () => false,
-        get: (target, prop) => resolve(target, prop, module, container || proxy, path),
-        getOwnPropertyDescriptor: (target, prop) => (resolve(target, prop, module, container || proxy, path), Object.getOwnPropertyDescriptor(target, prop)), // used by for..in
+        get: resolve,
+        getOwnPropertyDescriptor: (target, prop) => (resolve(target, prop, proxy), Object.getOwnPropertyDescriptor(target, prop)), // used by for..in
         has: (_, prop) => prop in module, // used by ..in..
         ownKeys: () => Reflect.ownKeys(module)
     });
     return proxy;
-}
-
-function resolve<C, T extends Record<PropertyKey, unknown>, M extends Module<C, T>, P extends PropertyKey>(obj: T, prop: P, module: M, container: C, parentPath?: string): T[P] | undefined {
-    const path = (parentPath ? '.' : '') + String(prop);
-    if (prop in obj) {
-        // TODO(@@dd): create an error that isn't instanceof Error (which could be a valid service)
-        if (obj[prop] instanceof Error) {
-            throw new Error('Construction failure: ' + path);
-        }
-        if (obj[prop] === isRequested) {
-            // TODO(@@dd): list all involved dependencies? this may be misleading in the case of transitive dependencies
-            throw new Error('Cycle detected. Please make ' + path + ' lazy. See https://github.com/langium/ginject#cyclic-dependencies');
-        }
-        return obj[prop];
-    } else if (prop in module) {
-        const value = (module as any)[prop];
-        (obj as any)[prop] = isRequested;
-        try {
-            obj[prop] = (typeof value === 'function') ? value(container) : proxify(value, container, (path ? '.' : ''));
-        } catch (error) {
-            // TODO(@@dd): create an error that isn't instanceof Error (which could be a valid service)
-            (obj as any)[prop] = error instanceof Error ? error : undefined;
-            throw error;
-        }
-        return obj[prop];
-    } else {
-        return undefined;
-    }
 }
