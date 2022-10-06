@@ -149,6 +149,21 @@ describe('A cyclic dependency', () => {
 
 describe('The dependency initialization', () => {
 
+    it('should not inject null', () => {
+        // @ts-expect-error
+        inject(null);
+    });
+
+    it('should not inject true', () => {
+        // @ts-expect-error
+        inject(true);
+    });
+
+    it('should not inject object without factory', () => {
+        // @ts-expect-error
+        inject({ a: 1 });
+    });
+
     it('should be lazy by default', () => {
         let actual = false;
         inject({ p: () => { actual = true; }});

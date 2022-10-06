@@ -4,15 +4,15 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-export type Module<C = any, T = C> = {
-    [K in keyof T]: Module<C, T[K]> | Factory<C, T[K]>
+export type Module<T = any> = {
+    [K in keyof T]: Module<T[K]> | Factory<any, T[K]> // TODO(@@dd): use naked type instead of any?
 };
 
 export type Factory<C, T> = (ctr: C) => T;
 
 export type Container<M> =
     M extends Module[] ? Container<MergeModules<M>> :
-        M extends Module<any, infer T> ? T :
+        M extends Module<infer T> ? T :
             never;
 
 export type MergeModules<M extends Module[]> =
