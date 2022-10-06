@@ -31,7 +31,7 @@ export type Merge<S, T> =
                     ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
                     : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never);
 
-type MergeObjects<S extends Record<PropertyKey, unknown>, T extends Record<PropertyKey, unknown>> =
+type MergeObjects<S, T> =
     Union<{
         [K in keyof S | keyof T]: K extends keyof S
             ? (K extends keyof T ? Merge<S[K], T[K]> : S[K])
@@ -49,7 +49,7 @@ type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 ex
 type Union<T> = T extends Record<PropertyKey, unknown> ? { [K in keyof T]: T[K] } : T;
 
 export type ReflectContainer<T> = Union<T extends Record<PropertyKey, unknown>
-    ? Union<FunctionArgs<PickByValue<T, (...args: any[]) => any>>> & ReflectContainer<Union<UnionToIntersection<Values<PickByValue<T, Record<PropertyKey, unknown>>>>>>
+    ? MergeObjects<FunctionArgs<PickByValue<T, (...args: any[]) => any>>, ReflectContainer<UnionToIntersection<Values<PickByValue<T, Record<PropertyKey, unknown>>>>>>
     : unknown>;
 
 type FunctionArgs<T> = T[keyof T] extends (arg0: infer A) => any ? A : never;
