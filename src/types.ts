@@ -4,7 +4,7 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-export type Module<C = unknown, T = C> = {
+export type Module<C = any, T = C> = {
     [K in keyof T]: Module<C, T[K]> | Factory<C, T[K]>
 };
 

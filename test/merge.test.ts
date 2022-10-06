@@ -809,11 +809,11 @@ describe('type MergeArray', () => {
     });
 
     it('should merge array with one element', () => {
-        tsafeAssert<Equals<MergeModules<[{ a: 1 }]>, { a: 1 }>>();
+        tsafeAssert<Equals<MergeModules<[{ a: () => 1 }]>, { a: () => 1 }>>();
     });
 
     it('should merge array with two elements', () => {
-        tsafeAssert<Equals<MergeModules<[{ a: 1 }, { b: true }]>, { a: 1, b: true }>>();
+        tsafeAssert<Equals<MergeModules<[{ a: () => 1 }, { b: () => true }]>, { a: () => 1, b: () => true }>>();
     });
 
     it('should merge array with three elements', () => {
@@ -822,14 +822,14 @@ describe('type MergeArray', () => {
             b = 1
         }
         type Input = [
-            { a: A, b: boolean, c: number, d: 'a' },
-            { b: true, d: string },
-            { a: B, c: 1 }
+            { a: () => A, b: () => boolean, c: () => number, d: () => 'a' },
+            { b: () => true, d: () => string },
+            { a: () => B, c: () => 1 }
         ];
         type Expected = {
-            a: B,
-            b: true,
-            c: 1,
+            a: () => B,
+            b: () => true,
+            c: () => 1,
             d: never
         };
         tsafeAssert<Equals<MergeModules<Input>, Expected>>();
@@ -841,19 +841,19 @@ describe('type MergeArray', () => {
             b = 1
         }
         type Input = [
-            { a: { b: { c: A }, d: Fn }, e: number },
+            { a: { b: { c: () => A }, d: Fn }, e: () => number },
             { a: { d: () => void } },
-            { a: { b: { c: B } } },
-            { e: 1 }
+            { a: { b: { c: () => B } } },
+            { e: () => 1 }
         ];
         type Expected = {
             a: {
                 b: {
-                    c: B
+                    c: () => B
                 },
                 d: () => void
             },
-            e: 1
+            e: () => 1
         };
         tsafeAssert<Equals<MergeModules<Input>, Expected>>();
     });
