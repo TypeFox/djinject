@@ -34,7 +34,7 @@ function initializeEagerServices<T, M extends Module<T>>(module: M, container: a
 }
 
 function proxify<C, T>(module: Module<T>, container?: C, path: string = ''): T {
-    const resolve = (obj: any, prop: PropertyKey, proxy: T) => {
+    const get = (obj: Record<PropertyKey, unknown>, prop: PropertyKey, proxy: T) => {
         const name = path + '[' + String(prop) + ']';
         if (obj[prop] === isRequested) {
             throw new Error('Cyclic dependency ' + name + '. See https://github.com/langium/ginject#cyclic-dependencies');
@@ -48,8 +48,8 @@ function proxify<C, T>(module: Module<T>, container?: C, path: string = ''): T {
     };
     const proxy: any = new Proxy({}, {
         deleteProperty: () => false,
-        get: resolve,
-        getOwnPropertyDescriptor: (target, prop) => (resolve(target, prop, proxy), Object.getOwnPropertyDescriptor(target, prop)), // used by for..in
+        get,
+        getOwnPropertyDescriptor: (target, prop) => (get(target, prop, proxy), Object.getOwnPropertyDescriptor(target, prop)), // used by for..in
         has: (_, prop) => prop in module, // used by ..in..
         ownKeys: () => Reflect.ownKeys(module)
     });
