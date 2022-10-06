@@ -11,14 +11,14 @@ export type Module<T = any> = {
 export type Factory<C, T> = (ctr: C) => T;
 
 export type Container<M> =
-    M extends Module[] ? Container<MergeModules<M>> :
+    M extends Module[] ? Container<MergeArray<M>> :
         M extends Module<infer T> ? T :
             never;
 
-export type MergeModules<M extends Module[]> =
+export type MergeArray<M extends unknown[]> =
     M extends [Head<M>, ...Tail<M>] ? (
         Tail<M> extends [] ? Head<M> :
-            Tail<M> extends Module[] ? Merge<MergeModules<Tail<M>>, Head<M>> :
+            Tail<M> extends unknown[] ? Merge<MergeArray<Tail<M>>, Head<M>> :
                 never
     ) : never;
 
