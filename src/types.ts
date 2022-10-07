@@ -15,13 +15,13 @@ export type Container<M> =
         M extends Module<infer T> ?
             T extends ReflectContainer<M> ? T : never : never;
 
-export type Validate<A extends Module[], M =  MergeArray<A>> =
+export type Validate<A extends Module[], M =  MergeArray<A>, C = ReflectContainer<M>> =
     M extends Module<infer T> ?
-        T extends ReflectContainer<M> ? A : {
+        T extends C ? A : {
             ginject_error: {
                 message: 'Missing dependency',
                 docs: 'https://github.com/langium/ginject#context',
-                missing_dependencies: M // TODO(@@dd): compute missing dependencies
+                missing_dependencies: Omit<Expand<C>, Paths<T>>
             }
         } : never;
 
@@ -42,7 +42,7 @@ export type Merge<S, T> =
                     : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never);
 
 type MergeObjects<S, T> =
-    Union<{
+    Join<{
         [K in keyof S | keyof T]: K extends keyof S
             ? (K extends keyof T ? Merge<S[K], T[K]> : S[K])
             : (K extends keyof T ? T[K] : never)
@@ -56,7 +56,7 @@ type Is<T1, T2> = (<T>() => T extends T2 ? true : false) extends <T>() => T exte
 
 type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 extends true ? true : false;
 
-type Union<T> = T extends Record<PropertyKey, unknown> ? { [K in keyof T]: T[K] } : T;
+type Join<T> = T extends Record<PropertyKey, unknown> ? { [K in keyof T]: T[K] } : T;
 
 export type ReflectContainer<T> = T extends Record<PropertyKey, unknown>
     ? MergeObjects<FunctionArgs<PickByValue<T, (...args: any[]) => any>>, ReflectContainer<UnionToIntersection<Values<PickByValue<T, Record<PropertyKey, unknown>>>>>>
@@ -69,3 +69,14 @@ type PickByValue<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? K : never 
 type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends ((arg: infer I) => void) ? I : never
 
 type Values<T> = T[keyof T];
+
+type Expand<T, P = Paths<T>> = { [K in P & string]: true }
+
+// TODO(@@dd): is it possible to stringify symbols on the type level?
+type Paths<T> = {
+    [K in keyof T & (string | number)]: (
+        T[K] extends Record<PropertyKey, unknown>
+            ? `[${K}]` | `[${K}]${Paths<T[K]>}`
+            : `[${K}]`
+    )
+}[keyof T & (string | number)];
