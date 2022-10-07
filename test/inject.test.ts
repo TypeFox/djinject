@@ -28,7 +28,7 @@ describe('A dependency type', () => {
     it('should be function', () => checkType(function a() { }));
     it('should be lambda', () => checkType(() => { }));
 
-    function checkType(value: unknown): void {
+    function checkType<T>(value: T): void {
         const ctr = inject({ _: () => value });
         expect(typeof ctr._).toBe(typeof value);
         expect(ctr._).toBe(value);
@@ -68,17 +68,17 @@ describe('A cyclic dependency', () => {
 
     // this is a requirement for the following tests
     it('should be injected lazily', () => {
-        const ctr = createCycle(undefined);
-        expect(ctr.a).not.toBeUndefined();
-        expect(ctr.b).not.toBeUndefined();
-        expect(ctr.a.b).toBe(ctr.b);
-        expect(ctr.b.a()).toBe(ctr.a);
+        const ctx = createCycle(undefined);
+        expect(ctx.a).not.toBeUndefined();
+        expect(ctx.b).not.toBeUndefined();
+        expect(ctx.a.b).toBe(ctx.b);
+        expect(ctx.b.a()).toBe(ctx.a);
     });
 
     it('should be idempotent', () => {
-        const ctr = createA({});
-        expect(ctr.testee).not.toBeUndefined();
-        expect(ctr.testee).toBe(ctr.testee);
+        const ctx = createA({});
+        expect(ctx.testee).not.toBeUndefined();
+        expect(ctx.testee).toBe(ctx.testee);
     });
 
     it('should be callable', () => {
@@ -140,9 +140,9 @@ describe('A cyclic dependency', () => {
     }
 
     function createA<T>(testee: T): A<T> {
-        const ctr = createCycle(testee);
-        ctr.a; // initializes cycle
-        return ctr.b.a();
+        const ctx = createCycle(testee);
+        ctx.a; // initializes cycle
+        return ctx.b.a();
     }
 
 });
@@ -471,23 +471,23 @@ describe('The inject result', () => {
     });
 
     it('should work with ..in.. for object', () => {
-        const obj = inject({ a: () => 1 });
-        expect('a' in obj).toBe(true);
-        expect('b' in obj).toBe(false);
+        const ctr = inject({ a: () => 1 });
+        expect('a' in ctr).toBe(true);
+        expect('b' in ctr).toBe(false);
     });
 
     it('should be extensible', () => {
-        const obj: any = inject({});
-        expect(Object.isExtensible(obj)).toBe(true);
-        expect(obj.a).toBeUndefined();
-        expect(() => obj.a = 1).not.toThrow();
-        expect(obj.a).toBe(1);
+        const ctr: any = inject({});
+        expect(Object.isExtensible(ctr)).toBe(true);
+        expect(ctr.a).toBeUndefined();
+        expect(() => ctr.a = 1).not.toThrow();
+        expect(ctr.a).toBe(1);
     });
 
     it('should be sealable', () => {
-        const obj: any = Object.seal(inject({}));
-        expect(Object.isExtensible(obj)).toBe(false);
-        expect(() => (obj.a = 1)).toThrowError('Cannot define property a, object is not extensible');
+        const ctr: any = Object.seal(inject({}));
+        expect(Object.isExtensible(ctr)).toBe(false);
+        expect(() => (ctr.a = 1)).toThrowError('Cannot define property a, object is not extensible');
     });
 
 });
