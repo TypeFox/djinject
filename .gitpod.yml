@@ -2,6 +2,7 @@ tasks:
   - before: . <(curl -sL gitprompt.sh/install)
     init: npm i
     command: npm test
+    openMode: split-left
 
 vscode:
   extensions:
