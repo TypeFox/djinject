@@ -447,7 +447,7 @@ describe('The inject function', () => {
                 c: () => () => 'salut' as string
             }
         });
-        tsafeAssert<Equals<typeof continer.a, number>>();
+        tsafeAssert<Equals<typeof container.a, number>>();
         tsafeAssert<Equals<typeof container.b.c, () => string>>();
         tsafeAssert<Equals<typeof container.d.e, B>>();
     });
