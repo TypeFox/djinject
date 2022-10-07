@@ -331,6 +331,16 @@ describe('The inject function', () => {
             x: () => 1
         };
 
+        const ctr1 = inject(m1);
+        // TODO(@@dd): assertions
+
+        const ctr2 = inject(m2);
+        // TODO(@@dd): assertions
+
+        // @ts-expect-error inferred container is missing context C1 = { groupA: { service1: A } }
+        const ctr3 = inject(m3);
+        // TODO(@@dd): assertions
+
         const ctr = inject(m1, m2, m3);
 
         tsafeAssert<Equals<typeof ctr.groupA.service1, A>>();
