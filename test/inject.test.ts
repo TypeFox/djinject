@@ -453,8 +453,8 @@ describe('The inject function', () => {
     });
 
     it('should disallow to use wrong containers types', () => {
+        // @ts-expect-error
         inject({
-            // @ts-expect-error
             hi: (ctx: false) => 'Hi!'
         });
     });
