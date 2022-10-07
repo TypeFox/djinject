@@ -318,25 +318,21 @@ describe('The inject function', () => {
         const m3 = { // intentionally not declared as Module<C3>
             groupB: {
                 groupC: {
-                    // container may have an arbitrary type but
-                    // the inject() call will fail for m3 if no module
-                    // exists that provides that container
-                    service2: (ctr: C1) => new B(ctr.groupA.service1)
+                    service2: (ctx: C1) => new B(ctx.groupA.service1)
                 }
             },
             x: () => 1
         };
 
-        const testee = inject(m1, m2, m3);
-        testee.groupB.groupC.service2
+        const ctr = inject(m1, m2, m3);
 
-        tsafeAssert<Equals<typeof testee.groupA.service1, A>>();
-        tsafeAssert<Equals<typeof testee.groupB.groupC.service2, B>>();
-        tsafeAssert<Equals<typeof testee.x, number>>();
+        tsafeAssert<Equals<typeof ctr.groupA.service1, A>>();
+        tsafeAssert<Equals<typeof ctr.groupB.groupC.service2, B>>();
+        tsafeAssert<Equals<typeof ctr.x, number>>();
 
-        expect(testee.groupA.service1).toBeInstanceOf(A);
-        expect(testee.groupB.groupC.service2).toBeInstanceOf(B);
-        expect(testee.x).toBe(1);
+        expect(ctr.groupA.service1).toBeInstanceOf(A);
+        expect(ctr.groupB.groupC.service2).toBeInstanceOf(B);
+        expect(ctr.x).toBe(1);
     });
 
     it('should infer right container type given an ad-hoc module', () => {
