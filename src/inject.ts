@@ -20,7 +20,7 @@ export function inject<M extends [Module, ...Module[]]>(...modules: Validate<M>)
 }
 
 export function eager<T>(factory: Factory<T>): typeof factory {
-    return (isEager in factory) ? factory : Object.assign((ctr: any) => factory(ctr), { [isEager]: true } );
+    return (isEager in factory) ? factory : Object.assign((ctr: any) => factory(ctr), { [isEager]: true });
 }
 
 function initializeEagerServices<T, M extends Module<T>>(module: M, container: any): void {

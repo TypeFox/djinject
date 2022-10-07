@@ -134,7 +134,7 @@ describe('A cyclic dependency', () => {
 
     function createCycle<T>(testee: T): API<T> {
         return inject({
-            a: ({ b }) => new A(b, testee),
+            a: ({ b }: API<T>) => new A(b, testee),
             b: (ctr: API<T>) => new B(ctr)
         });
     }
