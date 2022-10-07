@@ -189,6 +189,14 @@ describe('The dependency initialization', () => {
         expect(actual2).toBeFalsy();
     });
 
+    it('should be idempotent when calling eager twice', () => {
+        const f = () => {};
+        const g = eager(f);
+        const h = eager(g);
+        expect(g).not.toEqual(f);
+        expect(eager(g)).toEqual(g);
+    });
+
 });
 
 describe('The inject function', () => {
