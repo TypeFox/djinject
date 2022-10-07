@@ -4,11 +4,11 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-export type Module<T = any> = {
-    [K in keyof T]: Module<T[K]> | Factory<T[K]>
+export type Module<C = any, T = C> = {
+    [K in keyof T]: Module<C, T[K]> | Factory<C, T[K]>
 };
 
-export type Factory<T> = (ctr: any) => T;
+export type Factory<C, T> = (ctx: C) => T;
 
 export type Container<M> =
     M extends Module[] ? Container<MergeArray<M>> :

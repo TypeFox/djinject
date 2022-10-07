@@ -261,7 +261,7 @@ describe('The inject function', () => {
             constructor({ a }: API) { this.b = a.a; }
         }
         expect(() =>
-            inject({ a: (ctr: API) => new A(ctr), b: (ctr: API) => new B(ctr) }).a
+            inject({ a: (ctx: API) => new A(ctx), b: (ctx: API) => new B(ctx) }).a
         ).toThrowError('Cyclic dependency [a]. See https://github.com/langium/ginject#cyclic-dependencies');
     });
 
@@ -328,6 +328,7 @@ describe('The inject function', () => {
         };
 
         const testee = inject(m1, m2, m3);
+        testee.groupB.groupC.service2
 
         tsafeAssert<Equals<typeof testee.groupA.service1, A>>();
         tsafeAssert<Equals<typeof testee.groupB.groupC.service2, B>>();
@@ -339,17 +340,12 @@ describe('The inject function', () => {
     });
 
     it('should infer right container type given an ad-hoc module', () => {
-        const testee = inject({
+        const ctr = inject({
             hi: () => 'Hi!',
-            sayHi: (ctr: { hi: '' }) => () => {
-                tsafeAssert<Equals<typeof ctr, {
-                    hi: string,
-                    sayHi: (ctr: typeof ctr) => string
-                }>>();
-                return ctr.hi;
-            }
+            sayHi: (ctx: { hi: string }) => () => ctr.hi
         });
-        expect(testee.sayHi()).toBe('Hi!');
+        tsafeAssert<Equals<typeof ctr.hi, string>>();
+        expect(ctr.sayHi()).toBe('Hi!');
     });
 
     it('should infer right container type given an explicit module', () => {
@@ -359,32 +355,26 @@ describe('The inject function', () => {
         };
         const module: Module<Services> = {
             hi: () => 'Hi!',
-            sayHi: (ctr) => () => {
-                tsafeAssert<Equals<typeof ctr, {
-                    hi: string,
-                    sayHi: () => string
-                }>>();
-                return ctr.hi;
-            }
+            sayHi: (ctr) => () => ctr.hi
         };
-        const testee = inject(module);
-        expect(testee.sayHi()).toBe('Hi!');
+        const ctr = inject(module);
+        tsafeAssert<Equals<typeof ctr.hi, string>>();
+        expect(ctr.sayHi()).toBe('Hi!');
     });
 
     it('should overwrite a particular service', () => {
-        const testee = inject({
+        type C = {
+            hi: string,
+            sayHi: (ctx: C) => () => string
+        };
+        const ctr = inject({
             hi: () => 'Hi!',
-            sayHi: (ctr) => () => {
-                tsafeAssert<Equals<typeof ctr, {
-                    hi: string,
-                    sayHi: (ctr: typeof ctr) => void
-                }>>();
-                return ctr.hi;
-            }
+            sayHi: (ctx: C) => () => ctx.hi
         }, {
             hi: () => '¡Hola!'
         });
-        expect(testee.sayHi()).toBe('¡Hola!');
+        tsafeAssert<Equals<typeof ctr.hi, string>>();
+        expect(ctr.sayHi()).toBe('¡Hola!');
     });
 
     it('sould infer the type of factories of mergable modules', () => {

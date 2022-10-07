@@ -5,7 +5,7 @@
  ******************************************************************************/
 
 import { keys, merge } from "./merge";
-import { Module, Container, Factory, Validate } from "./types";
+import { Module, Container, Validate, Factory } from "./types";
 
 const isEager = Symbol();
 
@@ -19,9 +19,11 @@ export function inject<M extends [Module, ...Module[]]>(...modules: Validate<M>)
     return container;
 }
 
-export function eager<T>(factory: Factory<T>): typeof factory {
-    return (isEager in factory) ? factory : Object.assign((ctr: any) => factory(ctr), { [isEager]: true });
+export function eager<F extends Factory<T>, T>(factory: F): F {
+    return (isEager in factory) ? factory : Object.assign(((ctr: any) => factory(ctr)) as F, { [isEager]: true });
 }
+
+const f: Factory<number> = () => 1
 
 function initializeEagerServices<T, M extends Module<T>>(module: M, container: any): void {
     keys(module).forEach(key => {
