@@ -1,6 +1,6 @@
 tasks:
-  - before: . <(curl gitprompt.sh/install)
-  - init: npm i
+  - before: . <(curl -sL gitprompt.sh/install)
+    init: npm i
     command: npm test
 
 vscode:
