@@ -5,21 +5,22 @@
  ******************************************************************************/
 
 import { keys, merge } from "./merge";
-import { Module, Container, Factory } from "./types";
+import { Module, Container, Factory, Validate } from "./types";
 
 const isEager = Symbol();
 
 const isRequested = Symbol();
 
-export function inject<M extends [Module, ...Module[]]>(...modules: M): Container<M> {
-    const module = modules.reduce(merge, {});
+// @ts-expect-error Validate<M> is no array
+export function inject<M extends [Module, ...Module[]]>(...modules: Validate<M>): Container<M> {
+    const module = (modules as Module[]).reduce(merge, {});
     const container = proxify(module);
     initializeEagerServices(module, container);
     return container;
 }
 
-export function eager<C, T>(factory: Factory<C, T>): Factory<C, T> {
-    return (isEager in factory) ? factory : Object.assign((ctr: C) => factory(ctr), { [isEager]: true } );
+export function eager<T>(factory: Factory<T>): typeof factory {
+    return (isEager in factory) ? factory : Object.assign((ctr: any) => factory(ctr), { [isEager]: true } );
 }
 
 function initializeEagerServices<T, M extends Module<T>>(module: M, container: any): void {

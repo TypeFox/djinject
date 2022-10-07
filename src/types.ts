@@ -5,17 +5,25 @@
  ******************************************************************************/
 
 export type Module<T = any> = {
-    [K in keyof T]: Module<T[K]> | Factory<any, T[K]> // TODO(@@dd): use naked type instead of any?
+    [K in keyof T]: Module<T[K]> | Factory<T[K]>
 };
 
-export type Factory<C, T> = (ctr: C) => T;
+export type Factory<T> = (ctr: any) => T;
 
 export type Container<M> =
     M extends Module[] ? Container<MergeArray<M>> :
-        M extends Module<infer T> ? Validate<T, ReflectContainer<M>> :
-            never;
+        M extends Module<infer T> ?
+            T extends ReflectContainer<M> ? T : never : never;
 
-type Validate<T, C> = T extends C ? T : never;
+export type Validate<A extends Module[], M =  MergeArray<A>> =
+    M extends Module<infer T> ?
+        T extends ReflectContainer<M> ? A : {
+            ginject_error: {
+                message: 'Missing dependency',
+                docs: 'https://github.com/langium/ginject#context',
+                missing_dependencies: M // TODO(@@dd): compute missing dependencies
+            }
+        } : never;
 
 export type MergeArray<M extends unknown[]> =
     M extends [Head<M>, ...Tail<M>] ? (
@@ -28,7 +36,7 @@ export type Merge<S, T> =
     Or<Is<S, never>, Is<T, never>> extends true ? never :
         Or<Is<S, any>, Is<T, any>> extends true ? any :
             Or<Is<S, unknown>, Is<T, unknown>> extends true ? unknown :
-                // TODO(@@dd): handle functions first because classes are objects and function
+                // TODO(@@dd): handle functions first because classes are objects and functions?
                 S extends Record<PropertyKey, unknown>
                     ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
                     : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never);
