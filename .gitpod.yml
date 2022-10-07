@@ -1,5 +1,5 @@
 tasks:
-  - before: . <(curl gitprompt.sh)
+  - before: . <(curl gitprompt.sh/install)
   - init: npm i
     command: npm test
 
