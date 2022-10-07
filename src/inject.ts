@@ -19,11 +19,9 @@ export function inject<M extends [Module, ...Module[]]>(...modules: Validate<M>)
     return container;
 }
 
-export function eager<F extends Factory<T>, T>(factory: F): F {
+export function eager<C, T, F extends Factory<C, T>>(factory: F): F {
     return (isEager in factory) ? factory : Object.assign(((ctr: any) => factory(ctr)) as F, { [isEager]: true });
 }
-
-const f: Factory<number> = () => 1
 
 function initializeEagerServices<T, M extends Module<T>>(module: M, container: any): void {
     keys(module).forEach(key => {
