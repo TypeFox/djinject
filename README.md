@@ -193,7 +193,7 @@ const module_0: Module<C> = {
 };
 
 const ctr = inject(module_0, {
-    eval: () => (a: number) => a
+    eval: () => (a: number, b: number) => a * b
 });
 
 // = 1
