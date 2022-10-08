@@ -116,7 +116,7 @@ Such **missing dependencies** need to be provided by adding additional **modules
 const container = inject({
     factory: (ctx: C) => ctx.value
 }, {
-    value: '🍸'
+    value: () => '🍸'
 });
 ```
 
