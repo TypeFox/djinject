@@ -17,9 +17,9 @@
 
 <br>
 
-**Ginject** [ʤɪnject] is a non-intrusive, typesafe and functional dependency injection library for Node.js and JavaScript, powered by TypeScript. The API surface area is tiny, ***ginject** includes two functions and a handful of type definitions.
+**Ginject** [ʤɪnject] is a non-intrusive, typesafe and functional dependency injection library for Node.js and JavaScript, powered by TypeScript.
 
-**Ginject** empowers developers designing decoupled applications** and frameworks. **Ginject**'s main goal is increasing the developer experience by keeping dependencies in central module definitions and by using TypeScript's type system to restrain runtime challenges.
+**Ginject** empowers developers designing decoupled applications and frameworks. **Ginject**'s main goal is increasing the developer experience by offering a tiny, yet powerful API, keeping dependencies in central module definitions and by using TypeScript's type system to restrain runtime challenges.
 
 The concept of **ginject**'s central module definition is inspired by [Google Guice](https://github.com/google/guice). However, **ginject** is going further by lifting the API to the functional level.
 
