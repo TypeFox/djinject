@@ -184,6 +184,8 @@ App started
 Gin mixed
 ```
 
+Please note that **eager factories** overwrite **lazy factories** vice versa when **rebinding** them.
+
 ### Rebinding dependencies
 
 The main advantage of **dependency injection** arises from the fact that an application is able to **rebind dependencies**. That way the **structure** of a system can be fixated while the **behavior** can be changed.
