@@ -67,7 +67,7 @@ console.log(container.sayHi('Ginject'));
 
 ### Terminology
 
-The **inject** function is turning **modules** into a **container**. A module is a plain vanilla JS object, composed of nested **groups** and **dependency factories**. Factories may return any JS value, e.g. constants, singletons and providers. Unlike [Inversify](https://github.com/inversify/InversifyJS), there is no need to decorate classes.
+The **inject** function is turning **modules** into a **container**. A **module** is a plain vanilla JS object, composed of nested **groups** and **dependency factories**. Factories may return any JS value, e.g. constants, singletons and providers. Unlike [Inversify](https://github.com/inversify/InversifyJS), there is no need to decorate classes.
 
 ```ts
 import { inject, Module } from 'ginject';
@@ -85,7 +85,7 @@ const module: Module<Context> = {
         // a factory of type Factory<Context, Value>
         value: (ctx: Context) => new Value(ctx)
     }
-}
+};
 
 // A _container_ of type Container<Module<Context>> = Context
 const container = inject(module);
@@ -94,43 +94,107 @@ const container = inject(module);
 const value = container.group.value;
 ```
 
+### Context & Multiple Modules
+
+A **container** provides each **factory** with a parameter called **context**.
+
+```ts
+type C = {
+    value: string
+}
+
+const container = inject({
+    factory: (ctx: C) => ctx.value
+});
+```
+
+The **context** of type **C** provides a **value** that can't be resolved. The **inject** function is type-checked by TS the way that the completeness of the arguments is validated.
+
+Such **missing dependencies** need to be provided by adding additional **modules** to the **inject** call.
+
+```ts
+const container = inject({
+    factory: (ctx: C) => ctx.value
+}, {
+    value: '🍸'
+});
+```
+
+Now the compiler is satisfied and we can start using the **container**.
+
+```ts
+// prints 🍸
+console.log(container.factory);
+```
+
+You might have noticed that the **container** automatically calls the **factory** and **injects** itself as the **context**. The use-site receives the **values**.
+
 ### Eager vs lazy initialization
 
-A dependency `container.group.value` is _lazily_ initialized when first accessed on the container. Turn a factory _eager_ to initialize the dependency at the time of the `inject` call.
+A dependency **container.group.value** is **lazily** initialized when first accessed on the container. Turn a factory **eager** to initialize the dependency at the time of the **inject** call.
 
-```diff
-- import { inject, Module } from 'ginject';
-+ import { eager, inject, Module } from 'ginject';
+A use case for **eager initialization** would be to ensure that **side effects** take place during the initialization of the **container**. 
 
-const module: Module<Context> = {
-    group: {
--        value: (ctx: Context) => new Value(ctx)
-+        value: eager((ctx: Context) => new Value(ctx))
-    }
+```ts
+import { eager, inject, Module } from 'ginject';
+
+type C = {
+    gin: string
 }
+
+const module: Module<C> = {
+    gin: eager(() => {
+        const gin = '🍸';
+        console.log('Gin mixed');
+        return gin;
+    })
+}
+
+const ctr = inject(module);
+
+console.log('App started');
+```
+
+In the **eager** case, the output will be
+
+```
+Gin mixed
+App started
+```
+
+In the **lazy** case, the output will be
+
+```
+App started
 ```
 
 ### Rebinding dependencies
 
-TODO(@@dd): rebinding dependencies
+The main advantage of **dependency injection** arises from the fact that an application is able to **rebind dependencies**. That way the **structure** of a system can be fixated while the **behavior** can be changed.
 
-### Partial modules
+The main vehicle for **rebinding dependencies** is the **inject** function which receives a variable amount of **modules**.
 
-TODO(@@dd): partial modules
+The behavior of an application can be enhanced by overwriting existing functionality using additional modules.
 
-### Action handlers
-
-```diff
-const module: Module<Context> = {
-    group: {
-        value: (ctx) => {
-+            console.log('Before');
-            const value = new Value(ctx);
-+            console.log('After');
-            return value;
-        }
-    }
+```ts
+type C = {
+    readonly print: () => void
+    eval: (a: number, b: number) => number
 }
+
+const module_0: Module<C> = {
+    print: (ctx) => () => {
+        console.log(ctx.eval(1, 1));
+    },
+    eval: () => (a, b) => a + b
+};
+
+const ctr = inject(module_0, {
+    eval: () => (a: number) => a
+});
+
+// = 1
+ctr.print();
 ```
 
 ### Cyclic Dependencies
