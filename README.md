@@ -127,7 +127,7 @@ Now the compiler is satisfied and we can start using the **container**.
 console.log(container.factory);
 ```
 
-You might have noticed that the **container** automatically calls the **factory** and **injects** itself as the **context**. The use-site receives the **values**.
+You might have noticed that the **container** automatically calls the **factory** and **injects** itself as the **context**. The use-site receives the **value**.
 
 ### Eager vs lazy initialization
 
@@ -153,6 +153,8 @@ const module: Module<C> = {
 const ctr = inject(module);
 
 console.log('App started');
+
+ctr.gin
 ```
 
 In the **eager** case, the output will be
@@ -166,6 +168,7 @@ In the **lazy** case, the output will be
 
 ```
 App started
+Gin mixed
 ```
 
 ### Rebinding dependencies
