@@ -12,7 +12,7 @@ const isEager = Symbol();
 const isRequested = Symbol();
 
 // @ts-expect-error Validate<M> is no array
-export function inject<M extends [Module, ...Module[]]>(...modules: Validate<[Ginject, ...M]>): Container<[Ginject, ...M]> {
+export function inject<M extends [Module, ...Module[]]>(...modules: Validate<[Ginject, ...M]>): Container<M> {
     const module = (modules as Module[]).reduce(merge, {});
     const container = proxify(module);
     initializeEagerServices(module, container);
