@@ -172,14 +172,14 @@ console.log('App started');
 ctr.gin
 ```
 
-In the **eager** case, the output will be
+In the **eager** case, the output is
 
 ```
 Gin mixed
 App started
 ```
 
-In the **lazy** case, the output will be
+In the **lazy** case, the output is
 
 ```
 App started
