@@ -11,9 +11,14 @@ const isEager = Symbol();
 
 const isRequested = Symbol();
 
-// @ts-expect-error Validate<M> is no array
-export function inject<M extends [Module, ...Module[]]>(...modules: Validate<[Ginject, ...M]>): Container<M> {
-    const module = (modules as Module[]).reduce(merge, {});
+// @ts-expect-error This supresses the validation error type.
+export function inject<M extends [Module<Ginject>, Module, ...Module[]]>(...modules: Validate<M>): Container<M> {
+    const root: Module<Ginject> = {
+        ginject: {
+            onActivation: (ctx) => <T>(factory: Factory<any, T>) => factory(ctx)
+        }
+    };
+    const module = (modules as Module[]).reduce(merge, root);
     const container = proxify(module);
     initializeEagerServices(module, container);
     return container;
@@ -34,17 +39,17 @@ function initializeEagerServices<T, M extends Module<T>>(module: M, container: a
     });
 }
 
-function proxify<C, T>(module: Module<T>, container?: C, path: string = ''): T {
+function proxify<C extends Ginject, T>(module: Module<T>, container?: C, path: string = ''): T {
     const get = (obj: Record<PropertyKey, unknown>, prop: PropertyKey, proxy: T) => {
         const name = path + '[' + String(prop) + ']';
         if (obj[prop] === isRequested) {
             throw new Error('Cyclic dependency ' + name + '. See https://docs.ginject.io/#cyclic-dependencies');
         }
-        const ctx = container || proxy;
+        const ctr = container || (proxy as any);
         const val = (module as any)[prop];
         return (prop in obj) ? obj[prop] : (prop in module) ? (
             obj[prop] = isRequested,
-            obj[prop] = (typeof val === 'function') ? val(ctx) : proxify(val, ctx, name)
+            obj[prop] = (typeof val === 'function') ? ctr.ginject.onActivation(ctr, val) : proxify(val, ctr, name)
         ) : undefined;
     };
     const proxy: any = new Proxy({}, {

@@ -4,17 +4,11 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-export interface Ginject {
+export type Ginject = {
     ginject: {
-        context: <C>(ctx: C) => C;
-        eager: (eager: Eager) => Eager;
-        inject: (inject: Inject) => Inject;
+        onActivation: <T>(factory: Factory<any, T>) => T
     }
 }
-
-export type Eager = <C, T, F extends Factory<C, T>>(factory: F) => F;
-
-export type Inject = <M extends [Module, ...Module[]]>(...modules: M) => Container<M>;
 
 export type Module<C = any, T = C> = {
     [K in keyof T]: Module<C, T[K]> | Factory<any, T[K]>

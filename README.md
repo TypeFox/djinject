@@ -134,11 +134,9 @@ You might have noticed that the **container** automatically calls the **factory*
 **ginject** has an internal root module of type **Module&lt;Ginject>** that is implicity the first module of the **inject** function.
 
 ```ts
-type Ginject = {
+export type Ginject = {
     ginject: {
-        context: <C>(ctx: C) => C;
-        eager: (delegate: Eager) => Eager;
-        inject: (delegate: Inject) => Inject;
+        onActivation: <C, T>(ctx: C, factory: Factory<C, T>) => T
     }
 }
 ```
