@@ -134,14 +134,14 @@ You might have noticed that the **container** automatically calls the **factory*
 **ginject** has an internal root module of type **Module&lt;Ginject>** that is implicity the first module of the **inject** function.
 
 ```ts
-export type Ginject = {
+type GinjectModule<C> = {
     ginject: {
-        onActivation: <C, T>(ctx: C, factory: Factory<C, T>) => T
+        onActivation: (ctx: C) => <T>(factory: Factory<C, T>) => T
     }
 }
 ```
 
-In other words, the behavior of **ginject** can be enhanced.
+The **onActivation** function is used to customize the creation of dependencies.
 ### Eager vs lazy initialization
 
 A dependency **container.group.value** is **lazily** initialized when first accessed on the container. Turn a factory **eager** to initialize the dependency at the time of the **inject** call.
