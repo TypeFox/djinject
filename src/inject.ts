@@ -5,17 +5,17 @@
  ******************************************************************************/
 
 import { keys, merge } from "./merge";
-import { Ginject, Container, Factory, Module, Validate } from "./types";
+import { GinjectModule, Container, Factory, Module, Validate } from "./types";
 
 const isEager = Symbol();
 
 const isRequested = Symbol();
 
 // @ts-expect-error This supresses the validation error type.
-export function inject<M extends [Module<Ginject>, Module, ...Module[]]>(...modules: Validate<M>): Container<M> {
-    const root: Module<Ginject> = {
+export function inject<M extends [GinjectModule<C>, Module, ...Module[]], C = Container<M>>(...modules: Validate<M>): C {
+    const root: GinjectModule<C> = {
         ginject: {
-            onActivation: (ctx) => <T>(factory: Factory<any, T>) => factory(ctx)
+            onActivation: (ctx: C) => <T>(factory: Factory<C, T>) => factory(ctx)
         }
     };
     const module = (modules as Module[]).reduce(merge, root);
