@@ -39,7 +39,7 @@ function initializeEagerServices<T, M extends Module<T>>(module: M, container: a
     });
 }
 
-function proxify<C extends Ginject, T>(module: Module<T>, container?: C, path: string = ''): T {
+function proxify<C extends GinjectModule<C>, T>(module: Module<T>, container?: C, path: string = ''): T {
     const get = (obj: Record<PropertyKey, unknown>, prop: PropertyKey, proxy: T) => {
         const name = path + '[' + String(prop) + ']';
         if (obj[prop] === isRequested) {
