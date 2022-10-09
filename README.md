@@ -106,7 +106,7 @@ type C = {
 }
 
 const container = inject({
-    factory: (ctx: C) => ctx.value
+    factory: (ctx: C) => () => ctx.value
 });
 ```
 
@@ -116,7 +116,7 @@ Such **missing dependencies** need to be provided by adding additional **modules
 
 ```ts
 const container = inject({
-    factory: (ctx: C) => ctx.value
+    factory: (ctx: C) => () => ctx.value
 }, {
     value: () => '🍸'
 });
@@ -126,7 +126,7 @@ Now the compiler is satisfied and we can start using the **container**.
 
 ```ts
 // prints 🍸
-console.log(container.factory);
+console.log(container.factory());
 ```
 
 You might have noticed that the **container** automatically calls the **factory** and **injects** itself as the **context**. The use-site receives the **value**.
