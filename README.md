@@ -136,9 +136,9 @@ You might have noticed that the **container** automatically calls the **factory*
 ```ts
 type Ginject = {
     ginject: {
-        eager: Eager => Eager,
-        inject: Inject => Inject,
-        context: <C>(ctx: C) => C
+        context: <C>(ctx: C) => C;
+        eager: (delegate: Eager) => Eager;
+        inject: (delegate: Inject) => Inject;
     }
 }
 ```

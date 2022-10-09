@@ -4,6 +4,18 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
+export interface Ginject {
+    ginject: {
+        context: <C>(ctx: C) => C;
+        eager: (eager: Eager) => Eager;
+        inject: (inject: Inject) => Inject;
+    }
+}
+
+export type Eager = <C, T, F extends Factory<C, T>>(factory: F) => F;
+
+export type Inject = <M extends [Module, ...Module[]]>(...modules: M) => Container<M>;
+
 export type Module<C = any, T = C> = {
     [K in keyof T]: Module<C, T[K]> | Factory<any, T[K]>
 };
@@ -20,7 +32,7 @@ export type Validate<A extends Module[], M =  MergeArray<A>, C = ReflectContaine
         T extends C ? A : {
             ginject_error: {
                 message: 'Missing dependency',
-                docs: 'https://github.com/langium/ginject#context',
+                docs: 'https://docs.ginject.io/#context--multiple-modules',
                 missing_dependencies: Omit<Expand<C>, Paths<T>>
             }
         } : never;

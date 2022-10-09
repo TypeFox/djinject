@@ -5,7 +5,7 @@
  ******************************************************************************/
 
 import { keys, merge } from "./merge";
-import { Module, Container, Validate, Factory } from "./types";
+import { Ginject, Container, Factory, Module, Validate } from "./types";
 
 const isEager = Symbol();
 
@@ -38,7 +38,7 @@ function proxify<C, T>(module: Module<T>, container?: C, path: string = ''): T {
     const get = (obj: Record<PropertyKey, unknown>, prop: PropertyKey, proxy: T) => {
         const name = path + '[' + String(prop) + ']';
         if (obj[prop] === isRequested) {
-            throw new Error('Cyclic dependency ' + name + '. See https://github.com/langium/ginject#cyclic-dependencies');
+            throw new Error('Cyclic dependency ' + name + '. See https://docs.ginject.io/#cyclic-dependencies');
         }
         const ctx = container || proxy;
         const val = (module as any)[prop];
