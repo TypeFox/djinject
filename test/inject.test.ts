@@ -269,7 +269,7 @@ describe('The inject function', () => {
         }
         expect(() =>
             inject({ a: (ctx: API) => new A(ctx), b: (ctx: API) => new B(ctx) }).a
-        ).toThrowError('Cyclic dependency [a]. See https://github.com/langium/ginject#cyclic-dependencies');
+        ).toThrowError('Cyclic dependency [a]. See https://docs.ginject.io/#cyclic-dependencies');
     });
 
     it('should throw when cyclic dependency is accessed during factory function call', () => {
@@ -278,7 +278,7 @@ describe('The inject function', () => {
         const createB = ({ a }: API) => ({ b: a.a });
         expect(() =>
             inject({ a: createA, b: createB }).a
-        ).toThrowError('Cyclic dependency [a]. See https://github.com/langium/ginject#cyclic-dependencies');
+        ).toThrowError('Cyclic dependency [a]. See https://docs.ginject.io/#cyclic-dependencies');
     });
 
     it('should merge groups', () => {
@@ -378,7 +378,7 @@ describe('The inject function', () => {
     it('should overwrite a particular service', () => {
         type C = {
             hi: string,
-            sayHi: (ctx: C) => () => string
+            sayHi: () => string
         };
         const ctr = inject({
             hi: () => 'Hi!',

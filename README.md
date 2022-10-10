@@ -131,17 +131,6 @@ console.log(container.factory());
 
 You might have noticed that the **container** automatically calls the **factory** and **injects** itself as the **context**. The use-site receives the **value**.
 
-**ginject** has an internal root module of type **Module&lt;Ginject>** that is implicity the first module of the **inject** function.
-
-```ts
-type GinjectModule<C> = {
-    ginject: {
-        onActivation: (ctx: C) => <T>(factory: Factory<C, T>) => T
-    }
-}
-```
-
-The **onActivation** function is used to customize the creation of dependencies.
 ### Eager vs lazy initialization
 
 A dependency **container.group.value** is **lazily** initialized when first accessed on the container. Turn a factory **eager** to initialize the dependency at the time of the **inject** call.

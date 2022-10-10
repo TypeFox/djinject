@@ -4,12 +4,6 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-export type GinjectModule<C> = {
-    ginject: {
-        onActivation: (ctx: C) => <T>(factory: Factory<C, T>) => T
-    }
-}
-
 export type Module<C = any, T = C> = {
     [K in keyof T]: Module<C, T[K]> | Factory<any, T[K]>
 };

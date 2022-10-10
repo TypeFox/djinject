@@ -5,20 +5,15 @@
  ******************************************************************************/
 
 import { keys, merge } from "./merge";
-import { GinjectModule, Container, Factory, Module, Validate } from "./types";
+import { Container, Factory, Module, Validate } from "./types";
 
 const isEager = Symbol();
 
 const isRequested = Symbol();
 
 // @ts-expect-error This supresses the validation error type.
-export function inject<M extends [GinjectModule<C>, Module, ...Module[]], C = Container<M>>(...modules: Validate<M>): C {
-    const root: GinjectModule<C> = {
-        ginject: {
-            onActivation: (ctx: C) => <T>(factory: Factory<C, T>) => factory(ctx)
-        }
-    };
-    const module = (modules as Module[]).reduce(merge, root);
+export function inject<M extends [Module, ...Module[]]>(...modules: Validate<M>): Container<M> {
+    const module = (modules as Module[]).reduce(merge, {});
     const container = proxify(module);
     initializeEagerServices(module, container);
     return container;
@@ -28,18 +23,14 @@ export function eager<C, T, F extends Factory<C, T>>(factory: F): F {
     return (isEager in factory) ? factory : Object.assign(((ctr: any) => factory(ctr)) as F, { [isEager]: true });
 }
 
-function initializeEagerServices<T, M extends Module<T>>(module: M, container: any): void {
+function initializeEagerServices<T, M extends Module<T>>(module: M, context: any): void {
     keys(module).forEach(key => {
-        const value = module[key];
-        if (typeof value === 'function') {
-            (isEager in value) && value(container);
-        } else {
-            initializeEagerServices(value, container);
-        }
+        const t = module[key];
+        (typeof t === 'function') ? ((isEager in t) && t(context)) : initializeEagerServices(t, context);
     });
 }
 
-function proxify<C extends GinjectModule<C>, T>(module: Module<T>, container?: C, path: string = ''): T {
+function proxify<C, T>(module: Module<T>, container?: C, path: string = ''): T {
     const get = (obj: Record<PropertyKey, unknown>, prop: PropertyKey, proxy: T) => {
         const name = path + '[' + String(prop) + ']';
         if (obj[prop] === isRequested) {
@@ -49,7 +40,7 @@ function proxify<C extends GinjectModule<C>, T>(module: Module<T>, container?: C
         const val = (module as any)[prop];
         return (prop in obj) ? obj[prop] : (prop in module) ? (
             obj[prop] = isRequested,
-            obj[prop] = (typeof val === 'function') ? ctr.ginject.onActivation(ctr, val) : proxify(val, ctr, name)
+            obj[prop] = (typeof val === 'function') ? val(ctr) : proxify(val, ctr, name)
         ) : undefined;
     };
     const proxy: any = new Proxy({}, {
