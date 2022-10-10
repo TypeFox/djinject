@@ -512,4 +512,18 @@ describe('The inject result', () => {
         expect(a).toBe('');
     });
 
+    it('should now accept an invalid module', () => {
+        // @ts-expect-error: Argument of type '{ a: number; }' is not assignable to parameter of type 'never'.
+        // cause: inject expects arguments [Module, ...Module]
+        inject({ a: 1 })
+    });
+
+    // TODO(@@dd): validation should recognize that 1 & 'a' resolve to never
+    it('should merge to incompatible values', () => {
+        // no validation error but results in { a: never }
+        // cause: { a: 1 & 'a' } resolves to { a: never }
+        const ctr = inject({ a: () => 1 }, { a: () => 'a' })
+        tsafeAssert<Equals<typeof ctr, { a: unknown }>>()
+    });
+
 });

@@ -61,6 +61,7 @@ type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 ex
 
 type Join<T> = T extends Record<PropertyKey, unknown> ? { [K in keyof T]: T[K] } : T;
 
+// TODO(@@dd): distinguish between Factory and Module
 type ReflectContainer<T> = T extends Record<PropertyKey, unknown>
     ? MergeObjects<FunctionArgs<PickByValue<T, (...args: any[]) => any>>, ReflectContainer<UnionToIntersection<Values<PickByValue<T, Record<PropertyKey, unknown>>>>>>
     : unknown;
