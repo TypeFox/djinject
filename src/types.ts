@@ -54,7 +54,7 @@ type Head<A extends unknown[]> = A extends [] ? never : A extends [head: infer H
 
 type Tail<A extends unknown[]> = A extends [head: unknown, ...tail: infer T] ? T : never;
 
-type IsEmpty<M> = [keyof M] extends [never] ? true : false;
+type IsEmpty<T> = [keyof T] extends [never] ? true : false;
 
 type Is<T1, T2> = (<T>() => T extends T2 ? true : false) extends <T>() => T extends T1 ? true : false ? true : false;
 
