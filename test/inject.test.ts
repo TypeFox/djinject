@@ -486,6 +486,12 @@ describe('The inject result', () => {
         expect('b' in ctr).toBe(false);
     });
 
+    it('should be empty if module is empty', () => {
+        const ctr = inject({});
+        tsafeAssert<Equals<typeof ctr, {}>>();
+        expect(ctr).toEqual({});
+    });
+
     it('should be extensible', () => {
         const ctr: any = inject({});
         expect(Object.isExtensible(ctr)).toBe(true);

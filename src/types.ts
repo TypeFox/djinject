@@ -12,18 +12,20 @@ export type Factory<C, T> = (ctx: C) => T;
 
 export type Container<M> =
     M extends Module[] ? Container<MergeArray<M>> :
-        M extends Module<infer T> ?
-            T extends ReflectContainer<M> ? T : never : never;
+        IsEmpty<M> extends true ? {} :
+            M extends Module<infer C> ?
+                C extends ReflectContainer<M> ? C : never : never;
 
 export type Validate<A extends Module[], M =  MergeArray<A>, C = ReflectContainer<M>> =
-    M extends Module<infer T> ?
-        T extends C ? A : {
-            ginject_error: {
-                message: 'Missing dependency',
-                docs: 'https://docs.ginject.io/#context--multiple-modules',
-                missing_dependencies: Omit<Expand<C>, Paths<T>>
-            }
-        } : never;
+    IsEmpty<M> extends true ? A :
+        M extends Module<unknown, infer T> ?
+            T extends C ? A : {
+                ginject_error: {
+                    message: 'Missing dependency',
+                    docs: 'https://docs.ginject.io/#context--multiple-modules',
+                    missing_dependencies: Omit<Expand<C>, Paths<T>>
+                }
+            } : never;
 
 export type MergeArray<M extends unknown[]> =
     M extends [Head<M>, ...Tail<M>] ? (
@@ -51,6 +53,8 @@ type MergeObjects<S, T> =
 type Head<A extends unknown[]> = A extends [] ? never : A extends [head: infer H, ...tail: unknown[]] ? H : never;
 
 type Tail<A extends unknown[]> = A extends [head: unknown, ...tail: infer T] ? T : never;
+
+type IsEmpty<M> = [keyof M] extends [never] ? true : false;
 
 type Is<T1, T2> = (<T>() => T extends T2 ? true : false) extends <T>() => T extends T1 ? true : false ? true : false;
 
