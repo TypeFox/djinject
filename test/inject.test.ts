@@ -452,7 +452,7 @@ describe('The inject function', () => {
         tsafeAssert<Equals<typeof container.d.e, B>>();
     });
 
-    it('should disallow to use wrong containers types', () => {
+    it('should disallow to use wrong module types', () => {
         // @ts-expect-error
         inject({
             hi: (ctx: false) => 'Hi!'
@@ -504,6 +504,12 @@ describe('The inject result', () => {
         const ctr: any = Object.seal(inject({}));
         expect(Object.isExtensible(ctr)).toBe(false);
         expect(() => (ctr.a = 1)).toThrowError('Cannot define property a, object is not extensible');
+    });
+
+    it('should resolve values to never if modules are incompatible', () => {
+        const { a } = inject({ a: () => 1 }, { a: () => ''})
+        tsafeAssert<Equals<typeof a, unknown>>();
+        expect(a).toBe('');
     });
 
 });

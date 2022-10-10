@@ -10,11 +10,10 @@ export type Module<C = any, T = C> = {
 
 export type Factory<C, T> = (ctx: C) => T;
 
-export type Container<M> =
-    M extends Module[] ? Container<MergeArray<M>> :
-        IsEmpty<M> extends true ? {} :
-            M extends Module<infer C> ?
-                C extends ReflectContainer<M> ? C : never : never;
+export type Container<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
+    IsEmpty<M> extends true ? {} :
+        M extends Module<unknown, infer T> ?
+            T extends C ? T : never : never;
 
 export type Validate<A extends Module[], M =  MergeArray<A>, C = ReflectContainer<M>> =
     IsEmpty<M> extends true ? A :
@@ -23,7 +22,7 @@ export type Validate<A extends Module[], M =  MergeArray<A>, C = ReflectContaine
                 ginject_error: {
                     message: 'Missing dependency',
                     docs: 'https://docs.ginject.io/#context--multiple-modules',
-                    missing_dependencies: Omit<Expand<C>, Paths<T>>
+                    missing_dependencies: Join<Omit<Expand<C>, Paths<T>>>
                 }
             } : never;
 
@@ -62,7 +61,7 @@ type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 ex
 
 type Join<T> = T extends Record<PropertyKey, unknown> ? { [K in keyof T]: T[K] } : T;
 
-export type ReflectContainer<T> = T extends Record<PropertyKey, unknown>
+type ReflectContainer<T> = T extends Record<PropertyKey, unknown>
     ? MergeObjects<FunctionArgs<PickByValue<T, (...args: any[]) => any>>, ReflectContainer<UnionToIntersection<Values<PickByValue<T, Record<PropertyKey, unknown>>>>>>
     : unknown;
 
