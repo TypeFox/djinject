@@ -11,6 +11,8 @@ const isEager = Symbol();
 
 const isRequested = Symbol();
 
+// TODO(@@dd): allow to define a module with an activation handler: { ginject: { onActivation: <C>(ctx: C) = <T>(factory: Factory<C, T>) => factory(ctx) } }
+
 // @ts-expect-error This supresses the validation error type.
 export function inject<M extends [Module, ...Module[]]>(...modules: Validate<M>): Container<M> {
     const module = (modules as Module[]).reduce(merge, {});
