@@ -15,7 +15,7 @@ export type Container<A extends Module[], M = MergeArray<A>, C = ReflectContaine
         M extends Module<unknown, infer T> ?
             T extends C ? T : never : never;
 
-export type Validate<A extends Module[], M =  MergeArray<A>, C = ReflectContainer<M>> =
+export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
     IsEmpty<M> extends true ? A :
         M extends Module<unknown, infer T> ?
             T extends C ? A : {

@@ -506,6 +506,19 @@ describe('The inject result', () => {
         expect(() => (ctr.a = 1)).toThrowError('Cannot define property a, object is not extensible');
     });
 
+    it('should return a class type ', () => {
+        class A {
+            a = 1
+        }
+        const ctr = inject({ a: () => A })
+        tsafeAssert<Equals<typeof ctr, { a: typeof A }>>()
+        expect(new ctr.a().a).toBe(1);
+    });
+
+});
+
+describe('Module validation', () => {
+
     it('should resolve values to never if modules are incompatible', () => {
         const { a } = inject({ a: () => 1 }, { a: () => ''})
         tsafeAssert<Equals<typeof a, unknown>>();
@@ -524,6 +537,42 @@ describe('The inject result', () => {
         // cause: { a: 1 & 'a' } resolves to { a: never }
         const ctr = inject({ a: () => 1 }, { a: () => 'a' })
         tsafeAssert<Equals<typeof ctr, { a: unknown }>>()
+    });
+
+    it('should return validation error, if the container is missing a value required by a context', () => {
+        inject(
+            // @ts-expect-error The resulting container is missing { b: boolean }
+            { f: (ctx: { b: boolean }) => 1 }
+        );
+    });
+
+    it('should provide a missing dependency by adding another module', () => {
+        // compiles, because the new f does not need { b: boolean } anymore
+        const ctr = inject(
+            { f: (ctx: { b: boolean }) => 1 },
+            { f: () => 1 },
+        );
+        tsafeAssert<Equals<typeof ctr, { f: number }>>();
+    });
+
+    // TODO(@@dd): resolve to never instead of unknown? maybe not and improve validation instead!
+    it('should resolve to unknown if two modules are incompatible', () => {
+        // compiles, because the new f does not need { b: boolean } anymore
+        const ctr = inject(
+            { f: (ctx: { b: boolean }) => 1 },
+            { f: () => '' },
+        );
+        tsafeAssert<Equals<typeof ctr, { f: unknown }>>();
+    });
+
+    it('should not compile, if two factories require different types for the same dependency', () => {
+        const ctr = inject(
+            // @ts-expect-error ctx: { b: boolean & string } is invalid
+            { f: (ctx: { b: boolean }) => 1 },
+            { g: (ctx: { b: string }) => 1 },
+            { b: () => '' }
+        );
+        tsafeAssert<Equals<typeof ctr, never>>();
     });
 
 });

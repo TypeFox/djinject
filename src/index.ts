@@ -5,4 +5,4 @@
  ******************************************************************************/
 
 export { eager, inject } from './inject';
-export { Container, Factory, Module, Validate } from './types';
+export { Container, Factory, Module } from './types';

@@ -4,7 +4,7 @@
     "lib": ["ES6"],               // specify library files to be included in the compilation
     "module": "commonjs",         // generated module code
     "rootDir": "./src",           // source folder
-    "outDir": "./lib",           // *.d.ts goes here
+    "outDir": "./lib",            // *.d.ts goes here
     "declaration": true,          // gnerates corresponding '.d.ts' file
     "declarationMap": true,       // generates a sourcemap for each corresponding '.d.ts' file
     "skipLibCheck": true,         // skip type checking all .d.ts files
