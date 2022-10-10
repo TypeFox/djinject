@@ -1,9 +1,7 @@
 tasks:
-  - before: . <(curl -sL gitprompt.sh/install)
-    init: npm i
+  - init: npm i
     command: npm test
 
 vscode:
   extensions:
     - dbaeumer.vscode-eslint
-    - mattpocock.ts-error-translator
