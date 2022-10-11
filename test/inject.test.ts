@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest'
 import { assert as tsafeAssert, Equals } from 'tsafe';
 import { eager, inject } from '../src/inject';
-import { Module } from '../src/types';
+import { Module, Validate } from '../src/types';
 
 describe('A dependency type', () => {
 
@@ -337,7 +337,7 @@ describe('The inject function', () => {
         const ctr2 = inject(m2);
         // TODO(@@dd): assertions
 
-        // @ts-expect-error inferred container is missing context C1 = { groupA: { service1: A } }
+        // @ts-expect-error
         const ctr3 = inject(m3);
         // TODO(@@dd): assertions
 
@@ -355,7 +355,7 @@ describe('The inject function', () => {
     it('should infer right container type given an ad-hoc module', () => {
         const ctr = inject({
             hi: () => 'Hi!',
-            sayHi: (ctx: { hi: string }) => () => ctr.hi
+            sayHi: (ctx: { hi: string }) => () => ctx.hi
         });
         tsafeAssert<Equals<typeof ctr.hi, string>>();
         expect(ctr.sayHi()).toBe('Hi!');
@@ -513,6 +513,25 @@ describe('The inject result', () => {
         const ctr = inject({ a: () => A })
         tsafeAssert<Equals<typeof ctr, { a: typeof A }>>()
         expect(new ctr.a().a).toBe(1);
+    });
+
+});
+
+describe('Validate', () => {
+
+    it('should ...', () => {
+        type Actual = Validate<[
+            { f: (ctx: { b: boolean }) => 1 },
+            { g: (ctx: { b: string }) => 1 }
+        ]>;
+        type Expected = {
+            ginject_error: {
+                message: "Missing dependency";
+                docs: "https://docs.ginject.io/#context";
+                missing_dependencies: ['b'];
+            }
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
     });
 
 });

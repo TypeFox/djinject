@@ -96,7 +96,7 @@ const container = inject(module);
 const value = container.group.value;
 ```
 
-### Context & Multiple Modules
+### Context
 
 A **container** provides each **factory** with a parameter called **context**.
 

@@ -21,23 +21,44 @@ export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer
             T extends C ? A : {
                 ginject_error: {
                     message: 'Missing dependency',
-                    docs: 'https://docs.ginject.io/#context--multiple-modules',
-                    missing_dependencies: Join<Omit<Expand<C>, Paths<T>>>
+                    docs: 'https://docs.ginject.io/#context',
+                    missing_dependencies: Keys<Omit<Expand<C>, Paths<T>>>
                 }
             } : never;
 
-export type MergeArray<M extends unknown[]> =
-    M extends [Head<M>, ...Tail<M>] ? (
-        Tail<M> extends [] ? Head<M> :
-            Tail<M> extends unknown[] ? Merge<MergeArray<Tail<M>>, Head<M>> :
-                never
-    ) : never;
+type ReflectContainer<M,
+    _Functions = Filter<M, Function1>,                           // { f1: (ctx: C1) = any, f2: ... }
+    _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>, // ((ctx: C) => any)[]
+    _ContextArray = FunctionArrayToContext<_FunctionArray>,      // C[]
+    Ctx = MergeArray<_ContextArray>,                             // C
+    _SubModules = Filter<M, Record<PropertyKey, unknown>>,       // {} | {}
+    SubModule = UnionToIntersection<Values<_SubModules>>         // {}
+> = M extends Record<PropertyKey, unknown> ? (
+    Is<Ctx, any> extends true ? (IsEmpty<SubModule> extends true ? unknown : ReflectContainer<SubModule>) :
+        Is<Ctx, never> extends true ? (IsEmpty<SubModule> extends true ? unknown : ReflectContainer<SubModule>) :
+            MergeObjects<Ctx, ReflectContainer<SubModule>>
+) : unknown;
+
+type FunctionArrayToContext<T> =
+    T extends [] ? [] :
+        T extends [Function1<infer Ctx>, ...Tail<T>]
+            ? [Ctx, ...FunctionArrayToContext<Tail<T>>]
+            : never;
+
+type Function1<T = any, R = any> = (args0: T, ...args: any[]) => R;
+
+export type MergeArray<M> =
+    M extends unknown[] ?
+        M extends [Head<M>, ...Tail<M>] ? (
+            Tail<M> extends [] ? Head<M> :
+                Tail<M> extends unknown[] ? Merge<MergeArray<Tail<M>>, Head<M>> :
+                    never
+        ) : never : never;
 
 export type Merge<S, T> =
     Or<Is<S, never>, Is<T, never>> extends true ? never :
         Or<Is<S, any>, Is<T, any>> extends true ? any :
             Or<Is<S, unknown>, Is<T, unknown>> extends true ? unknown :
-                // TODO(@@dd): handle functions first because classes are objects and functions?
                 S extends Record<PropertyKey, unknown>
                     ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
                     : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never);
@@ -49,9 +70,9 @@ type MergeObjects<S, T> =
             : (K extends keyof T ? T[K] : never)
     }>;
 
-type Head<A extends unknown[]> = A extends [] ? never : A extends [head: infer H, ...tail: unknown[]] ? H : never;
+type Head<A> = A extends [] ? never : A extends [head: infer H, ...tail: unknown[]] ? H : never;
 
-type Tail<A extends unknown[]> = A extends [head: unknown, ...tail: infer T] ? T : never;
+type Tail<A> = A extends [head: unknown, ...tail: infer T] ? T : never;
 
 type IsEmpty<T> = [keyof T] extends [never] ? true : false;
 
@@ -61,26 +82,29 @@ type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 ex
 
 type Join<T> = T extends Record<PropertyKey, unknown> ? { [K in keyof T]: T[K] } : T;
 
-// TODO(@@dd): distinguish between Factory and Module
-type ReflectContainer<T> = T extends Record<PropertyKey, unknown>
-    ? MergeObjects<FunctionArgs<PickByValue<T, (...args: any[]) => any>>, ReflectContainer<UnionToIntersection<Values<PickByValue<T, Record<PropertyKey, unknown>>>>>>
-    : unknown;
+type Filter<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? K : never }[keyof T]>;
 
-type FunctionArgs<T> = T[keyof T] extends (arg0: infer A) => any ? A : never;
+type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends ((arg: infer I) => void) ? I : never;
 
-type PickByValue<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? K : never }[keyof T]>;
+type UnionToTuple<T, L = LastOf<T>> = [T] extends [never] ? [] : [...UnionToTuple<Exclude<T, L>>, L];
 
-type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends ((arg: infer I) => void) ? I : never
+type LastOf<T> =
+    UnionToIntersection<T extends any ? () => T : never> extends () => infer R
+        ? R
+        : never;
+
+type Keys<T> = IsEmpty<T> extends true ? [] : [keyof T];
 
 type Values<T> = T[keyof T];
 
-type Expand<T, P = Paths<T>> = { [K in P & string]: true }
+type Expand<T, P = Paths<T>> = { [K in P & string]: true };
 
-// TODO(@@dd): is it possible to stringify symbols on the type level?
-type Paths<T> = {
-    [K in keyof T & (string | number)]: (
-        T[K] extends Record<PropertyKey, unknown>
-            ? `[${K}]` | `[${K}]${Paths<T[K]>}`
-            : `[${K}]`
-    )
-}[keyof T & (string | number)];
+// currently symbol keys are not supported
+type Paths<M, P extends string = '', X extends string = `${P}${P extends '' ? '' : '.'}`> =
+    M extends Record<PropertyKey, unknown> ? {
+        [K in keyof M & (string | number)]: (
+            M[K] extends Record<PropertyKey, unknown>
+                ? `${P}${X}${K}` | (Is<Paths<M[K], P>, never> extends true ? `${P}${X}${Paths<M[K], P>}` : never)
+                : `${P}${X}${K}`
+        )
+    }[keyof M & (string | number)] : never;
