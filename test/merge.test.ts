@@ -102,9 +102,9 @@ describe('type Merge', () => {
         it('should merge void', () => {
             tsafeAssert<Equals<Merge<void, void>, void>>();
             tsafeAssert<Equals<Merge<void, { a: 1 }>, never>>();
-            tsafeAssert<Equals<Merge<{ a: 1 }, void>, never>>();
+            tsafeAssert<Equals<Merge<{ a: 1 }, void>, { a: 1 }>>();
             tsafeAssert<Equals<Merge<void, 1>, never>>();
-            tsafeAssert<Equals<Merge<1, void>, never>>();
+            tsafeAssert<Equals<Merge<1, void>, 1>>();
         });
 
     });
@@ -174,7 +174,6 @@ describe('type Merge', () => {
             tsafeAssert<Equals<Merge<[1, ''], [number, string]>, [1, '']>>();
         });
 
-
         it('should not merge array elements if source does not extend target', () => {
             tsafeAssert<Equals<Merge<[1], [2]>, [never]>>();
             tsafeAssert<Equals<Merge<[2], [1]>, [never]>>();
@@ -194,10 +193,10 @@ describe('type Merge', () => {
         });
 
         it('should never merge different function', () => {
-            tsafeAssert<Equals<Merge<(a: number) => void, (a: string) => void>, never>>();
-            tsafeAssert<Equals<Merge<(a: string) => void, (a: number) => void>, never>>();
-            tsafeAssert<Equals<Merge<() => string, () => number>, never>>();
-            tsafeAssert<Equals<Merge<() => number, () => string>, never>>();
+            tsafeAssert<Equals<Merge<(a: number) => void, (a: string) => void>, (a: never) => void>>();
+            tsafeAssert<Equals<Merge<(a: string) => void, (a: number) => void>, (a: never) => void>>();
+            tsafeAssert<Equals<Merge<() => string, () => number>, () => never>>();
+            tsafeAssert<Equals<Merge<() => number, () => string>, () => never>>();
         });
 
         it('should merge if source Fn ignores target Fn args', () => {
@@ -205,7 +204,7 @@ describe('type Merge', () => {
         });
 
         it('should never merge if source Fn requires more args than target Fn', () => {
-            tsafeAssert<Equals<Merge<(a: string) => void, () => void>, never>>();
+            tsafeAssert<Equals<Merge<(a: string) => void, () => void>, (a: never) => void>>();
         });
 
         it('should merge if source Fn returns 1 and target Fn returns void', () => {
@@ -217,24 +216,24 @@ describe('type Merge', () => {
 
         it('should merge if source Fn returns void and target Fn returns any/unknown', () => {
             tsafeAssert<Equals<Merge<() => void, () => any>, () => void>>();
-            tsafeAssert<Equals<Merge<() => void, () => unknown>, () => void>>();
+            tsafeAssert<Equals<Merge<() => void, () => unknown>, () => unknown>>();
         });
 
         it('should never merge if source Fn returns void and target Fn returns 1', () => {
             type Actual = Merge<() => void, () => 1>;
-            type Expected = (...args: never[]) => never;
+            type Expected = () => never;
             tsafeAssert<Equals<Actual, Expected>>();
         });
 
         it('should never merge if source Fn returns void and target Fn returns never', () => {
             type Actual = Merge<() => void, () => never>;
-            type Expected = (...args: never[]) => never;
+            type Expected = () => never;
             tsafeAssert<Equals<Actual, Expected>>();
         });
 
         it('should merge any function Fn with () => void', () => {
             tsafeAssert<Equals<Merge<() => void, Fn>, () => void>>();
-            tsafeAssert<Equals<Merge<Fn, () => void>, Fn>>();
+            tsafeAssert<Equals<Merge<Fn, () => void>, () => any>>();
         });
 
         it('should merge functions with inconsistent arguments', () => {
@@ -258,66 +257,57 @@ describe('type Merge', () => {
         describe('undefined properties', () => {
 
             it('should merge empty objects', () => {
-                type Source = {};
-                type Target = {};
+                type Actual = Merge<{}, {}>;
                 type Expected = {};
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: 1 with target: non-existing property', () => {
-                type Source = { a: 1 };
-                type Target = {};
+                type Actual = Merge<{ a: 1 }, {}>;
                 type Expected = { a: 1 };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: optional prtoperty with target: non-existing property', () => {
-                type Source = { a?: 1 };
-                type Target = {};
+                type Actual = Merge<{ a?: 1 }, {}>;
                 type Expected = { a: 1 | undefined };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: 1 with target: optional number', () => {
-                type Source = { a: 1 };
-                type Target = { a?: number };
+                type Actual = Merge<{ a: 1 }, { a?: number }>;
                 type Expected = { a: 1 };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: optional 1 with target: optional number', () => {
-                type Source = { a?: 1 };
-                type Target = { a?: number };
+                type Actual = Merge<{ a?: 1 }, { a?: number }>;
                 type Expected = { a: 1 | undefined };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: number with target: undefined', () => {
-                type Source = { a: number };
-                type Target = { a: undefined };
+                type Actual = Merge<{ a: number }, { a: undefined }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: undefined with target: number', () => {
-                type Source = { a: undefined };
-                type Target = { a: number };
+                type Actual = Merge<{ a: undefined }, { a: number }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: 1 with target: undefined', () => {
-                type Source = { a: 1 };
-                type Target = { a: undefined };
+                type Actual = Merge<{ a: 1 }, { a: undefined }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: undefined with target: 1', () => {
-                type Source = { a: undefined };
-                type Target = { a: 1 };
+                type Actual = Merge<{ a: undefined }, { a: 1 }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
         });
@@ -325,45 +315,39 @@ describe('type Merge', () => {
         describe('null properties', () => {
 
             it('should merge source: null with target: non-existing property', () => {
-                type Source = { a: null };
-                type Target = {};
+                type Actual = Merge<{ a: null }, {}>;
                 type Expected = { a: null };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: 1 with target: null', () => {
-                type Source = { a: 1 };
-                type Target = { a: null };
+                type Actual = Merge<{ a: 1 }, { a: null }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: null with target: 1', () => {
-                type Source = { a: null };
-                type Target = { a: 1 };
+                type Actual = Merge<{ a: null }, { a: 1 }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: 1 with target: nullable number', () => {
-                type Source = { a: 1 };
-                type Target = { a: number | null };
+                type Actual = Merge<{ a: 1 }, { a: number | null }>;
                 type Expected = { a: 1 };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: nullable 1 with target: nullable number', () => {
-                type Source = { a: 1 | null };
-                type Target = { a: number | null };
+                type Actual = Merge<{ a: 1 | null }, { a: number | null }>;
                 type Expected = { a: 1 | null };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: nullable number with target: nullable 1', () => {
-                type Source = { a: number | null };
-                type Target = { a: 1 | null };
+                type Actual = Merge<{ a: number | null }, { a: 1 | null }>;
                 type Expected = { a: null }; // intersection of Source and Target because number does not extend 1
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
         });
@@ -371,115 +355,99 @@ describe('type Merge', () => {
         describe('boolean properties', () => {
 
             it('should merge non-empty source with empty target', () => {
-                type Source = { a: true };
-                type Target = {};
+                type Actual = Merge<{ a: true }, {}>;
                 type Expected = { a: true };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge empty source with non-empty target', () => {
-                type Source = {};
-                type Target = { a: true };
+                type Actual = Merge<{}, { a: true }>;
                 type Expected = { a: true };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge non-empty types having different properties', () => {
-                type Source = { a: true };
-                type Target = { b: false };
+                type Actual = Merge<{ a: true }, { b: false }>;
                 type Expected = { a: true, b: false };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: true with target: boolean, in the presence of distinct properties', () => {
-                type Source = { a: true, b: number };
-                type Target = { a: boolean, c: string };
+                type Actual = Merge<{ a: true, b: number }, { a: boolean, c: string }>;
                 type Expected = { a: true, b: number, c: string };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: boolean with target: true, in the presence of distinct properties', () => {
-                type Source = { a: boolean, b: number };
-                type Target = { a: true, c: string };
+                type Actual = Merge<{ a: boolean, b: number }, { a: true, c: string }>;
                 type Expected = { a: true, b: number, c: string }; // a: true is the only source a: boolean that extends the target a: true
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: true with target: true', () => {
-                type Source = { a: true };
-                type Target = { a: true };
+                type Actual = Merge<{ a: true }, { a: true }>;
                 type Expected = { a: true };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: true with target: false', () => {
-                type Source = { a: true };
-                type Target = { a: false };
+                type Actual = Merge<{ a: true }, { a: false }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: boolean with target: boolean', () => {
-                type Source = { a: boolean };
-                type Target = { a: boolean };
+                type Actual = Merge<{ a: boolean }, { a: boolean }>;
                 type Expected = { a: boolean };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: boolean with target: undefined', () => {
-                type Source = { a: boolean };
-                type Target = { a: undefined };
+                type Actual = Merge<{ a: boolean }, { a: undefined }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: boolean with target: null', () => {
-                type Source = { a: boolean };
-                type Target = { a: null };
+                type Actual = Merge<{ a: boolean }, { a: null }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: boolean with target: number', () => {
-                type Source = { a: boolean };
-                type Target = { a: number };
+                type Actual = Merge<{ a: boolean }, { a: number }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: boolean with target: string', () => {
-                type Source = { a: boolean };
-                type Target = { a: string };
+                type Actual = Merge<{ a: boolean }, { a: string }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: boolean with target: any[]', () => {
-                type Source = { a: boolean };
-                type Target = { a: any[] };
+                type Actual = Merge<{ a: boolean }, { a: any[] }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: boolean with target: object', () => {
-                type Source = { a: boolean };
-                type Target = { a: object };
+                type Actual = Merge<{ a: boolean }, { a: object }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: boolean with target: {}', () => {
-                type Source = { a: boolean };
-                type Target = { a: {} };
-                type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: boolean }, { a: {} }>;
+                type Expected = { a: boolean };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: {} with target: boolean', () => {
-                type Source = { a: {} };
-                type Target = { a: boolean };
+                type Actual = Merge<{ a: {} }, { a: boolean }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
         });
@@ -487,115 +455,99 @@ describe('type Merge', () => {
         describe('number properties', () => {
 
             it('should merge non-empty source with empty target', () => {
-                type Source = { a: 1 };
-                type Target = {};
+                type Actual = Merge<{ a: 1 }, {}>;
                 type Expected = { a: 1 };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge empty source with non-empty target', () => {
-                type Source = {};
-                type Target = { a: 1 };
+                type Actual = Merge<{}, { a: 1 }>;
                 type Expected = { a: 1 };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge non-empty types having different properties', () => {
-                type Source = { a: 1 };
-                type Target = { b: 2 };
+                type Actual = Merge<{ a: 1 }, { b: 2 }>;
                 type Expected = { a: 1, b: 2 };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: 1 with target: number, in the presence of distinct properties', () => {
-                type Source = { a: 1, b: boolean };
-                type Target = { a: number, c: string };
+                type Actual = Merge<{ a: 1, b: boolean }, { a: number, c: string }>;
                 type Expected = { a: 1, b: boolean, c: string };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: number with target: 1, in the presence of distinct properties', () => {
-                type Source = { a: number, b: boolean };
-                type Target = { a: 1, c: string };
+                type Actual = Merge<{ a: number, b: boolean }, { a: 1, c: string }>;
                 type Expected = { a: never, b: boolean, c: string };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: 1 with target: 1', () => {
-                type Source = { a: 1 };
-                type Target = { a: 1 };
+                type Actual = Merge<{ a: 1 }, { a: 1 }>;
                 type Expected = { a: 1 };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: 1 with target: 2', () => {
-                type Source = { a: 1 };
-                type Target = { a: 2 };
+                type Actual = Merge<{ a: 1 }, { a: 2 }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: number with target: number', () => {
-                type Source = { a: number };
-                type Target = { a: number };
+                type Actual = Merge<{ a: number }, { a: number }>;
                 type Expected = { a: number };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: number with target: undefined', () => {
-                type Source = { a: number };
-                type Target = { a: undefined };
+                type Actual = Merge<{ a: number }, { a: undefined }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: number with target: null', () => {
-                type Source = { a: number };
-                type Target = { a: null };
+                type Actual = Merge<{ a: number }, { a: null }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: number with target: boolean', () => {
-                type Source = { a: number };
-                type Target = { a: boolean };
+                type Actual = Merge<{ a: number }, { a: boolean }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: number with target: string', () => {
-                type Source = { a: number };
-                type Target = { a: string };
+                type Actual = Merge<{ a: number }, { a: string }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: number with target: any[]', () => {
-                type Source = { a: number };
-                type Target = { a: any[] };
+                type Actual = Merge<{ a: number }, { a: any[] }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: number with target: object', () => {
-                type Source = { a: number };
-                type Target = { a: object };
+                type Actual = Merge<{ a: number }, { a: object }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: number with target: {}', () => {
-                type Source = { a: number };
-                type Target = { a: {} };
-                type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: number }, { a: {} }>;
+                type Expected = { a: number };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: {} with target: number', () => {
-                type Source = { a: {} };
-                type Target = { a: number };
+                type Actual = Merge<{ a: {} }, { a: number }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
         });
@@ -603,115 +555,99 @@ describe('type Merge', () => {
         describe('string properties', () => {
 
             it('should merge non-empty source with empty target', () => {
-                type Source = { a: '' };
-                type Target = {};
+                type Actual = Merge<{ a: '' }, {}>;
                 type Expected = { a: '' };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge empty source with non-empty target', () => {
-                type Source = {};
-                type Target = { a: '' };
+                type Actual = Merge<{}, { a: '' }>;
                 type Expected = { a: '' };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge non-empty types having different properties', () => {
-                type Source = { a: 'a' };
-                type Target = { b: 'b' };
+                type Actual = Merge<{ a: 'a' }, { b: 'b' }>;
                 type Expected = { a: 'a', b: 'b' };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: "a" with target: string, in the presence of distinct properties', () => {
-                type Source = { a: "a", b: boolean };
-                type Target = { a: string, c: string };
+                type Actual = Merge<{ a: "a", b: boolean }, { a: string, c: string }>;
                 type Expected = { a: "a", b: boolean, c: string };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: string with target: "a", in the presence of distinct properties', () => {
-                type Source = { a: string, b: boolean };
-                type Target = { a: 'a', c: string };
+                type Actual = Merge<{ a: string, b: boolean }, { a: 'a', c: string }>;
                 type Expected = { a: never, b: boolean, c: string };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: "a" with target: "a"', () => {
-                type Source = { a: 'a' };
-                type Target = { a: 'a' };
+                type Actual = Merge<{ a: 'a' }, { a: 'a' }>;
                 type Expected = { a: 'a' };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: "a" with target: "b"', () => {
-                type Source = { a: 'a' };
-                type Target = { a: 'b' };
+                type Actual = Merge<{ a: 'a' }, { a: 'b' }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: string with target: string', () => {
-                type Source = { a: string };
-                type Target = { a: string };
+                type Actual = Merge<{ a: string }, { a: string }>;
                 type Expected = { a: string };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: string with target: undefined', () => {
-                type Source = { a: string };
-                type Target = { a: undefined };
+                type Actual = Merge<{ a: string }, { a: undefined }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: string with target: null', () => {
-                type Source = { a: string };
-                type Target = { a: null };
+                type Actual = Merge<{ a: string }, { a: null }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: string with target: boolean', () => {
-                type Source = { a: string };
-                type Target = { a: boolean };
+                type Actual = Merge<{ a: string }, { a: boolean }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: string with target: number', () => {
-                type Source = { a: string };
-                type Target = { a: number };
+                type Actual = Merge<{ a: string }, { a: number }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: string with target: any[]', () => {
-                type Source = { a: string };
-                type Target = { a: any[] };
+                type Actual = Merge<{ a: string }, { a: any[] }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: string with target: object', () => {
-                type Source = { a: string };
-                type Target = { a: object };
+                type Actual = Merge<{ a: string }, { a: object }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: string with target: {}', () => {
-                type Source = { a: string };
-                type Target = { a: {} };
-                type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: string }, { a: {} }>;
+                type Expected = { a: string };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: {} with target: string', () => {
-                type Source = { a: {} };
-                type Target = { a: string };
+                type Actual = Merge<{ a: {} }, { a: string }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
         });
@@ -719,122 +655,105 @@ describe('type Merge', () => {
         describe('array properties', () => {
 
             it('should merge non-empty source with empty target', () => {
-                type Source = { a: [] };
-                type Target = {};
+                type Actual = Merge<{ a: [] }, {}>;
                 type Expected = { a: [] };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge empty source with non-empty target', () => {
-                type Source = {};
-                type Target = { a: [] };
+                type Actual = Merge<{}, { a: [] }>;
                 type Expected = { a: [] };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge non-empty types having different properties', () => {
-                type Source = { a: ['a'] };
-                type Target = { b: ['b'] };
+                type Actual = Merge<{ a: ['a'] }, { b: ['b'] }>;
                 type Expected = { a: ['a'], b: ['b'] };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: ["a"] with target: [string], in the presence of distinct properties', () => {
-                type Source = { a: ["a"], b: boolean };
-                type Target = { a: [string], c: string };
+                type Actual = Merge<{ a: ["a"], b: boolean }, { a: [string], c: string }>;
                 type Expected = { a: ["a"], b: boolean, c: string };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: [string] with target: ["a"], in the presence of distinct properties', () => {
-                type Source = { a: [string], b: boolean };
-                type Target = { a: ['a'], c: string };
-                type Expected = { a: never, b: boolean, c: string };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: [string], b: boolean }, { a: ['a'], c: string }>;
+                type Expected = { a: [never], b: boolean, c: string };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: ["a"] with target: ["a"]', () => {
-                type Source = { a: ['a'] };
-                type Target = { a: ['a'] };
+                type Actual = Merge<{ a: ['a'] }, { a: ['a'] }>;
                 type Expected = { a: ['a'] };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: ["a"] with target: ["b"]', () => {
-                type Source = { a: ['a'] };
-                type Target = { a: ['b'] };
-                type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: ['a'] }, { a: ['b'] }>;
+                type Expected = { a: [never] };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: [string] with target: [string]', () => {
-                type Source = { a: [string] };
-                type Target = { a: [string] };
+                type Actual = Merge<{ a: [string] }, { a: [string] }>;
                 type Expected = { a: [string] };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: [string] with target: [undefined]', () => {
-                type Source = { a: [string] };
-                type Target = { a: [undefined] };
-                type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: [string] }, { a: [undefined] }>;
+                type Expected = { a: [never] };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: [string] with target: [null]', () => {
-                type Source = { a: [string] };
-                type Target = { a: [null] };
-                type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: [string] }, { a: [null] }>;
+                type Expected = { a: [never] };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: [string] with target: [boolean]', () => {
-                type Source = { a: [string] };
-                type Target = { a: [boolean] };
-                type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: [string] }, { a: [boolean] }>;
+                type Expected = { a: [never] };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: [string] with target: [number]', () => {
-                type Source = { a: [string] };
-                type Target = { a: [number] };
-                type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: [string] }, { a: [number] }>;
+                type Expected = { a: [never] };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: [string] with target: any[]', () => {
-                type Source = { a: [string] };
-                type Target = { a: any[] };
-                type Expected = { a: [string] };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: [string] }, { a: any[] }>;
+                type Expected = { a: [never] }; // any[] isn't [any] and could be [], so this is ok!
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: any[] with target: [string]', () => {
-                type Source = { a: any[] };
-                type Target = { a: [string] };
-                type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: any[] }, { a: [string] }>;
+                type Expected = { a: [] };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: [string] with target: object', () => {
-                type Source = { a: [string] };
-                type Target = { a: object };
+                type Actual = Merge<{ a: [string] }, { a: object }>;
                 type Expected = { a: [string] };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: [string] with target: {}', () => {
-                type Source = { a: [string] };
-                type Target = { a: {} };
-                type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: [string] }, { a: {} }>;
+                type Expected = { a: [string] };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge source: {} with target: [string]', () => {
-                type Source = { a: {} };
-                type Target = { a: [string] };
+                type Actual = Merge<{ a: {} }, { a: [string] }>;
                 type Expected = { a: never };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
         });
@@ -842,17 +761,15 @@ describe('type Merge', () => {
         describe('function properties', () => {
 
             it('should merge source: Fn with target: () => void', () => {
-                type Source = { a: Fn };
-                type Target = { a: () => void };
-                type Expected = { a: Fn };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                type Actual = Merge<{ a: Fn }, { a: () => void }>;
+                type Expected = { a: () => any };
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should merge source: () => void with target: Fn', () => {
-                type Source = { a: () => void };
-                type Target = { a: Fn };
+                type Actual = Merge<{ a: () => void }, { a: Fn }>;
                 type Expected = { a: () => void };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
         });
@@ -860,17 +777,15 @@ describe('type Merge', () => {
         describe('object properties', () => {
 
             it('should merge deep properties that are assignable', () => {
-                type Source = { a: { b: 1 } };
-                type Target = { a: { b: number } };
+                type Actual = Merge<{ a: { b: 1 } }, { a: { b: number } }>;
                 type Expected = { a: { b: 1 } };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
             it('should never merge deep properties that aren\'t assignable', () => {
-                type Source = { a: { b: number } };
-                type Target = { a: { b: 1 } };
+                type Actual = Merge<{ a: { b: number } }, { a: { b: 1 } }>;
                 type Expected = { a: { b: never } };
-                tsafeAssert<Equals<Merge<Source, Target>, Expected>>();
+                tsafeAssert<Equals<Actual, Expected>>();
             });
 
         });
@@ -903,13 +818,14 @@ describe('type MergeArray', () => {
             { b: () => true, d: () => string },
             { a: () => B, c: () => 1 }
         ];
+        type Actual = MergeArray<Input>;
         type Expected = {
             a: () => B,
             b: () => true,
             c: () => 1,
-            d: never
+            d: () => never
         };
-        tsafeAssert<Equals<MergeArray<Input>, Expected>>();
+        tsafeAssert<Equals<Actual, Expected>>();
     });
 
     it('should deep merge array with three elements', () => {

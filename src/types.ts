@@ -49,8 +49,6 @@ type FunctionArrayToContext<T> =
             ? [Ctx, ...FunctionArrayToContext<Tail<T>>]
             : never;
 
-type Function1<T = any, R = any> = (args0: T, ...args: any[]) => R;
-
 export type MergeArray<A> =
     A extends unknown[]
         ? A extends [Head<A>, ...Tail<A>]
@@ -62,27 +60,35 @@ export type MergeArray<A> =
             : never
         : never;
 
-export type MergeArrays<S extends any[], T extends any[]> =
+export type Merge<S, T> =
+    Is<S, T> extends true ? S : // identity
+        Is<T, void> extends true ? S : // if target expects nothing it is ok to provide something
+            Or<Is<S, never>, Is<T, never>> extends true ? never : // Merge<X, never> = Merge<never, X> = never
+                Or<Is<S, unknown>, Is<T, unknown>> extends true ? unknown : // Merge<X, unknown> = Merge<unknown, X> = unknown
+                    Is<S, any> extends true ? never : Is<T, any> extends true ? S : // Merge<X, any> = X, Merge<any, X> = never
+                        S extends any[] ? (T extends any[] ? MergeArrays<S, T> : (S extends T ? S : never)) :
+                            S extends Fn ? (T extends Fn ? MergeFunctions<S, T> : (S extends T ? S : never)) :
+                                S extends Obj ? (T extends Obj ? MergeObjects<S, T> : (S extends T ? S : never)) :
+                                    S extends T ? S : never;
+
+// Consumers of T expect a certain abount of elements.
+// It is required that S has at less or equal elements as T.
+// It is sufficient, if elements of S extend elements of T.
+type MergeArrays<S extends any[], T extends any[]> =
     S extends [Head<S>, ...Tail<S>]
         ? T extends [Head<T>, ...Tail<T>]
             ? [Merge<Head<S>, Head<T>>, ...MergeArrays<Tail<S>, Tail<T>>]
-            : S // T is empty []
-        : T;    // S is empty
+            : [never] // T = [], users which expect T don't provide more elements required by S
+        : []; // S = [], S ignores additions elements required by users of T
 
-export type Merge<S, T> =
-    Is<S, T> extends true ? S : // identity
-        Or<Is<S, never>, Is<T, never>> extends true ? never :
-            Or<Is<S, unknown>, Is<T, unknown>> extends true ? unknown :
-                Is<S, any> extends true ? never : Is<T, any> extends true ? S :
-                    S extends any[]
-                        ? T extends any[] ? MergeArrays<S, T> : never
-                        : S extends (...args: infer SA) => infer SR
-                            ? T extends (...args: infer TA) => infer TR
-                                ? Merge<SA, TA> extends (infer A)[] ? (...args: A[]) => Merge<SR, TR> : never
-                                : never
-                            : S extends Record<PropertyKey, unknown>
-                                ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
-                                : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never)
+type MergeFunctions<S extends Fn, T extends Fn> =
+    S extends (...args: infer SA) => infer SR
+        ? T extends (...args: infer TA) => infer TR
+            ? Merge<SA, TA> extends infer A
+                ? A extends any[] ? (...args: A) => Merge<SR, TR> : never
+                : never
+            : never
+        : never;
 
 type MergeObjects<S, T> =
     Join<{
@@ -90,6 +96,12 @@ type MergeObjects<S, T> =
             ? (K extends keyof T ? Merge<S[K], T[K]> : S[K])
             : (K extends keyof T ? T[K] : never)
     }>;
+
+type Obj = Record<PropertyKey, unknown>;
+
+type Fn<T extends any[] = any[], R extends any = any> = (...args: T) => R;
+
+type Function1<T = any, R = any> = (args0: T, ...args: any[]) => R;
 
 type Head<A> = A extends [] ? never : A extends [head: infer H, ...tail: unknown[]] ? H : never;
 
