@@ -536,6 +536,14 @@ describe('Validate', () => {
 
 });
 
+describe('ReflectContainer', () => {
+
+    it('should ...', () => {
+        
+    });
+
+});
+
 describe('Module validation', () => {
 
     it('should resolve values to never if modules are incompatible', () => {
