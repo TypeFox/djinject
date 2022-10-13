@@ -7,7 +7,8 @@
 import { describe, expect, it } from 'vitest'
 import { assert as tsafeAssert, Equals } from 'tsafe';
 import { eager, inject } from '../src/inject';
-import { Module, Validate } from '../src/types';
+import { Module, ReflectContainer, Validate } from '../src/types';
+import { merge } from '../src/merge';
 
 describe('A dependency type', () => {
 
@@ -538,8 +539,107 @@ describe('Validate', () => {
 
 describe('ReflectContainer', () => {
 
-    it('should ...', () => {
-        
+    it('should reflect never', () => {
+        type Actual = ReflectContainer<never>;
+        type Expected = never;
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should reflect unknown', () => {
+        type Actual = ReflectContainer<unknown>;
+        type Expected = unknown;
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should reflect any', () => {
+        type Actual = ReflectContainer<any>;
+        type Expected = unknown;
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should reflect null', () => {
+        type Actual = ReflectContainer<null>;
+        type Expected = unknown;
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should reflect undefined', () => {
+        type Actual = ReflectContainer<undefined>;
+        type Expected = unknown;
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should reflect module with one factory and no context', () => {
+        const module = {
+            f: () => 1
+        };
+        type Actual = ReflectContainer<typeof module>;
+        type Expected = {};
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should reflect module with one factory and a context = container', () => {
+        const module = {
+            f: (ctx: { f: number }) => 1
+        };
+        type Actual = ReflectContainer<typeof module>;
+        type Expected = {
+            f: number
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should reflect module with one factory and a context ∩ container = ∅', () => {
+        const module = {
+            f: (ctx: { g: number }) => 1
+        };
+        type Actual = ReflectContainer<typeof module>;
+        type Expected = {
+            g: number
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should deep reflect module', () => {
+        const module = {
+            a: (ctx: { x: boolean }) => 1,
+            b: {
+                c: (ctx: {
+                    y: {
+                        yy: string
+                    }
+                }) => 1
+            },
+            c: {
+                d: {
+                    z: (ctx: {
+                        z: number
+                    }) => 1
+                }
+            }
+        };
+        type Actual = ReflectContainer<typeof module>;
+        type Expected = {
+            x: boolean
+            y: {
+                yy: string
+            }
+            z: number
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should reflect module with contradictory contexts', () => {
+        const module = merge({
+            b: (ctx: { b: boolean }) => 1
+        }, {
+            b: (ctx: { b: string }) => 1,
+        });
+        type Actual = ReflectContainer<typeof module>;
+        type Expected = {
+            b: never
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
     });
 
 });

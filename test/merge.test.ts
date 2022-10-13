@@ -15,12 +15,52 @@ describe('type Merge', () => {
 
     describe('universal types', () => {
 
+        it('should honor identity', () => {
+
+            type Id<T> = Equals<Merge<T, T>, T>;
+
+            // universal types
+            tsafeAssert<Id<any>>();
+            tsafeAssert<Id<unknown>>();
+            tsafeAssert<Id<never>>();
+
+            // (non-)values
+            tsafeAssert<Id<null>>();
+            tsafeAssert<Id<undefined>>();
+            tsafeAssert<Id<void>>();
+            tsafeAssert<Id<1>>();
+            tsafeAssert<Id<''>>();
+
+            // arrays
+            tsafeAssert<Id<[]>>();
+            tsafeAssert<Id<[1]>>();
+            tsafeAssert<Id<[1, '']>>();
+
+            // functions
+            tsafeAssert<Id<() => void>>();
+            tsafeAssert<Id<(a: number) => void>>();
+            tsafeAssert<Id<(a: { b: boolean }) => void>>();
+
+            tsafeAssert<Id<() => number>>();
+            tsafeAssert<Id<(a: number) => number>>();
+            tsafeAssert<Id<(a: { b: boolean }) => number>>();
+
+            tsafeAssert<Id<() => { a: number }>>();
+            tsafeAssert<Id<(a: number) => { a: number }>>();
+            tsafeAssert<Id<(a: { b: boolean }) => { a: number }>>();
+
+            // objects
+            tsafeAssert<Id<{}>>();
+            tsafeAssert<Id<{ a: number }>>();
+            tsafeAssert<Id<{ a: { b: () => number } }>>();
+        })
+
         it('should merge any', () => {
             tsafeAssert<Equals<Merge<any, any>, any>>();
-            tsafeAssert<Equals<Merge<any, { a: 1 }>, any>>();
-            tsafeAssert<Equals<Merge<{ a: 1 }, any>, any>>();
-            tsafeAssert<Equals<Merge<any, 1>, any>>();
-            tsafeAssert<Equals<Merge<1, any>, any>>();
+            tsafeAssert<Equals<Merge<any, { a: 1 }>, never>>();
+            tsafeAssert<Equals<Merge<{ a: 1 }, any>, { a: 1 }>>();
+            tsafeAssert<Equals<Merge<any, 1>, never>>();
+            tsafeAssert<Equals<Merge<1, any>, 1>>();
         });
 
         it('should merge never', () => {
@@ -105,23 +145,41 @@ describe('type Merge', () => {
 
     describe('array types', () => {
 
-        it('should merge array', () => {
+        it('should merge elements of type never', () => {
+            tsafeAssert<Equals<Merge<[1, never], [1, '']>, [1, never]>>();
+            tsafeAssert<Equals<Merge<[never, 1], ['', 1]>, [never, 1]>>();
+            tsafeAssert<Equals<Merge<[1, ''], [1, never]>, [1, never]>>();
+            tsafeAssert<Equals<Merge<['', 1], [never, 1]>, [never, 1]>>();
+        });
+
+        it('should merge elements of type unknown', () => {
+            tsafeAssert<Equals<Merge<[1, unknown], [1, '']>, [1, unknown]>>();
+            tsafeAssert<Equals<Merge<[unknown, 1], ['', 1]>, [unknown, 1]>>();
+            tsafeAssert<Equals<Merge<[1, ''], [1, unknown]>, [1, unknown]>>();
+            tsafeAssert<Equals<Merge<['', 1], [unknown, 1]>, [unknown, 1]>>();
+        });
+
+        it('should merge elements of type any', () => {
+            tsafeAssert<Equals<Merge<[1, any], [1, '']>, [1, never]>>();
+            tsafeAssert<Equals<Merge<[any, 1], ['', 1]>, [never, 1]>>();
+            tsafeAssert<Equals<Merge<[1, ''], [1, any]>, [1, '']>>();
+            tsafeAssert<Equals<Merge<['', 1], [any, 1]>, ['', 1]>>();
+        });
+
+        it('should merge array elements if source extends target element type', () => {
             tsafeAssert<Equals<Merge<any[], any[]>, any[]>>();
             tsafeAssert<Equals<Merge<[], []>, []>>();
             tsafeAssert<Equals<Merge<[1], [1]>, [1]>>();
-            tsafeAssert<Equals<Merge<[1], [2]>, never>>();
-            tsafeAssert<Equals<Merge<[2], [1]>, never>>();
-            tsafeAssert<Equals<Merge<[2], [1]>, never>>();
             tsafeAssert<Equals<Merge<[1], [number]>, [1]>>();
-            tsafeAssert<Equals<Merge<[number], [1]>, never>>();
             tsafeAssert<Equals<Merge<[1, ''], [number, string]>, [1, '']>>();
-            tsafeAssert<Equals<Merge<[number, string], [1, '']>, never>>();
-            tsafeAssert<Equals<Merge<[1, any], [1, '']>, [1, any]>>();
-            tsafeAssert<Equals<Merge<[1, ''], [1, any]>, [1, '']>>();
-            tsafeAssert<Equals<Merge<[1, never], [1, '']>, [1, never]>>();
-            tsafeAssert<Equals<Merge<[1, ''], [1, never]>, never>>();
-            tsafeAssert<Equals<Merge<[1, unknown], [1, '']>, never>>();
-            tsafeAssert<Equals<Merge<[1, ''], [1, unknown]>, [1, '']>>();
+        });
+
+
+        it('should not merge array elements if source does not extend target', () => {
+            tsafeAssert<Equals<Merge<[1], [2]>, [never]>>();
+            tsafeAssert<Equals<Merge<[2], [1]>, [never]>>();
+            tsafeAssert<Equals<Merge<[number], [1]>, [never]>>();
+            tsafeAssert<Equals<Merge<[number, string], [1, '']>, [never, never]>>();
         });
 
     });
@@ -162,14 +220,33 @@ describe('type Merge', () => {
             tsafeAssert<Equals<Merge<() => void, () => unknown>, () => void>>();
         });
 
-        it('should never merge if source Fn returns void and target Fn returns 1/never', () => {
-            tsafeAssert<Equals<Merge<() => void, () => 1>, never>>();
-            tsafeAssert<Equals<Merge<() => void, () => never>, never>>();
+        it('should never merge if source Fn returns void and target Fn returns 1', () => {
+            type Actual = Merge<() => void, () => 1>;
+            type Expected = (...args: never[]) => never;
+            tsafeAssert<Equals<Actual, Expected>>();
+        });
+
+        it('should never merge if source Fn returns void and target Fn returns never', () => {
+            type Actual = Merge<() => void, () => never>;
+            type Expected = (...args: never[]) => never;
+            tsafeAssert<Equals<Actual, Expected>>();
         });
 
         it('should merge any function Fn with () => void', () => {
             tsafeAssert<Equals<Merge<() => void, Fn>, () => void>>();
             tsafeAssert<Equals<Merge<Fn, () => void>, Fn>>();
+        });
+
+        it('should merge functions with inconsistent arguments', () => {
+            type Actual = Merge<{
+                b: (ctx: { b: boolean }) => number
+            }, {
+                b: (ctx: { b: string }) => number,
+            }>;
+            type Expected = {
+                b: (ctx: { b: never }) => number
+            }
+            tsafeAssert<Equals<Actual, Expected>>()
         });
 
         // TODO(@@dd): classes are functions

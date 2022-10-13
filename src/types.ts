@@ -26,18 +26,22 @@ export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer
                 }
             } : never;
 
-type ReflectContainer<M,
+export type ReflectContainer<M,
     _Functions = Filter<M, Function1>,                           // { f1: (ctx: C1) = any, f2: ... }
     _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>, // ((ctx: C) => any)[]
     _ContextArray = FunctionArrayToContext<_FunctionArray>,      // C[]
     Ctx = MergeArray<_ContextArray>,                             // C
     _SubModules = Filter<M, Record<PropertyKey, unknown>>,       // {} | {}
     SubModule = UnionToIntersection<Values<_SubModules>>         // {}
-> = M extends Record<PropertyKey, unknown> ? (
-    Is<Ctx, any> extends true ? (IsEmpty<SubModule> extends true ? unknown : ReflectContainer<SubModule>) :
-        Is<Ctx, never> extends true ? (IsEmpty<SubModule> extends true ? unknown : ReflectContainer<SubModule>) :
-            MergeObjects<Ctx, ReflectContainer<SubModule>>
-) : unknown;
+> =
+    Is<M, any> extends true ? unknown :
+        M extends Record<PropertyKey, unknown> ? (
+            // TODO(@@dd): WIP
+            //Is<Ctx, any> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
+            //  Is<Ctx, never> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
+            //    Is<Ctx, unknown> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
+            IsEmpty<SubModule> extends true ? Ctx : MergeObjects<ReflectContainer<SubModule>, Ctx>
+        ) : Ctx;
 
 type FunctionArrayToContext<T> =
     T extends [] ? [] :
@@ -47,21 +51,38 @@ type FunctionArrayToContext<T> =
 
 type Function1<T = any, R = any> = (args0: T, ...args: any[]) => R;
 
-export type MergeArray<M> =
-    M extends unknown[] ?
-        M extends [Head<M>, ...Tail<M>] ? (
-            Tail<M> extends [] ? Head<M> :
-                Tail<M> extends unknown[] ? Merge<MergeArray<Tail<M>>, Head<M>> :
-                    never
-        ) : never : never;
+export type MergeArray<A> =
+    A extends unknown[]
+        ? A extends [Head<A>, ...Tail<A>]
+            ? Tail<A> extends []
+                ? Head<A>
+                : Tail<A> extends unknown[]
+                    ? Merge<MergeArray<Tail<A>>, Head<A>>
+                    : never
+            : never
+        : never;
+
+export type MergeArrays<S extends any[], T extends any[]> =
+    S extends [Head<S>, ...Tail<S>]
+        ? T extends [Head<T>, ...Tail<T>]
+            ? [Merge<Head<S>, Head<T>>, ...MergeArrays<Tail<S>, Tail<T>>]
+            : S // T is empty []
+        : T;    // S is empty
 
 export type Merge<S, T> =
-    Or<Is<S, never>, Is<T, never>> extends true ? never :
-        Or<Is<S, any>, Is<T, any>> extends true ? any :
+    Is<S, T> extends true ? S : // identity
+        Or<Is<S, never>, Is<T, never>> extends true ? never :
             Or<Is<S, unknown>, Is<T, unknown>> extends true ? unknown :
-                S extends Record<PropertyKey, unknown>
-                    ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
-                    : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never);
+                Is<S, any> extends true ? never : Is<T, any> extends true ? S :
+                    S extends any[]
+                        ? T extends any[] ? MergeArrays<S, T> : never
+                        : S extends (...args: infer SA) => infer SR
+                            ? T extends (...args: infer TA) => infer TR
+                                ? Merge<SA, TA> extends (infer A)[] ? (...args: A[]) => Merge<SR, TR> : never
+                                : never
+                            : S extends Record<PropertyKey, unknown>
+                                ? T extends Record<PropertyKey, unknown> ? MergeObjects<S, T> : never
+                                : T extends Record<PropertyKey, unknown> ? never : (S extends T ? S : never)
 
 type MergeObjects<S, T> =
     Join<{
