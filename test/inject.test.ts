@@ -541,31 +541,31 @@ describe('ReflectContainer', () => {
 
     it('should reflect never', () => {
         type Actual = ReflectContainer<never>;
-        type Expected = never;
+        type Expected = {};
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
     it('should reflect unknown', () => {
         type Actual = ReflectContainer<unknown>;
-        type Expected = unknown;
+        type Expected = {};
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
     it('should reflect any', () => {
         type Actual = ReflectContainer<any>;
-        type Expected = unknown;
+        type Expected = {};
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
     it('should reflect null', () => {
         type Actual = ReflectContainer<null>;
-        type Expected = unknown;
+        type Expected = {};
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
     it('should reflect undefined', () => {
         type Actual = ReflectContainer<undefined>;
-        type Expected = unknown;
+        type Expected = {};
         tsafeAssert<Equals<Actual, Expected>>();
     });
 

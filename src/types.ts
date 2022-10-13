@@ -29,25 +29,37 @@ export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer
 export type ReflectContainer<M,
     _Functions = Filter<M, Function1>,                           // { f1: (ctx: C1) = any, f2: ... }
     _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>, // ((ctx: C) => any)[]
-    _ContextArray = FunctionArrayToContext<_FunctionArray>,      // C[]
+    _ContextArray = MapFunctionsToContexts<_FunctionArray>,      // C[]
     Ctx = MergeArray<_ContextArray>,                             // C
     _SubModules = Filter<M, Record<PropertyKey, unknown>>,       // {} | {}
     SubModule = UnionToIntersection<Values<_SubModules>>         // {}
 > =
-    Is<M, any> extends true ? unknown :
-        M extends Record<PropertyKey, unknown> ? (
-            // TODO(@@dd): WIP
-            //Is<Ctx, any> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
-            //  Is<Ctx, never> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
-            //    Is<Ctx, unknown> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
-            IsEmpty<SubModule> extends true ? Ctx : MergeObjects<ReflectContainer<SubModule>, Ctx>
-        ) : Ctx;
+    Is<Ctx, never> extends true ? {} : // no contexts found => result is the empty context
+        Is<M, any> extends true ? unknown :
+            M extends Record<PropertyKey, unknown> ? (
+                // TODO(@@dd): WIP
+                //Is<Ctx, any> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
+                //  Is<Ctx, never> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
+                //    Is<Ctx, unknown> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
+                IsEmpty<SubModule> extends true ? Ctx : MergeObjects<ReflectContainer<SubModule>, Ctx>
+            ) : Ctx;
 
-type FunctionArrayToContext<T> =
+const module = {
+    f: () => 1
+};
+type M = typeof module;
+type _Functions = Filter<M, Function1>
+type _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>
+type _ContextArray = MapFunctionsToContexts<_FunctionArray>
+type Ctx = MergeArray<_ContextArray>
+type Actual = ReflectContainer<typeof module>;
+type Expected = {};
+
+type MapFunctionsToContexts<T> =
     T extends [] ? [] :
-        T extends [Function1<infer Ctx>, ...Tail<T>]
-            ? [Ctx, ...FunctionArrayToContext<Tail<T>>]
-            : never;
+        T extends [Function1<infer C>, ...Tail<T>]
+            ? Is<C, unknown> extends true ? MapFunctionsToContexts<Tail<T>> : [C, ...MapFunctionsToContexts<Tail<T>>]
+            : never; // we expect only functions in array T
 
 export type MergeArray<A> =
     A extends unknown[]
