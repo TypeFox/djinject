@@ -34,15 +34,14 @@ export type ReflectContainer<M,
     _SubModules = Filter<M, Record<PropertyKey, unknown>>,       // {} | {}
     SubModule = UnionToIntersection<Values<_SubModules>>         // {}
 > =
-    Is<Ctx, never> extends true ? {} : // no contexts found => result is the empty context
-        Is<M, any> extends true ? unknown :
-            M extends Record<PropertyKey, unknown> ? (
-                // TODO(@@dd): WIP
-                //Is<Ctx, any> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
-                //  Is<Ctx, never> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
-                //    Is<Ctx, unknown> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
-                IsEmpty<SubModule> extends true ? Ctx : MergeObjects<ReflectContainer<SubModule>, Ctx>
-            ) : Ctx;
+    Is<M, any> extends true ? unknown :
+        M extends Record<PropertyKey, unknown> ? (
+            // TODO(@@dd): WIP
+            //Is<Ctx, any> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
+            //  Is<Ctx, never> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
+            //    Is<Ctx, unknown> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
+            IsEmpty<SubModule> extends true ? Ctx : MergeObjects<ReflectContainer<SubModule>, Ctx>
+        ) : Ctx;
 
 type MapFunctionsToContexts<T> =
     T extends [] ? [] :
