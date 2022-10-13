@@ -44,17 +44,6 @@ export type ReflectContainer<M,
                 IsEmpty<SubModule> extends true ? Ctx : MergeObjects<ReflectContainer<SubModule>, Ctx>
             ) : Ctx;
 
-const module = {
-    f: () => 1
-};
-type M = typeof module;
-type _Functions = Filter<M, Function1>
-type _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>
-type _ContextArray = MapFunctionsToContexts<_FunctionArray>
-type Ctx = MergeArray<_ContextArray>
-type Actual = ReflectContainer<typeof module>;
-type Expected = {};
-
 type MapFunctionsToContexts<T> =
     T extends [] ? [] :
         T extends [Function1<infer C>, ...Tail<T>]

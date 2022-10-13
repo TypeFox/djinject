@@ -644,7 +644,7 @@ describe('ReflectContainer', () => {
 
 });
 
-describe('Module validation', () => {
+describe('Validate module', () => {
 
     it('should resolve values to never if modules are incompatible', () => {
         const { a } = inject({ a: () => 1 }, { a: () => ''})
