@@ -269,7 +269,7 @@ describe('The inject function', () => {
         }
         expect(() =>
             inject({ a: (ctx: API) => new A(ctx), b: (ctx: API) => new B(ctx) }).a
-        ).toThrowError('Cyclic dependency [a]. See https://docs.ginject.io/#cyclic-dependencies');
+        ).toThrowError('Cyclic dependency [a]. See https://ginject.io/#cyclic-dependencies');
     });
 
     it('should throw when cyclic dependency is accessed during factory function call', () => {
@@ -278,7 +278,7 @@ describe('The inject function', () => {
         const createB = ({ a }: API) => ({ b: a.a });
         expect(() =>
             inject({ a: createA, b: createB }).a
-        ).toThrowError('Cyclic dependency [a]. See https://docs.ginject.io/#cyclic-dependencies');
+        ).toThrowError('Cyclic dependency [a]. See https://ginject.io/#cyclic-dependencies');
     });
 
     it('should merge groups', () => {
@@ -527,7 +527,7 @@ describe('Validate', () => {
         type Expected = {
             ginject_error: {
                 message: "Missing dependency";
-                docs: "https://docs.ginject.io/#context";
+                docs: "https://ginject.io/#context";
                 missing_dependencies: ['b'];
             }
         };

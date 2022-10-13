@@ -21,7 +21,7 @@ export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer
             T extends C ? A : {
                 ginject_error: {
                     message: 'Missing dependency',
-                    docs: 'https://docs.ginject.io/#context',
+                    docs: 'https://ginject.io/#context',
                     missing_dependencies: Keys<Omit<Expand<C>, Paths<T>>>
                 }
             } : never;

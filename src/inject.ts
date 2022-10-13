@@ -37,7 +37,7 @@ function proxify<C, T>(module: Module<C, T>, container?: C, path: string = ''): 
     const get = (obj: Record<PropertyKey, unknown>, prop: PropertyKey, proxy: T) => {
         const name = path + '[' + String(prop) + ']';
         if (obj[prop] === isRequested) {
-            throw new Error('Cyclic dependency ' + name + '. See https://docs.ginject.io/#cyclic-dependencies');
+            throw new Error('Cyclic dependency ' + name + '. See https://ginject.io/#cyclic-dependencies');
         }
         const ctr = container || (proxy as any);
         const val = (module as any)[prop];
