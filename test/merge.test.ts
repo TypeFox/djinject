@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest'
 import { assert as tsafeAssert, Equals } from 'tsafe';
 import { merge } from '../src/merge';
-import { Merge, MergeArray } from '../src/types';
+import { Merge, MergeArray, MergeObjects } from '../src/types';
 
 type Fn = (...args: any[]) => any;
 
@@ -858,6 +858,17 @@ describe('type MergeArray', () => {
         ];
         // @ts-expect-error
         type T = MergeModules<Input>;
+    });
+
+});
+
+describe('type MergeObjects', () => {
+
+    it('should merge with unknown', () => {
+        tsafeAssert<Equals<MergeObjects<{}, unknown>, {}>>();
+        tsafeAssert<Equals<MergeObjects<{ a: 1 }, unknown>, { a: 1 }>>();
+        tsafeAssert<Equals<MergeObjects<unknown, {}>, {}>>();
+        tsafeAssert<Equals<MergeObjects<unknown, { a: 1 }>, { a: 1 }>>();
     });
 
 });

@@ -30,18 +30,15 @@ export type ReflectContainer<M,
     _Functions = Filter<M, Function1>,                           // { f1: (ctx: C1) = any, f2: ... }
     _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>, // ((ctx: C) => any)[]
     _ContextArray = MapFunctionsToContexts<_FunctionArray>,      // C[]
-    Ctx = MergeArray<_ContextArray>,                             // C
+    _Ctx = MergeArray<_ContextArray>,                            // C | never
+    Ctx = Is<_Ctx, never> extends true ? {} : _Ctx,              // C
     _SubModules = Filter<M, Record<PropertyKey, unknown>>,       // {} | {}
     SubModule = UnionToIntersection<Values<_SubModules>>         // {}
 > =
     Is<M, any> extends true ? unknown :
-        M extends Record<PropertyKey, unknown> ? (
-            // TODO(@@dd): WIP
-            //Is<Ctx, any> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
-            //  Is<Ctx, never> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
-            //    Is<Ctx, unknown> extends true ? (IsEmpty<SubModule> extends true ? Ctx : ReflectContainer<SubModule>) :
-            IsEmpty<SubModule> extends true ? Ctx : MergeObjects<ReflectContainer<SubModule>, Ctx>
-        ) : Ctx;
+        M extends Record<PropertyKey, unknown>
+            ? MergeObjects<ReflectContainer<SubModule>, Ctx> // TODO(@@dd): I would like to use Merge instead of MergeObjects
+            : unknown;
 
 type MapFunctionsToContexts<T> =
     T extends [] ? [] :
@@ -90,7 +87,7 @@ type MergeFunctions<S extends Fn, T extends Fn> =
             : never
         : never;
 
-type MergeObjects<S, T> =
+export type MergeObjects<S, T> =
     Join<{
         [K in keyof S | keyof T]: K extends keyof S
             ? (K extends keyof T ? Merge<S[K], T[K]> : S[K])
