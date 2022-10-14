@@ -6,7 +6,7 @@
 
 import { describe, it } from 'vitest'
 import { assert as tsafeAssert, Equals } from 'tsafe';
-import { ReflectContainer } from '../src/types';
+import { ReflectContainer, Validate } from '../src/types';
 
 describe('ReflectContainer', () => {
 
@@ -115,11 +115,10 @@ describe('ReflectContainer', () => {
 
 describe('Validate', () => {
 
-    it('should declare a property of type never as missing', () => {
-        type Actual = Validate<[
-            { f: (ctx: { b: boolean }) => 1 },
-            { g: (ctx: { b: string }) => 1 }
-        ]>;
+    it('should declare a plain property of type never as missing', () => {
+        type Actual = Validate<[{
+            f: (ctx: { b: never }) => 1
+        },]>;
         type Expected = {
             ginject_error: {
                 message: "Missing dependency";
@@ -130,60 +129,77 @@ describe('Validate', () => {
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
-    it('should resolve values to never if modules are incompatible', () => {
-        const { a } = inject({ a: () => 1 }, { a: () => ''});
-        tsafeAssert<Equals<typeof a, unknown>>();
-        expect(a).toBe('');
+    it('should identify a merged property of type never as missing', () => {
+        // { b: boolean } and { b: string} = { b: never }
+        type Actual = Validate<[{
+            f: (ctx: { b: boolean }) => 1
+        }, {
+            g: (ctx: { b: string }) => 1
+        }]>;
+        type Expected = {
+            ginject_error: {
+                message: "Missing dependency";
+                docs: "https://ginject.io/#context";
+                missing_dependencies: ['b'];
+            }
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
     });
 
-    it('should now accept an invalid module', () => {
-        // @ts-expect-error: Argument of type '{ a: number; }' is not assignable to parameter of type 'never'.
-        // cause: inject expects arguments [Module, ...Module]
-        inject({ a: 1 })
+    it('should error if two factories require different types of the same dependency', () => {
+        type Actual = Validate<[{
+            a: (ctx: { b: boolean }) => boolean
+        }, {
+            b: (ctx: { b: string }) => string
+        }]>;
+        type Expected = never; // TODO(@@dd): missing impl
+        tsafeAssert<Equals<Actual, Expected>>();
     });
 
-    // TODO(@@dd): validation should recognize that 1 & 'a' resolve to never
-    it('should merge to incompatible values', () => {
-        // no validation error but results in { a: never }
-        // cause: { a: 1 & 'a' } resolves to { a: never }
-        const ctr = inject({ a: () => 1 }, { a: () => 'a' });
-        tsafeAssert<Equals<typeof ctr, { a: unknown }>>();
-    });
-
-    it('should return validation error, if the container is missing a value required by a context', () => {
-        inject(
-            // @ts-expect-error The resulting container is missing { b: boolean }
-            { f: (ctx: { b: boolean }) => 1 }
-        );
+    it('should identify missing container property required by a context', () => {
+        type Actual = Validate<[{
+            f: (ctx: { b: boolean }) => 1
+        }]>;
+        type Expected = {
+            ginject_error: {
+                message: "Missing dependency";
+                docs: "https://ginject.io/#context";
+                missing_dependencies: ['b'];
+            }
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
     });
 
     it('should provide a missing dependency by adding another module', () => {
-        // compiles, because the new f does not need { b: boolean } anymore
-        const ctr = inject(
-            { f: (ctx: { b: boolean }) => 1 },
-            { f: () => 1 },
-        );
-        tsafeAssert<Equals<typeof ctr, { f: number }>>();
+        // no missing dependency because the new f does not need { b: boolean } anymore
+        type Actual = Validate<[{
+            f: (ctx: { b: boolean }) => 1
+        }, {
+            f: () => 1
+        }]>;
+        type Expected = [{
+            f: (ctx: {
+                b: boolean;
+            }) => 1;
+        }, {
+            f: () => 1;
+        }];
+        tsafeAssert<Equals<Actual, Expected>>();
     });
 
-    // TODO(@@dd): resolve to never instead of unknown? maybe not and improve validation instead!
-    it('should resolve to unknown if two modules are incompatible', () => {
-        // compiles, because the new f does not need { b: boolean } anymore
-        const ctr = inject(
-            { f: (ctx: { b: boolean }) => 1 },
-            { f: () => '' },
-        );
-        tsafeAssert<Equals<typeof ctr, { f: unknown }>>();
-    });
-
-    it('should not compile, if two factories require different types for the same dependency', () => {
-        const ctr = inject(
-            // @ts-expect-error ctx: { b: boolean & string } is invalid
-            { f: (ctx: { b: boolean }) => 1 },
-            { g: (ctx: { b: string }) => 1 },
-            { b: () => '' }
-        );
-        tsafeAssert<Equals<typeof ctr, never>>();
+    it('should not validate factory return types', () => {
+        // { f: () => number } and { f: () => string } = { f: () => never }
+        type Actual = Validate<[{
+            f: () => 1
+        }, {
+            f: () => ''
+        }]>;
+        type Expected = [{
+            f: () => 1;
+        }, {
+            f: () => '';
+        }];
+        tsafeAssert<Equals<Actual, Expected>>();
     });
 
 });
