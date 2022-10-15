@@ -36,28 +36,17 @@ type Paths<T, P = Flatten<T>> =
 type Flatten<T, K = keyof T> =
     T extends Obj
         ? K extends string | number
-            ? T[K] extends Record<string | number, unknown>
-                ? Flatten<T[K]> extends infer F
-                    ? F extends [string, unknown]
-                        ? [`${K}.${F[0]}`, F[1]]
+            ? Is<T[K], never> extends true
+                ? [`${K}`, never]
+                : T[K] extends Record<string | number, unknown>
+                    ? Flatten<T[K]> extends infer F
+                        ? F extends [string, unknown]
+                            ? [`${K}.${F[0]}`, F[1]]
+                            : never
                         : never
-                    : never
-                : [`${K}`, T[K]]
+                    : [`${K}`, T[K]]
             : never
         : never;
-
-// TODO(@@dd): DELME -->
-type A = [{
-    a: (ctx: { b: boolean }) => boolean
-}, {
-    b: (ctx: { b: string }) => string
-}];
-type M = MergeArray<A>;
-type C = ReflectContainer<M>;
-type T = M extends Module<unknown, infer T> ? T : never;
-type V1 = Paths<C>;
-type V2 = Paths<T>;
-// <-- DELME
 
 export type ReflectContainer<M,
     _Functions = Filter<M, Function1>,                           // { f1: (ctx: C1) = any, f2: ... }
@@ -159,4 +148,3 @@ type LastOf<T> =
         : never;
 
 type Values<T> = T[keyof T];
-
