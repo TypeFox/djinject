@@ -16,15 +16,32 @@ export type Container<A extends Module[], M = MergeArray<A>, C = ReflectContaine
             T extends C ? T : never : never;
 
 export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
-    IsEmpty<M> extends true ? A :
-        M extends Module<unknown, infer T> ?
-            T extends C ? A : {
-                ginject_error: {
-                    message: 'Missing dependency',
-                    docs: 'https://ginject.io/#context',
-                    missing_dependencies: UnionToTuple<keyof Join<Omit<Paths<C>, keyof Paths<T>> & Filter<Paths<C>, never>>>
-                }
-            } : never;
+    IsEmpty<M> extends true
+        ? A
+        : M extends Module<unknown, infer T>
+            ? ValidationResult<A, ValidateTypes<A, T>, ValidateContext<A, C, T>>
+            : never;
+
+type ValidationResult<A, V1 extends (A | ValidationError), V2 extends (A | ValidationError)> =
+    Is<V1, A> extends true
+        ? Is<V2, A> extends true
+            ? A
+            : { ginject_error: V2 }
+        : Is<V2, A> extends true
+            ? { ginject_error: V1 }
+            : { ginject_error: [V1, V2] };
+
+export type ValidationError<M extends string = any, P = any, D extends `https://docs.ginject.io/#${string}` = any> = {
+    message: M
+    properties: P
+    docs: D
+};
+
+export type ValidateTypes<A, T, P = Filter<Paths<T>, never>> =
+    IsEmpty<P> extends true ? A : ValidationError<'Type conflict', UnionToTuple<keyof P>, 'https://docs.ginject.io/#modules'>;
+
+export type ValidateContext<A, C, T, P = Join<Omit<Paths<C>, keyof Paths<T>> & Filter<Paths<C>, never>>> =
+    T extends C ? A : ValidationError<'Missing dependencies', UnionToTuple<keyof P>, 'https://docs.ginject.io/#context'>;
 
 type Paths<T, P = Flatten<T>> =
     Join<UnionToIntersection<P extends [string, unknown]

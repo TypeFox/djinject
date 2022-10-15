@@ -6,7 +6,7 @@
 
 import { describe, it } from 'vitest'
 import { assert as tsafeAssert, Equals } from 'tsafe';
-import { ReflectContainer, Validate } from '../src/types';
+import { ReflectContainer, Validate, ValidationError } from '../src/types';
 
 describe('ReflectContainer', () => {
 
@@ -120,11 +120,7 @@ describe('Validate', () => {
             f: (ctx: { b: never }) => 1
         },]>;
         type Expected = {
-            ginject_error: {
-                message: "Missing dependency";
-                docs: "https://ginject.io/#context";
-                missing_dependencies: ['b'];
-            }
+            ginject_error: ValidationError<"Missing dependencies", ['b'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -140,11 +136,23 @@ describe('Validate', () => {
             }) => 1
         },]>;
         type Expected = {
-            ginject_error: {
-                message: "Missing dependency";
-                docs: "https://ginject.io/#context";
-                missing_dependencies: ['b.c.d'];
-            }
+            ginject_error: ValidationError<"Missing dependencies", ['b.c.d'], "https://docs.ginject.io/#context">
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should declare a deep property of type string as missing', () => {
+        type Actual = Validate<[{
+            f: (ctx: {
+                b: {
+                    c: {
+                        d: string
+                    }
+                }
+            }) => 1
+        },]>;
+        type Expected = {
+            ginject_error: ValidationError<"Missing dependencies", ['b.c.d'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -163,11 +171,7 @@ describe('Validate', () => {
             }) => 1
         },]>;
         type Expected = {
-            ginject_error: {
-                message: "Missing dependency";
-                docs: "https://ginject.io/#context";
-                missing_dependencies: ['b.c.d', 'b.e.f'];
-            }
+            ginject_error: ValidationError<"Missing dependencies", ['b.c.d', 'b.e.f'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -180,11 +184,7 @@ describe('Validate', () => {
             g: (ctx: { b: string }) => 1
         }]>;
         type Expected = {
-            ginject_error: {
-                message: "Missing dependency";
-                docs: "https://ginject.io/#context";
-                missing_dependencies: ['b'];
-            }
+            ginject_error: ValidationError<"Missing dependencies", ['b'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -196,11 +196,7 @@ describe('Validate', () => {
             b: (ctx: { b: string }) => string
         }]>;
         type Expected = {
-            ginject_error: {
-                message: "Missing dependency";
-                docs: "https://ginject.io/#context";
-                missing_dependencies: ['b'];
-            }
+            ginject_error: ValidationError<"Missing dependencies", ['b'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -210,11 +206,7 @@ describe('Validate', () => {
             f: (ctx: { b: boolean }) => 1
         }]>;
         type Expected = {
-            ginject_error: {
-                message: "Missing dependency";
-                docs: "https://ginject.io/#context";
-                missing_dependencies: ['b'];
-            }
+            ginject_error: ValidationError<"Missing dependencies", ['b'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
