@@ -187,6 +187,7 @@ describe('Validate', () => {
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
+    // TODO(@@dd): feature request: return validation error in this case
     it('should not validate factory return types', () => {
         // { f: () => number } and { f: () => string } = { f: () => never }
         type Actual = Validate<[{
@@ -201,5 +202,7 @@ describe('Validate', () => {
         }];
         tsafeAssert<Equals<Actual, Expected>>();
     });
+
+    // TODO(@@dd): deeply validate properties
 
 });

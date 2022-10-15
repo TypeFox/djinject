@@ -22,9 +22,23 @@ export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer
                 ginject_error: {
                     message: 'Missing dependency',
                     docs: 'https://ginject.io/#context',
-                    missing_dependencies: Keys<Omit<Expand<C>, Paths<T>>>
+                    missing_dependencies: [keyof Omit<Paths<C>, keyof FilterNot<Paths<T>, never>>]
                 }
             } : never;
+
+// TODO(@@dd): DELME -->
+type A = [{
+    a: (ctx: { b: boolean }) => boolean
+}, {
+    b: (ctx: { b: string }) => string
+}];
+type M = MergeArray<A>;
+type C = ReflectContainer<M>;
+type T = M extends Module<unknown, infer T> ? T : never;
+type V1 = Expand<C>;
+type V2 = Paths<T>;
+type V = Keys<Join<Omit<Expand<C>, Paths<T>> & Filter<C, never>>>;
+// <-- DELME
 
 export type ReflectContainer<M,
     _Functions = Filter<M, Function1>,                           // { f1: (ctx: C1) = any, f2: ... }
@@ -32,11 +46,11 @@ export type ReflectContainer<M,
     _ContextArray = MapFunctionsToContexts<_FunctionArray>,      // C[]
     _Ctx = MergeArray<_ContextArray>,                            // C | never
     Ctx = Is<_Ctx, never> extends true ? {} : _Ctx,              // C
-    _SubModules = Filter<M, Record<PropertyKey, unknown>>,       // {} | {}
+    _SubModules = Filter<M, Obj>,                                // {} | {}
     SubModule = UnionToIntersection<Values<_SubModules>>         // {}
 > =
     Is<M, any> extends true ? unknown :
-        M extends Record<PropertyKey, unknown>
+        M extends Obj
             ? MergeObjects<ReflectContainer<SubModule>, Ctx> // TODO(@@dd): I would like to use Merge instead of MergeObjects
             : unknown;
 
@@ -110,9 +124,11 @@ type Is<T1, T2> = (<T>() => T extends T2 ? true : false) extends <T>() => T exte
 
 type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 extends true ? true : false;
 
-type Join<T> = T extends Record<PropertyKey, unknown> ? { [K in keyof T]: T[K] } : T;
+type Join<T> = T extends Obj ? { [K in keyof T]: T[K] } : T;
 
 type Filter<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? K : never }[keyof T]>;
+
+type FilterNot<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? never : K }[keyof T]>;
 
 type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends ((arg: infer I) => void) ? I : never;
 
@@ -123,18 +139,24 @@ type LastOf<T> =
         ? R
         : never;
 
-type Keys<T> = IsEmpty<T> extends true ? [] : [keyof T];
-
 type Values<T> = T[keyof T];
 
-type Expand<T, P = Paths<T>> = { [K in P & string]: true };
-
 // currently symbol keys are not supported
-type Paths<M, P extends string = '', X extends string = `${P}${P extends '' ? '' : '.'}`> =
-    M extends Record<PropertyKey, unknown> ? {
-        [K in keyof M & (string | number)]: (
-            M[K] extends Record<PropertyKey, unknown>
-                ? `${P}${X}${K}` | (Is<Paths<M[K], P>, never> extends true ? `${P}${X}${Paths<M[K], P>}` : never)
-                : `${P}${X}${K}`
-        )
-    }[keyof M & (string | number)] : never;
+type Paths<T, P = Flatten<T>> =
+    Join<UnionToIntersection<P extends [string, unknown]
+        ? { [K in `${P[0]}`]: P[1] }
+        : never
+    >>;
+
+type Flatten<T, K = keyof T> =
+    T extends Obj
+        ? K extends string | number
+            ? T[K] extends Record<string | number, unknown>
+                ? Flatten<T[K]> extends infer F
+                    ? F extends [string, unknown]
+                        ? [`${K}.${F[0]}`, F[1]]
+                        : never
+                    : never
+                : [`${K}`, T[K]]
+            : never
+        : never;
