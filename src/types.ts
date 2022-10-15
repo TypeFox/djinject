@@ -22,9 +22,29 @@ export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer
                 ginject_error: {
                     message: 'Missing dependency',
                     docs: 'https://ginject.io/#context',
-                    missing_dependencies: [keyof Omit<Paths<C>, keyof FilterNot<Paths<T>, never>>]
+                    missing_dependencies: [keyof Omit<Paths<C>, keyof Omit<Paths<T>, keyof FilterNot<Paths<C>, never>>>]
                 }
             } : never;
+
+// currently symbol keys are not supported
+type Paths<T, P = Flatten<T>> =
+    Join<UnionToIntersection<P extends [string, unknown]
+        ? { [K in `${P[0]}`]: P[1] }
+        : never
+    >>;
+
+type Flatten<T, K = keyof T> =
+    T extends Obj
+        ? K extends string | number
+            ? T[K] extends Record<string | number, unknown>
+                ? Flatten<T[K]> extends infer F
+                    ? F extends [string, unknown]
+                        ? [`${K}.${F[0]}`, F[1]]
+                        : never
+                    : never
+                : [`${K}`, T[K]]
+            : never
+        : never;
 
 // TODO(@@dd): DELME -->
 type A = [{
@@ -35,9 +55,8 @@ type A = [{
 type M = MergeArray<A>;
 type C = ReflectContainer<M>;
 type T = M extends Module<unknown, infer T> ? T : never;
-type V1 = Expand<C>;
+type V1 = Paths<C>;
 type V2 = Paths<T>;
-type V = Keys<Join<Omit<Expand<C>, Paths<T>> & Filter<C, never>>>;
 // <-- DELME
 
 export type ReflectContainer<M,
@@ -141,22 +160,3 @@ type LastOf<T> =
 
 type Values<T> = T[keyof T];
 
-// currently symbol keys are not supported
-type Paths<T, P = Flatten<T>> =
-    Join<UnionToIntersection<P extends [string, unknown]
-        ? { [K in `${P[0]}`]: P[1] }
-        : never
-    >>;
-
-type Flatten<T, K = keyof T> =
-    T extends Obj
-        ? K extends string | number
-            ? T[K] extends Record<string | number, unknown>
-                ? Flatten<T[K]> extends infer F
-                    ? F extends [string, unknown]
-                        ? [`${K}.${F[0]}`, F[1]]
-                        : never
-                    : never
-                : [`${K}`, T[K]]
-            : never
-        : never;
