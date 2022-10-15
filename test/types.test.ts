@@ -129,6 +129,49 @@ describe('Validate', () => {
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
+    it('should declare a deep property of type never as missing', () => {
+        type Actual = Validate<[{
+            f: (ctx: {
+                b: {
+                    c: {
+                        d: never
+                    }
+                }
+            }) => 1
+        },]>;
+        type Expected = {
+            ginject_error: {
+                message: "Missing dependency";
+                docs: "https://ginject.io/#context";
+                missing_dependencies: ['b.c.d'];
+            }
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
+    it('should declare two deep properties of type never as missing', () => {
+        type Actual = Validate<[{
+            f: (ctx: {
+                b: {
+                    c: {
+                        d: never
+                    }
+                    e: {
+                        f: never
+                    }
+                }
+            }) => 1
+        },]>;
+        type Expected = {
+            ginject_error: {
+                message: "Missing dependency";
+                docs: "https://ginject.io/#context";
+                missing_dependencies: ['b.c.d', 'b.e.f'];
+            }
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
+
     it('should identify a merged property of type never as missing', () => {
         // { b: boolean } and { b: string} = { b: never }
         type Actual = Validate<[{
@@ -152,7 +195,13 @@ describe('Validate', () => {
         }, {
             b: (ctx: { b: string }) => string
         }]>;
-        type Expected = never; // TODO(@@dd): missing impl
+        type Expected = {
+            ginject_error: {
+                message: "Missing dependency";
+                docs: "https://ginject.io/#context";
+                missing_dependencies: ['b'];
+            }
+        };
         tsafeAssert<Equals<Actual, Expected>>();
     });
 

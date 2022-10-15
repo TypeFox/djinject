@@ -22,7 +22,7 @@ export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer
                 ginject_error: {
                     message: 'Missing dependency',
                     docs: 'https://ginject.io/#context',
-                    missing_dependencies: [keyof Omit<Paths<C>, keyof Omit<Paths<T>, keyof FilterNot<Paths<C>, never>>>]
+                    missing_dependencies: UnionToTuple<keyof Join<Omit<Paths<C>, keyof Paths<T>> & Filter<Paths<C>, never>>>
                 }
             } : never;
 
