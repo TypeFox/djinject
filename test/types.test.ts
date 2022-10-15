@@ -118,9 +118,9 @@ describe('Validate', () => {
     it('should declare a plain property of type never as missing', () => {
         type Actual = Validate<[{
             f: (ctx: { b: never }) => 1
-        },]>;
+        }]>;
         type Expected = {
-            ginject_error: ValidationError<"Missing dependencies", ['b'], "https://docs.ginject.io/#context">
+            ginject_error: ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -136,7 +136,7 @@ describe('Validate', () => {
             }) => 1
         },]>;
         type Expected = {
-            ginject_error: ValidationError<"Missing dependencies", ['b.c.d'], "https://docs.ginject.io/#context">
+            ginject_error: ValidationError<"Dependency missing", ['b.c.d'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -152,7 +152,7 @@ describe('Validate', () => {
             }) => 1
         },]>;
         type Expected = {
-            ginject_error: ValidationError<"Missing dependencies", ['b.c.d'], "https://docs.ginject.io/#context">
+            ginject_error: ValidationError<"Dependency missing", ['b.c.d'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -171,7 +171,7 @@ describe('Validate', () => {
             }) => 1
         },]>;
         type Expected = {
-            ginject_error: ValidationError<"Missing dependencies", ['b.c.d', 'b.e.f'], "https://docs.ginject.io/#context">
+            ginject_error: ValidationError<"Dependency missing", ['b.c.d', 'b.e.f'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -184,7 +184,7 @@ describe('Validate', () => {
             g: (ctx: { b: string }) => 1
         }]>;
         type Expected = {
-            ginject_error: ValidationError<"Missing dependencies", ['b'], "https://docs.ginject.io/#context">
+            ginject_error: ValidationError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -196,7 +196,7 @@ describe('Validate', () => {
             b: (ctx: { b: string }) => string
         }]>;
         type Expected = {
-            ginject_error: ValidationError<"Missing dependencies", ['b'], "https://docs.ginject.io/#context">
+            ginject_error: ValidationError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -206,12 +206,12 @@ describe('Validate', () => {
             f: (ctx: { b: boolean }) => 1
         }]>;
         type Expected = {
-            ginject_error: ValidationError<"Missing dependencies", ['b'], "https://docs.ginject.io/#context">
+            ginject_error: ValidationError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
-    it('should provide a missing dependency by adding another module', () => {
+    it('should remove a missing dependency by adding another module', () => {
         // no missing dependency because the new f does not need { b: boolean } anymore
         type Actual = Validate<[{
             f: (ctx: { b: boolean }) => 1

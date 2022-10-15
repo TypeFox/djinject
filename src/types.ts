@@ -19,29 +19,53 @@ export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer
     IsEmpty<M> extends true
         ? A
         : M extends Module<unknown, infer T>
-            ? ValidationResult<A, ValidateTypes<A, T>, ValidateContext<A, C, T>>
+            ? ValidationResult<A, [
+                ValidateTypes<A, T>,
+                ValidateContextTypes<A, C>,
+                ValidateContextProperties<A, C, T>
+            ]>
             : never;
 
-type ValidationResult<A, V1 extends (A | ValidationError), V2 extends (A | ValidationError)> =
-    Is<V1, A> extends true
-        ? Is<V2, A> extends true
-            ? A
-            : { ginject_error: V2 }
-        : Is<V2, A> extends true
-            ? { ginject_error: V1 }
-            : { ginject_error: [V1, V2] };
+// TODO(@@dd): DELME -->
+type A = [{
+    f: (ctx: { b: never }) => 1
+}];
+type M = MergeArray<A>;
+type C = ReflectContainer<M>;
+type V1 = M extends Module<unknown, infer T> ? ValidateTypes<A, T> : never;
+type V2 = ValidateContextTypes<A, C>;
+type V3 = M extends Module<unknown, infer T> ? ValidateContextProperties<A, C, T> : never;
+type V = [V1, V2, V3];
+type VA = [A, ValidationError<"Dependency conflict", ["b"], "https://docs.ginject.io/#context">, A]
+type RA = FilterArray<VA, ValidationError>
+type R = ValidationResult<A, V>
+
+type T0 = ValidationError<"Dependency conflict", ["b"], "https://docs.ginject.io/#context"> extends ValidationError ? true : false;
+type T1 = [1, 'a', 'b', 2]
+type T2 = FilterArray<T1, string>
+// <-- DELME
+
+// TODO(@@dd): missing impl
+type ValidationResult<A extends Module[], V extends (A | ValidationError)[], E = FilterArray<V, ValidationError>> =
+    E extends [] ? A : E;
 
 export type ValidationError<M extends string = any, P = any, D extends `https://docs.ginject.io/#${string}` = any> = {
-    message: M
-    properties: P
-    docs: D
+    message: M;
+    dependencies: P;
+    help: D;
 };
 
-export type ValidateTypes<A, T, P = Filter<Paths<T>, never>> =
+// checks if merged module types are valid
+type ValidateTypes<A, T, P = FilterObj<Paths<T>, never>> =
     IsEmpty<P> extends true ? A : ValidationError<'Type conflict', UnionToTuple<keyof P>, 'https://docs.ginject.io/#modules'>;
 
-export type ValidateContext<A, C, T, P = Join<Omit<Paths<C>, keyof Paths<T>> & Filter<Paths<C>, never>>> =
-    T extends C ? A : ValidationError<'Missing dependencies', UnionToTuple<keyof P>, 'https://docs.ginject.io/#context'>;
+// checks if same properties in different contexts have compatible types
+type ValidateContextTypes<A, C, P = FilterObj<Paths<C>, never>> =
+    IsEmpty<P> extends true ? A : ValidationError<'Dependency conflict', UnionToTuple<keyof P>, 'https://docs.ginject.io/#context'>;
+
+// checks if the container provides all properties the context requires
+type ValidateContextProperties<A, C, T, P = Join<Omit<FilterNotObj<Paths<C>, never>, keyof Paths<T>>>> =
+    IsEmpty<P> extends true ? A : ValidationError<'Dependency missing', UnionToTuple<keyof P>, 'https://docs.ginject.io/#context'>;
 
 type Paths<T, P = Flatten<T>> =
     Join<UnionToIntersection<P extends [string, unknown]
@@ -66,12 +90,12 @@ type Flatten<T, K = keyof T> =
         : never;
 
 export type ReflectContainer<M,
-    _Functions = Filter<M, Function1>,                           // { f1: (ctx: C1) = any, f2: ... }
+    _Functions = FilterObj<M, Function1>,                           // { f1: (ctx: C1) = any, f2: ... }
     _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>, // ((ctx: C) => any)[]
     _ContextArray = MapFunctionsToContexts<_FunctionArray>,      // C[]
     _Ctx = MergeArray<_ContextArray>,                            // C | never
     Ctx = Is<_Ctx, never> extends true ? {} : _Ctx,              // C
-    _SubModules = Filter<M, Obj>,                                // {} | {}
+    _SubModules = FilterObj<M, Obj>,                                // {} | {}
     SubModule = UnionToIntersection<Values<_SubModules>>         // {}
 > =
     Is<M, any> extends true ? unknown :
@@ -151,7 +175,14 @@ type Or<C1 extends boolean, C2 extends boolean> = C1 extends true ? true : C2 ex
 
 type Join<T> = T extends Obj ? { [K in keyof T]: T[K] } : T;
 
-type Filter<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? K : never }[keyof T]>;
+type FilterObj<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? K : never }[keyof T]>;
+
+type FilterNotObj<T, V> = Pick<T, { [K in keyof T]-?: T[K] extends V ? never : K }[keyof T]>;
+
+type FilterArray<A, V> =
+    A extends [Head<infer H>, ...Tail<infer T>]
+        ? H extends V ? [H, ...FilterArray<T, V>] : FilterArray<T, V>
+        : [];
 
 type UnionToIntersection<U> = (U extends any ? (arg: U) => void : never) extends ((arg: infer I) => void) ? I : never;
 
