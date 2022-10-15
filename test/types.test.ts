@@ -236,11 +236,9 @@ describe('Validate', () => {
         }, {
             f: () => ''
         }]>;
-        type Expected = [{
-            f: () => 1;
-        }, {
-            f: () => '';
-        }];
+        type Expected = {
+            ginject_error: ValidationError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">;
+        };
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
