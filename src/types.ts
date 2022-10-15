@@ -56,19 +56,32 @@ type Paths<T, P = Flatten<T>> =
             : never
         >>;
 
+// TODO(@@dd): DELME -->
+function test<U extends string>(t: U) {
+    type A = [{ dep: () => ({}) }]
+    type M = MergeArray<A>
+    type C = ReflectContainer<M>
+    type T = M extends Module<unknown, infer T> ? T : never;
+    type V = Validate<A, C, T>
+}
+
+// <-- DELME
+
 // currently symbol keys are not supported
 type Flatten<T, K = keyof T> =
     T extends Obj
         ? K extends string | number
             ? Is<T[K], never> extends true
                 ? [`${K}`, never]
-                : T[K] extends Record<string | number, unknown>
-                    ? Flatten<T[K]> extends infer F
-                        ? F extends [string, unknown]
-                            ? [`${K}.${F[0]}`, F[1]]
+                : Is<T[K], {}> extends true
+                    ? [`${K}`, {}]
+                    : T[K] extends Record<string | number, unknown>
+                        ? Flatten<T[K]> extends infer F
+                            ? F extends [string, unknown]
+                                ? [`${K}.${F[0]}`, F[1]]
+                                : never
                             : never
-                        : never
-                    : [`${K}`, T[K]]
+                        : [`${K}`, T[K]]
             : never
         : never;
 

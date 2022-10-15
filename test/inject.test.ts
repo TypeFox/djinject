@@ -28,10 +28,11 @@ describe('A dependency type', () => {
     it('should be function', () => checkType(function a() { }));
     it('should be lambda', () => checkType(() => { }));
 
-    function checkType<T>(value: T): void {
-        const ctr = inject({ _: () => value });
-        expect(typeof ctr._).toBe(typeof value);
-        expect(ctr._).toBe(value);
+    function checkType<T>(t: T): void {
+        // @ts-expect-error
+        const ctr = inject({ _: () => T });
+        expect(typeof ctr._).toBe(typeof t);
+        expect(ctr._).toBe(t);
     }
 
 });
