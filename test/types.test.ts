@@ -242,7 +242,6 @@ describe('Validate', () => {
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
-    // TODO(@@dd): feature request: return validation error in this case
     it('should not validate factory return types', () => {
         // { f: () => number } and { f: () => string } = { f: () => never }
         type Actual = Validate<[{
@@ -258,6 +257,20 @@ describe('Validate', () => {
         tsafeAssert<Equals<Actual, Expected>>();
     });
 
-    // TODO(@@dd): deeply validate properties
+    it('should show multiple validation errors', () => {
+        type Actual = Validate<[{
+            f: (ctx: { b: boolean }) => 1
+        }, {
+            f: (ctx: { a: number, b: string }) => ''
+        }]>;
+        type Expected = {
+            ginject_error: [
+                ValidationError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">,
+                ValidationError<"Dependency conflict", ["b"], "https://docs.ginject.io/#context">,
+                ValidationError<"Dependency missing", ["a"], "https://docs.ginject.io/#context">
+            ]
+        };
+        tsafeAssert<Equals<Actual, Expected>>();
+    });
 
 });
