@@ -851,15 +851,6 @@ describe('type MergeArray', () => {
         tsafeAssert<Equals<MergeArray<Input>, Expected>>();
     });
 
-    it('should not merge non-modules', () => {
-        type Input = [
-            { a: number }, // intentionally no factory functions!
-            { b: string }
-        ];
-        // @ts-expect-error
-        type T = MergeModules<Input>;
-    });
-
 });
 
 describe('type MergeObjects', () => {
@@ -889,7 +880,7 @@ describe('merge', () => {
                 e: fn1,
                 f: [1]
             }
-        }
+        };
         const source = {
             a: B,
             b: {
@@ -897,7 +888,7 @@ describe('merge', () => {
                 e: fn2,
                 f: [2, 3]
             }
-        }
+        };
         const expected = {
             a: B,
             b: {
@@ -905,8 +896,10 @@ describe('merge', () => {
                 e: fn2,
                 f: [2, 3]
             }
-        }
-        expect(merge(target, source)).toEqual(expected);
+        };
+        type Expected = typeof expected;
+        type Actual = Merge<typeof source, typeof target>;
+        assert<Is<Actual, Expected>>()
     });
 
     it('should merge source: 1 with target: undefined in a typesafe way', () => {
