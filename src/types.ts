@@ -50,10 +50,11 @@ type ValidateContextProperties<A, C, T, P = Join<Omit<FilterNot<Paths<C>, never>
     IsEmpty<P> extends true ? A : ValidationError<'Dependency missing', UnionToTuple<keyof P>, 'https://docs.ginject.io/#context'>;
 
 type Paths<T, P = Flatten<T>> =
-    Join<UnionToIntersection<P extends [string, unknown]
-        ? { [K in `${P[0]}`]: P[1] }
-        : never
-    >>;
+    IsEmpty<T> extends true ? {} :
+        Join<UnionToIntersection<P extends [string, unknown]
+            ? { [K in `${P[0]}`]: P[1] }
+            : never
+        >>;
 
 // currently symbol keys are not supported
 type Flatten<T, K = keyof T> =

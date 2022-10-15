@@ -205,16 +205,17 @@ describe('The inject function', () => {
         const createFirst = () => { throw new Error('construction error'); };
         const createSecond = ({ first }: API) => ({ b: first.a });
         expect(() =>
+            // @ts-expect-error
             inject({ first: createFirst, second: createSecond }).second
         ).toThrowError('construction error');
     });
 
     it('should properly forward past construction errors when building multiple times', () => {
-        //before fixing issue #463 a second attempt was leading to a cycle detection error (wrong direction for debugging people)
         interface API { first: { a: boolean }, second: { b: boolean }, third: { c: boolean } }
         const createFirst = () => { throw new Error('construction error'); };
         const createSecond = ({ first }: API) => ({ b: first.a });
         const createThird = ({ first }: API) => ({ c: first.a });
+        // @ts-expect-error
         const result = inject({ first: createFirst, second: createSecond, third: createThird });
         expect(() =>
             result.second
