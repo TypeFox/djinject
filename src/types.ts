@@ -26,13 +26,13 @@ export type Validate<A extends Module[], M = MergeArray<A>, C = ReflectContainer
                 }
             } : never;
 
-// currently symbol keys are not supported
 type Paths<T, P = Flatten<T>> =
     Join<UnionToIntersection<P extends [string, unknown]
         ? { [K in `${P[0]}`]: P[1] }
         : never
     >>;
 
+// currently symbol keys are not supported
 type Flatten<T, K = keyof T> =
     T extends Obj
         ? K extends string | number
