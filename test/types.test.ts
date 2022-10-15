@@ -120,7 +120,9 @@ describe('Validate', () => {
             f: (ctx: { b: never }) => 1
         }]>;
         type Expected = {
-            ginject_error: ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
+            ginject_error: [
+                ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
+            ]
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -136,7 +138,9 @@ describe('Validate', () => {
             }) => 1
         },]>;
         type Expected = {
-            ginject_error: ValidationError<"Dependency missing", ['b.c.d'], "https://docs.ginject.io/#context">
+            ginject_error: [
+                ValidationError<"Dependency conflict", ['b.c.d'], "https://docs.ginject.io/#context">
+            ]
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -152,7 +156,9 @@ describe('Validate', () => {
             }) => 1
         },]>;
         type Expected = {
-            ginject_error: ValidationError<"Dependency missing", ['b.c.d'], "https://docs.ginject.io/#context">
+            ginject_error: [
+                ValidationError<"Dependency missing", ['b.c.d'], "https://docs.ginject.io/#context">
+            ]
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -171,7 +177,9 @@ describe('Validate', () => {
             }) => 1
         },]>;
         type Expected = {
-            ginject_error: ValidationError<"Dependency missing", ['b.c.d', 'b.e.f'], "https://docs.ginject.io/#context">
+            ginject_error: [
+                ValidationError<"Dependency conflict", ['b.c.d', 'b.e.f'], "https://docs.ginject.io/#context">
+            ]
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -184,7 +192,9 @@ describe('Validate', () => {
             g: (ctx: { b: string }) => 1
         }]>;
         type Expected = {
-            ginject_error: ValidationError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
+            ginject_error: [
+                ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
+            ]
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -196,7 +206,9 @@ describe('Validate', () => {
             b: (ctx: { b: string }) => string
         }]>;
         type Expected = {
-            ginject_error: ValidationError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
+            ginject_error: [
+                ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
+            ]
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -206,7 +218,9 @@ describe('Validate', () => {
             f: (ctx: { b: boolean }) => 1
         }]>;
         type Expected = {
-            ginject_error: ValidationError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
+            ginject_error: [
+                ValidationError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
+            ]
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
@@ -237,7 +251,9 @@ describe('Validate', () => {
             f: () => ''
         }]>;
         type Expected = {
-            ginject_error: ValidationError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">;
+            ginject_error: [
+                ValidationError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">
+            ]
         };
         tsafeAssert<Equals<Actual, Expected>>();
     });
