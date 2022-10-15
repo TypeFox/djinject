@@ -7,9 +7,9 @@
 import { describe, expect, it } from 'vitest'
 import { assert as tsafeAssert, Equals } from 'tsafe';
 import { eager, inject } from '../src/inject';
-import { Module } from '../src/types';
+import { Module, Validate, ValidationError } from '../src/types';
 
-describe('A dependency type', () => {
+describe('A generic dependency type', () => {
 
     it('should be undefined', () => checkType(undefined));
     it('should be null', () => checkType(null));
@@ -29,8 +29,7 @@ describe('A dependency type', () => {
     it('should be lambda', () => checkType(() => { }));
 
     function checkType<T>(t: T): void {
-        // @ts-expect-error
-        const ctr = inject({ _: () => T });
+        const ctr = inject({ _: () => t });
         expect(typeof ctr._).toBe(typeof t);
         expect(ctr._).toBe(t);
     }
@@ -333,16 +332,26 @@ describe('The inject function', () => {
             x: () => 1
         };
 
+        // -- CHECK MODULE 1 --
         const ctr1 = inject(m1);
         // TODO(@@dd): assertions
 
+        // -- CHECK MODULE 2 --
         const ctr2 = inject(m2);
         // TODO(@@dd): assertions
 
+        // -- CHECK MODULE 3 --
+        type Actual3 = Validate<[typeof m3]>
+        type Expected3 = {
+            ginject_error: [ValidationError<"Dependency missing", ["groupA.service1"], "https://docs.ginject.io/#context">];
+        };
+        tsafeAssert<Equals<Actual3, Expected3>>();
         // @ts-expect-error
         const ctr3 = inject(m3);
-        // TODO(@@dd): assertions
+        tsafeAssert<Equals<typeof ctr3, never>>();
+        expect(ctr3).toBeNull();
 
+        // -- CHECK COMPLETE CONTAINER --
         const ctr = inject(m1, m2, m3);
 
         tsafeAssert<Equals<typeof ctr.groupA.service1, A>>();

@@ -58,7 +58,12 @@ type Paths<T, P = Flatten<T>> =
 
 // TODO(@@dd): DELME -->
 function test<U extends string>(t: U) {
-    type A = [{ dep: () => ({}) }]
+    interface C1 {
+        groupA: {
+            service1: A
+        }
+    }
+    type A = [Module<C1>]
     type M = MergeArray<A>
     type C = ReflectContainer<M>
     type T = M extends Module<unknown, infer T> ? T : never;
