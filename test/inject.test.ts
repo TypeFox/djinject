@@ -4,10 +4,10 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { describe, expect, it } from 'vitest'
-import { assert as tsafeAssert, Equals } from 'tsafe';
+import { assertType, Is, ValidationError } from 'typescript-typelevel';
+import { describe, expect, it } from 'vitest';
 import { eager, inject } from '../src/inject';
-import { Module, Validate, ValidationError } from '../src/types';
+import { Module, Validate } from '../src/types';
 
 describe('A generic dependency type', () => {
 
@@ -345,18 +345,18 @@ describe('The inject function', () => {
         type Expected3 = {
             ginject_error: [ValidationError<"Dependency missing", ["groupA.service1"], "https://docs.ginject.io/#context">];
         };
-        tsafeAssert<Equals<Actual3, Expected3>>();
+        assertType<Is<Actual3, Expected3>>();
         // @ts-expect-error
         const ctr3 = inject(m3);
-        tsafeAssert<Equals<typeof ctr3, never>>();
+        assertType<Is<typeof ctr3, never>>();
         expect(ctr3).toBeNull();
 
         // -- CHECK COMPLETE CONTAINER --
         const ctr = inject(m1, m2, m3);
 
-        tsafeAssert<Equals<typeof ctr.groupA.service1, A>>();
-        tsafeAssert<Equals<typeof ctr.groupB.groupC.service2, B>>();
-        tsafeAssert<Equals<typeof ctr.x, number>>();
+        assertType<Is<typeof ctr.groupA.service1, A>>();
+        assertType<Is<typeof ctr.groupB.groupC.service2, B>>();
+        assertType<Is<typeof ctr.x, number>>();
 
         expect(ctr.groupA.service1).toBeInstanceOf(A);
         expect(ctr.groupB.groupC.service2).toBeInstanceOf(B);
@@ -368,7 +368,7 @@ describe('The inject function', () => {
             hi: () => 'Hi!',
             sayHi: (ctx: { hi: string }) => () => ctx.hi
         });
-        tsafeAssert<Equals<typeof ctr.hi, string>>();
+        assertType<Is<typeof ctr.hi, string>>();
         expect(ctr.sayHi()).toBe('Hi!');
     });
 
@@ -382,7 +382,7 @@ describe('The inject function', () => {
             sayHi: (ctr) => () => ctr.hi
         };
         const ctr = inject(module);
-        tsafeAssert<Equals<typeof ctr.hi, string>>();
+        assertType<Is<typeof ctr.hi, string>>();
         expect(ctr.sayHi()).toBe('Hi!');
     });
 
@@ -397,7 +397,7 @@ describe('The inject function', () => {
         }, {
             hi: () => '¡Hola!'
         });
-        tsafeAssert<Equals<typeof ctr.hi, string>>();
+        assertType<Is<typeof ctr.hi, string>>();
         expect(ctr.sayHi()).toBe('¡Hola!');
     });
 
@@ -425,9 +425,9 @@ describe('The inject function', () => {
                 e: () => new B()
             }
         });
-        tsafeAssert<Equals<typeof container.a, number>>();
-        tsafeAssert<Equals<typeof container.b.c, string>>();
-        tsafeAssert<Equals<typeof container.d.e, B>>();
+        assertType<Is<typeof container.a, number>>();
+        assertType<Is<typeof container.b.c, string>>();
+        assertType<Is<typeof container.d.e, B>>();
     });
 
     it('sould infer the type of curried factories of non-mergable modules', () => {
@@ -458,9 +458,9 @@ describe('The inject function', () => {
                 c: () => () => 'salut' as string
             }
         });
-        tsafeAssert<Equals<typeof container.a, number>>();
-        tsafeAssert<Equals<typeof container.b.c, () => string>>();
-        tsafeAssert<Equals<typeof container.d.e, B>>();
+        assertType<Is<typeof container.a, number>>();
+        assertType<Is<typeof container.b.c, () => string>>();
+        assertType<Is<typeof container.d.e, B>>();
     });
 
     it('should disallow to use wrong module types', () => {
@@ -499,7 +499,7 @@ describe('The inject result', () => {
 
     it('should be empty if module is empty', () => {
         const ctr = inject({});
-        tsafeAssert<Equals<typeof ctr, {}>>();
+        assertType<Is<typeof ctr, {}>>();
         expect(ctr).toEqual({});
     });
 
@@ -522,7 +522,7 @@ describe('The inject result', () => {
             a = 1
         }
         const ctr = inject({ a: () => A })
-        tsafeAssert<Equals<typeof ctr, { a: typeof A }>>()
+        assertType<Is<typeof ctr, { a: typeof A }>>()
         expect(new ctr.a().a).toBe(1);
     });
 

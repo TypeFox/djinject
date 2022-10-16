@@ -4,7 +4,7 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { Merge } from "./types";
+import { Merge } from "typescript-typelevel";
 
 export function merge<S extends Record<PropertyKey, unknown>, T extends Record<PropertyKey, unknown>>(target: T, source: S): Merge<S, T> {
     keys(source).forEach(key => {

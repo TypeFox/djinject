@@ -4,40 +4,40 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
+import { assertType, Is, ValidationError } from 'typescript-typelevel';
 import { describe, it } from 'vitest'
-import { assert as tsafeAssert, Equals } from 'tsafe';
-import { ReflectContainer, Validate, ValidationError } from '../src/types';
+import { ReflectContainer, Validate } from '../src/types';
 
 describe('ReflectContainer', () => {
 
     it('should reflect any', () => {
         type Actual = ReflectContainer<any>;
         type Expected = unknown;
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect unknown', () => {
         type Actual = ReflectContainer<unknown>;
         type Expected = unknown;
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect never', () => {
         type Actual = ReflectContainer<never>;
         type Expected = never;
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect null', () => {
         type Actual = ReflectContainer<null>;
         type Expected = unknown;
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect undefined', () => {
         type Actual = ReflectContainer<undefined>;
         type Expected = unknown;
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect module with one factory and no context', () => {
@@ -46,7 +46,7 @@ describe('ReflectContainer', () => {
         };
         type Actual = ReflectContainer<typeof module>;
         type Expected = {};
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect module with one factory and a context = container', () => {
@@ -57,7 +57,7 @@ describe('ReflectContainer', () => {
         type Expected = {
             f: number
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect module with one factory and a context ∩ container = ∅', () => {
@@ -68,7 +68,7 @@ describe('ReflectContainer', () => {
         type Expected = {
             g: number
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should deep reflect module', () => {
@@ -97,7 +97,7 @@ describe('ReflectContainer', () => {
             }
             z: number
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect module with a property that is never satisfied', () => {
@@ -108,7 +108,7 @@ describe('ReflectContainer', () => {
         type Expected = {
             b: never
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
 });
@@ -124,7 +124,7 @@ describe('Validate', () => {
                 ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
             ]
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should declare a deep property of type never as missing', () => {
@@ -142,7 +142,7 @@ describe('Validate', () => {
                 ValidationError<"Dependency conflict", ['b.c.d'], "https://docs.ginject.io/#context">
             ]
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should declare a deep property of type string as missing', () => {
@@ -160,7 +160,7 @@ describe('Validate', () => {
                 ValidationError<"Dependency missing", ['b.c.d'], "https://docs.ginject.io/#context">
             ]
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should declare two deep properties of type never as missing', () => {
@@ -181,7 +181,7 @@ describe('Validate', () => {
                 ValidationError<"Dependency conflict", ['b.c.d', 'b.e.f'], "https://docs.ginject.io/#context">
             ]
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should identify a merged property of type never as missing', () => {
@@ -196,7 +196,7 @@ describe('Validate', () => {
                 ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
             ]
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should error if two factories require different types of the same dependency', () => {
@@ -210,7 +210,7 @@ describe('Validate', () => {
                 ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
             ]
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should identify missing container property required by a context', () => {
@@ -222,7 +222,7 @@ describe('Validate', () => {
                 ValidationError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
             ]
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should remove a missing dependency by adding another module', () => {
@@ -239,7 +239,7 @@ describe('Validate', () => {
         }, {
             f: () => 1;
         }];
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should not validate factory return types', () => {
@@ -254,7 +254,7 @@ describe('Validate', () => {
                 ValidationError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">
             ]
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
     it('should show multiple validation errors', () => {
@@ -270,7 +270,7 @@ describe('Validate', () => {
                 ValidationError<"Dependency missing", ["a"], "https://docs.ginject.io/#context">
             ]
         };
-        tsafeAssert<Equals<Actual, Expected>>();
+        assertType<Is<Actual, Expected>>();
     });
 
 });
