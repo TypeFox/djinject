@@ -899,7 +899,7 @@ describe('merge', () => {
         };
         type Expected = typeof expected;
         type Actual = Merge<typeof source, typeof target>;
-        assert<Is<Actual, Expected>>()
+        tsafeAssert<Equals<Actual, Expected>>();
     });
 
     it('should merge source: 1 with target: undefined in a typesafe way', () => {
