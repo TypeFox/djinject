@@ -40,6 +40,7 @@ type ValidateContextTypes<A, C, P = Filter<Paths<C>, never>> =
 type ValidateContextProperties<A, C, T, P = Flatten<Omit<FilterNot<Paths<C>, never>, keyof Paths<T>>>> =
     IsEmpty<P> extends true ? A : ValidationError<'Dependency missing', UnionToTuple<keyof P>, 'https://docs.ginject.io/#context'>;
 
+// TODO(@@dd): remove the recursion by first getting all paths in M and then Mapping all Fn1 to their Ctx. Then switch from MergeObject to Merge.
 export type ReflectContainer<M,
     _Functions = Filter<M, Fn1>,                                 // { f1: (ctx: C1) = any, f2: ... }
     _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>, // ((ctx: C) => any)[]
