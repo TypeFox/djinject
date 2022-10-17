@@ -11,9 +11,17 @@ tasks:
     command: |
       npm run watch
     openMode: split-right
-  - name: ginject
-    init: npm i
+  - name: ginject setup
+    init: |
+      npm link typelevel
+      npm i
     command: npm test
+  - name: ginject tsc
+    command: |
+      npm run watch
+    openMode: split-right
+  - name: terminal
+    command: echo "Gitpod is ready!"
 
 vscode:
   extensions:
