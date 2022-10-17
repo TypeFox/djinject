@@ -60,9 +60,9 @@
     "eslint-plugin-unused-imports": "^2.0.0",
     "microbundle": "^0.15.1",
     "shx": "^0.3.4",
-    "typelevel-assert": "^0.1.0",
+    "typelevel-assert": "^0.1.1",
     "typescript": "^4.8.4",
-    "typescript-typelevel": "^0.5.2",
+    "typescript-typelevel": "^0.6.1",
     "vitest": "^0.23.2"
   }
 }

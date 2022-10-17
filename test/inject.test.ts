@@ -5,10 +5,10 @@
  ******************************************************************************/
 
 import { assertType } from 'typelevel-assert';
-import { Is, ValidationError } from 'typescript-typelevel';
+import { CheckError, Is } from 'typescript-typelevel';
 import { describe, expect, it } from 'vitest';
 import { eager, inject } from '../src/inject';
-import { Module, Validate } from '../src/types';
+import { Module, Check } from '../src/types';
 
 describe('A generic dependency type', () => {
 
@@ -342,9 +342,9 @@ describe('The inject function', () => {
         // TODO(@@dd): assertions
 
         // -- CHECK MODULE 3 --
-        type Actual3 = Validate<[typeof m3]>
+        type Actual3 = Check<[typeof m3]>
         type Expected3 = {
-            ginject_error: [ValidationError<"Dependency missing", ["groupA.service1"], "https://docs.ginject.io/#context">];
+            ginject_error: [CheckError<"Dependency missing", ["groupA.service1"], "https://docs.ginject.io/#context">];
         };
         assertType<Is<Actual3, Expected3>>();
         // @ts-expect-error

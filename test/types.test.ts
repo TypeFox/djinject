@@ -5,9 +5,9 @@
  ******************************************************************************/
 
 import { assertType } from 'typelevel-assert';
-import { Is, ValidationError } from 'typescript-typelevel';
+import { CheckError, Is } from 'typescript-typelevel';
 import { describe, it } from 'vitest'
-import { ReflectContainer, Validate } from '../src/types';
+import { ReflectContainer, Check } from '../src/types';
 
 describe('ReflectContainer', () => {
 
@@ -114,22 +114,22 @@ describe('ReflectContainer', () => {
 
 });
 
-describe('Validate', () => {
+describe('Check', () => {
 
     it('should declare a plain property of type never as missing', () => {
-        type Actual = Validate<[{
+        type Actual = Check<[{
             f: (ctx: { b: never }) => 1
         }]>;
         type Expected = {
             ginject_error: [
-                ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
+                CheckError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
     });
 
     it('should declare a deep property of type never as missing', () => {
-        type Actual = Validate<[{
+        type Actual = Check<[{
             f: (ctx: {
                 b: {
                     c: {
@@ -140,14 +140,14 @@ describe('Validate', () => {
         },]>;
         type Expected = {
             ginject_error: [
-                ValidationError<"Dependency conflict", ['b.c.d'], "https://docs.ginject.io/#context">
+                CheckError<"Dependency conflict", ['b.c.d'], "https://docs.ginject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
     });
 
     it('should declare a deep property of type string as missing', () => {
-        type Actual = Validate<[{
+        type Actual = Check<[{
             f: (ctx: {
                 b: {
                     c: {
@@ -158,14 +158,14 @@ describe('Validate', () => {
         },]>;
         type Expected = {
             ginject_error: [
-                ValidationError<"Dependency missing", ['b.c.d'], "https://docs.ginject.io/#context">
+                CheckError<"Dependency missing", ['b.c.d'], "https://docs.ginject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
     });
 
     it('should declare two deep properties of type never as missing', () => {
-        type Actual = Validate<[{
+        type Actual = Check<[{
             f: (ctx: {
                 b: {
                     c: {
@@ -179,7 +179,7 @@ describe('Validate', () => {
         },]>;
         type Expected = {
             ginject_error: [
-                ValidationError<"Dependency conflict", ['b.c.d', 'b.e.f'], "https://docs.ginject.io/#context">
+                CheckError<"Dependency conflict", ['b.c.d', 'b.e.f'], "https://docs.ginject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -187,40 +187,40 @@ describe('Validate', () => {
 
     it('should identify a merged property of type never as missing', () => {
         // { b: boolean } and { b: string} = { b: never }
-        type Actual = Validate<[{
+        type Actual = Check<[{
             f: (ctx: { b: boolean }) => 1
         }, {
             g: (ctx: { b: string }) => 1
         }]>;
         type Expected = {
             ginject_error: [
-                ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
+                CheckError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
     });
 
     it('should error if two factories require different types of the same dependency', () => {
-        type Actual = Validate<[{
+        type Actual = Check<[{
             a: (ctx: { b: boolean }) => boolean
         }, {
             b: (ctx: { b: string }) => string
         }]>;
         type Expected = {
             ginject_error: [
-                ValidationError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
+                CheckError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
     });
 
     it('should identify missing container property required by a context', () => {
-        type Actual = Validate<[{
+        type Actual = Check<[{
             f: (ctx: { b: boolean }) => 1
         }]>;
         type Expected = {
             ginject_error: [
-                ValidationError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
+                CheckError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -228,7 +228,7 @@ describe('Validate', () => {
 
     it('should remove a missing dependency by adding another module', () => {
         // no missing dependency because the new f does not need { b: boolean } anymore
-        type Actual = Validate<[{
+        type Actual = Check<[{
             f: (ctx: { b: boolean }) => 1
         }, {
             f: () => 1
@@ -243,32 +243,32 @@ describe('Validate', () => {
         assertType<Is<Actual, Expected>>();
     });
 
-    it('should not validate factory return types', () => {
+    it('should not check factory return types', () => {
         // { f: () => number } and { f: () => string } = { f: () => never }
-        type Actual = Validate<[{
+        type Actual = Check<[{
             f: () => 1
         }, {
             f: () => ''
         }]>;
         type Expected = {
             ginject_error: [
-                ValidationError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">
+                CheckError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">
             ]
         };
         assertType<Is<Actual, Expected>>();
     });
 
-    it('should show multiple validation errors', () => {
-        type Actual = Validate<[{
+    it('should show multiple check errors', () => {
+        type Actual = Check<[{
             f: (ctx: { b: boolean }) => 1
         }, {
             f: (ctx: { a: number, b: string }) => ''
         }]>;
         type Expected = {
             ginject_error: [
-                ValidationError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">,
-                ValidationError<"Dependency conflict", ["b"], "https://docs.ginject.io/#context">,
-                ValidationError<"Dependency missing", ["a"], "https://docs.ginject.io/#context">
+                CheckError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">,
+                CheckError<"Dependency conflict", ["b"], "https://docs.ginject.io/#context">,
+                CheckError<"Dependency missing", ["a"], "https://docs.ginject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();

@@ -110,7 +110,7 @@ const container = inject({
 });
 ```
 
-The **context** of type **C** provides a **value** that can't be resolved. The **inject** call is type-checked by TS the way that the completeness of the arguments is validated.
+The **context** of type **C** provides a **value** that can't be resolved. The **inject** call is type-checked by TS the way that the completeness of the arguments is checked.
 
 Such **missing dependencies** need to be provided by adding additional **modules** to the **inject** call.
 
