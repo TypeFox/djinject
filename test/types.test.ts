@@ -116,13 +116,25 @@ describe('ReflectContainer', () => {
 
 describe('Check', () => {
 
-    it('should declare a plain property of type never as missing', () => {
+    it('should identify a context property  as missing', () => {
+        type Actual = Check<[{
+            f: (ctx: { b: 1 }) => 1
+        }]>;
+        type Expected = {
+            ginject_error: [
+                CheckError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
+            ]
+        };
+        assertType<Is<Actual, Expected>>();
+    });
+
+    it('should identify a plain property of type never as conflicting', () => {
         type Actual = Check<[{
             f: (ctx: { b: never }) => 1
         }]>;
         type Expected = {
             ginject_error: [
-                CheckError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
+                CheckError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();

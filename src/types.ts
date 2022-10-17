@@ -4,7 +4,7 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { CheckError, CheckResult, Filter, Flatten, Fn, Fn1, Is, IsEmpty, Obj, Or, Paths, UnionToIntersection, UnionToTuple, Values } from 'typescript-typelevel';
+import { CheckError, CheckResult, Filter, Flatten, Fn, Fn1, Is, IsEmpty, Keys, Obj, Or, Paths, UnionToIntersection, UnionToTuple, Values } from 'typescript-typelevel';
 
 export type Module<C = any, T = C> = {
     [K in keyof T]: Module<C, T[K]> | Factory<any, T[K]>
@@ -34,11 +34,11 @@ type CheckTypes<A, T, P = Filter<Flatten<Paths<T>>, never>> =
 
 // checks if same properties in different contexts have compatible types
 type CheckContextTypes<A, C, P = Filter<Flatten<Paths<C>>, never>> =
-    IsEmpty<P> extends true ? A : CheckError<'Dependency conflict', UnionToTuple<keyof P>, 'https://docs.ginject.io/#context'>;
+    IsEmpty<P> extends true ? A : CheckError<'Dependency conflict', UnionToTuple<Keys<P>>, 'https://docs.ginject.io/#context'>;
 
 // checks if the container provides all properties the context requires
 type CheckContextProperties<A, C, T, P = Flatten<Omit<Filter<Flatten<Paths<C>>, never, false>, keyof Flatten<Paths<T>>>>> =
-    IsEmpty<P> extends true ? A : CheckError<'Dependency missing', UnionToTuple<keyof P>, 'https://docs.ginject.io/#context'>;
+    IsEmpty<P> extends true ? A : CheckError<'Dependency missing', UnionToTuple<Keys<P>>, 'https://docs.ginject.io/#context'>;
 
 // TODO(@@dd): remove the recursion by first getting all paths in M and then Mapping all Fn1 to their Ctx. Then switch from MergeObject to Merge.
 export type ReflectContainer<M,
