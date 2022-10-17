@@ -1,5 +1,18 @@
+additionalRepositories:
+  - url: https://github.com/danieldietrich/typelevel
+
 tasks:
-  - init: npm i
+  - name: typelevel setup
+    init: npm i
+    command: |
+      npm link
+      npm test
+  - name: typelevel tsc
+    command: |
+      npm run watch
+    openMode: split-right
+  - name: ginject
+    init: npm i
     command: npm test
 
 vscode:
