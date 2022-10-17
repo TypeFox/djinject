@@ -4,7 +4,7 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { CheckError, CheckResult, Filter, FilterNot, Flatten, Fn1, Is, IsEmpty, MergeArray, MergeObjects, Obj, Paths, UnionToIntersection, UnionToTuple, Values } from 'typescript-typelevel';
+import { CheckError, CheckResult, Filter, Flatten, Fn, Fn1, Is, IsEmpty, Obj, Or, Paths, UnionToIntersection, UnionToTuple, Values } from 'typescript-typelevel';
 
 export type Module<C = any, T = C> = {
     [K in keyof T]: Module<C, T[K]> | Factory<any, T[K]>
@@ -37,7 +37,7 @@ type CheckContextTypes<A, C, P = Filter<Flatten<Paths<C>>, never>> =
     IsEmpty<P> extends true ? A : CheckError<'Dependency conflict', UnionToTuple<keyof P>, 'https://docs.ginject.io/#context'>;
 
 // checks if the container provides all properties the context requires
-type CheckContextProperties<A, C, T, P = Flatten<Omit<FilterNot<Flatten<Paths<C>>, never>, keyof Flatten<Paths<T>>>>> =
+type CheckContextProperties<A, C, T, P = Flatten<Omit<Filter<Flatten<Paths<C>>, never, false>, keyof Flatten<Paths<T>>>>> =
     IsEmpty<P> extends true ? A : CheckError<'Dependency missing', UnionToTuple<keyof P>, 'https://docs.ginject.io/#context'>;
 
 // TODO(@@dd): remove the recursion by first getting all paths in M and then Mapping all Fn1 to their Ctx. Then switch from MergeObject to Merge.
@@ -60,3 +60,52 @@ type MapFunctionsToContexts<T> =
         T extends [Fn1<infer Ctx>, ...infer Tail]
             ? Is<Ctx, unknown> extends true ? MapFunctionsToContexts<Tail> : [Ctx, ...MapFunctionsToContexts<Tail>]
             : never; // we expect only functions in array T
+
+export type MergeArray<A> =
+    A extends unknown[]
+        ? A extends [infer Head, ...infer Tail]
+            ? Tail extends []
+                ? Head
+                : Tail extends unknown[]
+                    ? Merge<MergeArray<Tail>, Head>
+                    : never
+            : never
+        : never;
+
+export type Merge<S, T> =
+    Is<S, T> extends true ? S : // identity
+        Is<T, void> extends true ? S : // if target expects nothing it is ok to provide something
+            Or<Is<S, never>, Is<T, never>> extends true ? never :
+                Is<S, unknown> extends true ? unknown : Is<T, unknown> extends true ? S :
+                    Is<S, any> extends true ? any : Is<T, any> extends true ? S :
+                        S extends any[] ? (T extends any[] ? MergeArrays<S, T> : (S extends T ? S : never)) :
+                            S extends Fn ? (T extends Fn ? MergeFunctions<S, T> : (S extends T ? S : never)) :
+                                S extends Obj ? (T extends Obj ? MergeObjects<S, T> : (S extends T ? S : never)) :
+                                    S extends T ? S : never;
+
+// Consumers of T expect a certain abount of elements.
+// It is required that S has at less or equal elements as T.
+// It is sufficient, if elements of S extend elements of T.
+type MergeArrays<S extends any[], T extends any[]> =
+    S extends [infer HeadS, ...infer TailS]
+        ? T extends [infer HeadT, ...infer TailT]
+            ? [Merge<HeadS, HeadT>, ...MergeArrays<TailS, TailT>]
+            : [never] // T = [], users which expect T don't provide more elements required by S
+        : []; // S = [], S ignores additions elements required by users of T
+
+type MergeFunctions<S extends Fn, T extends Fn> =
+    S extends (...args: infer ArgsS) => infer ResS
+        ? T extends (...args: infer ArgsT) => infer ResT
+            ? Merge<ArgsS, ArgsT> extends infer A
+                ? A extends any[] ? (...args: A) => Merge<ResS, ResT> : never
+                : never
+            : never
+        : never;
+
+// TODO(@@dd): Workaround for infinite deep type error when calling Merge. Remove `export` and use Merge instead.
+export type MergeObjects<S, T> =
+    Flatten<{
+        [K in keyof S | keyof T]: K extends keyof S
+            ? (K extends keyof T ? Merge<S[K], T[K]> : S[K])
+            : (K extends keyof T ? T[K] : never)
+    }>;
