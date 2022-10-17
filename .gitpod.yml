@@ -3,11 +3,15 @@ additionalRepositories:
 
 tasks:
   - name: typelevel setup
-    init: npm i
+    init: |
+      cd /workspace/typelevel || exit 1
+      npm i
     command: |
       npm link
       npm test
   - name: typelevel tsc
+    init: |
+      cd /workspace/typelevel || exit 1
     command: |
       npm run watch
     openMode: split-right
@@ -15,13 +19,15 @@ tasks:
     init: |
       npm link typelevel
       npm i
-    command: npm test
+    command: |
+      npm test
   - name: ginject tsc
     command: |
       npm run watch
     openMode: split-right
   - name: terminal
-    command: echo "Gitpod is ready!"
+    command: |
+      code /workspace/typelevel
 
 vscode:
   extensions:
