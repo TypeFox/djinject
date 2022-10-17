@@ -35,7 +35,8 @@
     "clean": "shx rm -rf lib",
     "coverage": "vitest run --coverage",
     "lint": "eslint src test --ext .ts",
-    "test": "vitest"
+    "test": "vitest",
+    "watch": "tsc -w"
   },
   "repository": {
     "type": "git",
