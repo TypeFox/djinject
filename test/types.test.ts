@@ -4,7 +4,8 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { assertType, Is, ValidationError } from 'typescript-typelevel';
+import { assertType } from 'typelevel-assert';
+import { Is, ValidationError } from 'typescript-typelevel';
 import { describe, it } from 'vitest'
 import { ReflectContainer, Validate } from '../src/types';
 
