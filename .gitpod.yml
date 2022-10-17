@@ -27,7 +27,7 @@ tasks:
     openMode: split-right
   - name: terminal
     command: |
-      echo "Run `code /workspace/typelevel` to open the project in Gitpod."
+      echo "Run 'code /workspace/typelevel' to open the project in Gitpod."
 
 vscode:
   extensions:
