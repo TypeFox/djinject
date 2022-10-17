@@ -17,7 +17,7 @@ tasks:
     openMode: split-right
   - name: ginject setup
     init: |
-      npm link typelevel
+      npm link typescript-typelevel
       npm i
     command: |
       npm test
