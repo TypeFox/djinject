@@ -5,7 +5,7 @@
  ******************************************************************************/
 
 import { assertType } from 'typelevel-assert';
-import { CheckError, Is } from 'typescript-typelevel';
+import { Is } from 'typescript-typelevel';
 import { describe, expect, it } from 'vitest';
 import { eager, inject } from '../src/inject';
 import { Module, Check } from '../src/types';
@@ -30,6 +30,8 @@ describe('A generic dependency type', () => {
     it('should be lambda', () => checkType(() => { }));
 
     function checkType<T>(t: T): void {
+        // TODO(@@dd): remove the need for ts-expect-error, a naked type parameter T can be seen as 'any' or 'unknown'
+        // @ts-expect-error ts(2345)
         const ctr = inject({ _: () => t });
         expect(typeof ctr._).toBe(typeof t);
         expect(ctr._).toBe(t);
@@ -283,17 +285,20 @@ describe('The inject function', () => {
         ).toThrowError('Cyclic dependency [a]. See https://ginject.io/#cyclic-dependencies');
     });
 
-    it('should merge groups and overwrite a service factory without arguments with a service factory that requires a context', () => {
+    describe('should merge groups', () => {
+
+        // setup
 
         class A {
             a = 1
         }
 
         class B extends A {
+            b;
             constructor(a: A) {
                 super();
+                this.b = a.a
             }
-            b = 1;
         }
 
         interface C1 {
@@ -333,68 +338,72 @@ describe('The inject function', () => {
             x: () => 1
         };
 
-        // -- CHECK MODULE 1 --
+        it('should check module 1', () => {
 
-        type Actual1 = Check<[typeof m1]>
-        type Expected1 = [Module<C1, C1>];
-        assertType<Is<Actual1, Expected1>>();
-        const ctr1 = inject(m1);
-        const expected1 = {
-            groupA: {
-                service1: new A()
-            }
-        }
-        assertType<Is<typeof ctr1, C1>>();
-        expect(ctr1).toStrictEqual(expected1);
-
-        // -- CHECK MODULE 2 --
-
-        type Actual2 = Check<[typeof m2]>
-        type Expected2 = [Module<C2, C2>];
-        assertType<Is<Actual2, Expected2>>();
-        const ctr2 = inject(m2);
-        const expected2 = {
-            groupB: {
-                service1: new A()
-            }
-        }
-        assertType<Is<typeof ctr2, C2>>();
-        expect(ctr2).toStrictEqual(expected2);
-
-        // -- CHECK MODULE 3 --
-
-        type Actual3 = Check<[typeof m3]>
-        type Expected3 = {
-            ginject_error: [CheckError<"Dependency missing", ["groupA.service1"], "https://docs.ginject.io/#context">];
-        };
-        assertType<Is<Actual3, Expected3>>();
-        // @ts-expect-error ts(2345)
-        const ctr3 = inject(m3);
-        const expected3 = {
-            groupA: {
-                service1: new A()
-            },
-            groupB: {
-                groupC: {
-                    service2: new B(new A())
+            type Actual1 = Check<[typeof m1]>
+            type Expected1 = [Module<C1, C1>];
+            assertType<Is<Actual1, Expected1>>();
+            const ctr1 = inject(m1);
+            const expected1 = {
+                groupA: {
+                    service1: new A()
                 }
-            },
-            x: () => 1
-        }
-        assertType<Is<typeof ctr3, never>>();
-        expect(ctr3).toStrictEqual(expected3);
+            }
+            assertType<Is<typeof ctr1, C1>>();
+            expect(ctr1).toStrictEqual(expected1);
 
-        // -- CHECK COMPLETE CONTAINER --
+        });
 
-        const ctr = inject(m1, m2, m3);
+        it('should check module 2', () => {
 
-        assertType<Is<typeof ctr.groupA.service1, A>>();
-        assertType<Is<typeof ctr.groupB.groupC.service2, B>>();
-        assertType<Is<typeof ctr.x, number>>();
+            type Actual2 = Check<[typeof m2]>
+            type Expected2 = [Module<C2, C2>];
+            assertType<Is<Actual2, Expected2>>();
+            const ctr2 = inject(m2);
+            const expected2 = {
+                groupB: {
+                    groupC: {
+                        service2: new A()
+                    }
+                }
+            }
+            assertType<Is<typeof ctr2, C2>>();
+            expect(ctr2).toStrictEqual(expected2);
 
-        expect(ctr.groupA.service1).toBeInstanceOf(A);
-        expect(ctr.groupB.groupC.service2).toBeInstanceOf(B);
-        expect(ctr.x).toBe(1);
+        });
+
+        it('should check module 3', () => {
+
+            type Actual2 = Check<[typeof m2]>
+            type Expected2 = [Module<C2, C2>];
+            assertType<Is<Actual2, Expected2>>();
+            const ctr2 = inject(m2);
+            const expected2 = {
+                groupB: {
+                    groupC: {
+                        service2: new A()
+                    }
+                }
+            }
+            assertType<Is<typeof ctr2, C2>>();
+            expect(ctr2).toStrictEqual(expected2);
+
+        });
+
+        it('should check complete container of all injected modules', () => {
+
+            const ctr = inject(m1, m2, m3);
+
+            assertType<Is<typeof ctr.groupA.service1, A>>();
+            assertType<Is<typeof ctr.groupB.groupC.service2, B>>();
+            assertType<Is<typeof ctr.x, number>>();
+
+            expect(ctr.groupA.service1).toBeInstanceOf(A);
+            expect(ctr.groupB.groupC.service2).toBeInstanceOf(B);
+            expect(ctr.x).toBe(1);
+
+        });
+
     });
 
     it('should infer right container type given an ad-hoc module', () => {

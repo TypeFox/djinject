@@ -286,4 +286,29 @@ describe('Check', () => {
         assertType<Is<Actual, Expected>>();
     });
 
+    it('should check generic type parameters', () => {
+        type Testee<T> = Check<[{ _: () => T }]>;
+        type Actual= Testee<1>;
+        type Expected = [{ _: () => 1 }];
+        assertType<Is<Actual, Expected>>();
+    });
+
+    it('should check factory returning any', () => {
+        type Actual= Check<[{ _: () => any }]>;
+        type Expected = [{ _: () => any }];
+        assertType<Is<Actual, Expected>>();
+    });
+
+    it('should check factory returning unknown', () => {
+        type Actual= Check<[{ _: () => unknown }]>;
+        type Expected = [{ _: () => unknown }];
+        assertType<Is<Actual, Expected>>();
+    });
+
+    it('should check factory returning never', () => {
+        type Actual= Check<[{ _: () => never }]>;
+        type Expected = [{ _: () => never }];
+        assertType<Is<Actual, Expected>>();
+    });
+
 });
