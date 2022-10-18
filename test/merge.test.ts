@@ -5,9 +5,10 @@
  ******************************************************************************/
 
 import { assertType } from 'typelevel-assert';
-import { Fn, Is, Merge } from 'typescript-typelevel';
+import { Fn, Is } from 'typescript-typelevel';
 import { describe, expect, it } from 'vitest'
 import { merge } from '../src/merge';
+import { Merge } from '../src/types';
 
 describe('merge', () => {
 
@@ -60,6 +61,17 @@ describe('merge', () => {
         const expected = { a: 1 };
         type Expected = { a: never };
         assertType<Is<typeof actual, Expected>>();
+        expect(actual).toEqual(expected);
+    });
+
+    it('should allow to merge an optional value with a required value', () => {
+        type Source = { s: string };
+        type Target = { s?: string };
+        const source: Source = { s: '' };
+        const target: Target = { };
+        const actual = merge(target, source);
+        const expected = { s: '' };
+        assertType<Is<typeof actual, typeof expected>>();
         expect(actual).toEqual(expected);
     });
 

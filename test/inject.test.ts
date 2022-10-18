@@ -283,7 +283,7 @@ describe('The inject function', () => {
         ).toThrowError('Cyclic dependency [a]. See https://ginject.io/#cyclic-dependencies');
     });
 
-    it('should merge groups', () => {
+    it('should merge groups and overwrite a service factory without arguments with a service factory that requires a context', () => {
 
         class A {
             a = 1
@@ -334,25 +334,58 @@ describe('The inject function', () => {
         };
 
         // -- CHECK MODULE 1 --
+
+        type Actual1 = Check<[typeof m1]>
+        type Expected1 = [Module<C1, C1>];
+        assertType<Is<Actual1, Expected1>>();
         const ctr1 = inject(m1);
-        // TODO(@@dd): assertions
+        const expected1 = {
+            groupA: {
+                service1: new A()
+            }
+        }
+        assertType<Is<typeof ctr1, C1>>();
+        expect(ctr1).toStrictEqual(expected1);
 
         // -- CHECK MODULE 2 --
+
+        type Actual2 = Check<[typeof m2]>
+        type Expected2 = [Module<C2, C2>];
+        assertType<Is<Actual2, Expected2>>();
         const ctr2 = inject(m2);
-        // TODO(@@dd): assertions
+        const expected2 = {
+            groupB: {
+                service1: new A()
+            }
+        }
+        assertType<Is<typeof ctr2, C2>>();
+        expect(ctr2).toStrictEqual(expected2);
 
         // -- CHECK MODULE 3 --
+
         type Actual3 = Check<[typeof m3]>
         type Expected3 = {
             ginject_error: [CheckError<"Dependency missing", ["groupA.service1"], "https://docs.ginject.io/#context">];
         };
         assertType<Is<Actual3, Expected3>>();
-        // @ts-expect-error
+        // @ts-expect-error ts(2345)
         const ctr3 = inject(m3);
+        const expected3 = {
+            groupA: {
+                service1: new A()
+            },
+            groupB: {
+                groupC: {
+                    service2: new B(new A())
+                }
+            },
+            x: () => 1
+        }
         assertType<Is<typeof ctr3, never>>();
-        expect(ctr3).toBeNull();
+        expect(ctr3).toStrictEqual(expected3);
 
         // -- CHECK COMPLETE CONTAINER --
+
         const ctr = inject(m1, m2, m3);
 
         assertType<Is<typeof ctr.groupA.service1, A>>();

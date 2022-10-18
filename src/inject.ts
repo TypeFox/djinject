@@ -14,7 +14,7 @@ const isRequested = Symbol();
 // TODO(@@dd): allow to define a module with an activation handler: { ginject: { onActivation: <C>(ctx: C) = <T>(factory: Factory<C, T>) => factory(ctx) } }
 // TODO(@@dd): lib/index.d.ts of the bundled application does not compile because ts-expect-error was removed. Does it work for consumers of ginject?
 
-// @ts-expect-error 2370
+// @ts-expect-error ts(2370)
 export function inject<M extends [Module, ...Module[]]>(...modules: Check<M>): Container<M> {
     const module = (modules as Module[]).reduce(merge, {});
     const container = proxify(module);
