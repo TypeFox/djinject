@@ -307,7 +307,11 @@ describe('Check', () => {
 
     it('should check factory returning never', () => {
         type Actual= Check<[{ _: () => never }]>;
-        type Expected = [{ _: () => never }];
+        type Expected = {
+            ginject_error: [
+                CheckError<"Type conflict", ["_"], "https://docs.ginject.io/#modules">
+            ]
+        };
         assertType<Is<Actual, Expected>>();
     });
 

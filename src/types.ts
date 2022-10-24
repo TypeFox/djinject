@@ -30,7 +30,7 @@ export type Check<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>
 
 // checks if merged module types are valid
 type CheckTypes<A, T, P = Filter<Combine<Paths<T>>, never>> =
-    IsEmpty<P> extends true ? A : CheckError<'Type conflict', UnionToTuple<keyof P>, 'https://docs.ginject.io/#modules'>;
+    IsEmpty<P> extends true ? A : CheckError<'Type conflict', UnionToTuple<Keys<P>>, 'https://docs.ginject.io/#modules'>;
 
 // checks if same properties in different contexts have compatible types
 type CheckContextTypes<A, C, P = Filter<Combine<Paths<C>>, never>> =
