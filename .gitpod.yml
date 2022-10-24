@@ -1,33 +1,6 @@
-additionalRepositories:
-  - url: https://github.com/danieldietrich/typelevel
-
 tasks:
-  - name: typelevel setup
-    init: |
-      cd /workspace/typelevel || exit 1
-      npm i
-    command: |
-      npm link
-      npm test
-  - name: typelevel tsc
-    init: |
-      cd /workspace/typelevel || exit 1
-    command: |
-      npm run watch
-    openMode: split-right
-  - name: ginject setup
-    init: |
-      npm link typescript-typelevel
-      npm i
-    command: |
-      npm test
-  - name: ginject tsc
-    command: |
-      npm run watch
-    openMode: split-right
-  - name: terminal
-    command: |
-      echo "Run 'code /workspace/typelevel' to open the project in Gitpod."
+  - init: npm i
+    command: npm test
 
 vscode:
   extensions:
