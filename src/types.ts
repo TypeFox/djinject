@@ -4,7 +4,7 @@
  * terms of the MIT License, which is available in the project root.
  ******************************************************************************/
 
-import { CheckError, CheckResult, Filter, Flatten, Fn, Fn1, Is, IsEmpty, Keys, Obj, Or, Paths, UnionToIntersection, UnionToTuple, Values } from 'typescript-typelevel';
+import { CheckError, CheckResult, Combine, Filter, Fn, Is, IsEmpty, Keys, Obj, Or, Paths, UnionToIntersection, UnionToTuple, Values } from 'typescript-typelevel';
 
 export type Module<C = any, T = C> = {
     [K in keyof T]: Module<C, T[K]> | Factory<any, T[K]>
@@ -29,20 +29,20 @@ export type Check<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>
             : never;
 
 // checks if merged module types are valid
-type CheckTypes<A, T, P = Filter<Flatten<Paths<T>>, never>> =
+type CheckTypes<A, T, P = Filter<Combine<Paths<T>>, never>> =
     IsEmpty<P> extends true ? A : CheckError<'Type conflict', UnionToTuple<keyof P>, 'https://docs.ginject.io/#modules'>;
 
 // checks if same properties in different contexts have compatible types
-type CheckContextTypes<A, C, P = Filter<Flatten<Paths<C>>, never>> =
+type CheckContextTypes<A, C, P = Filter<Combine<Paths<C>>, never>> =
     IsEmpty<P> extends true ? A : CheckError<'Dependency conflict', UnionToTuple<Keys<P>>, 'https://docs.ginject.io/#context'>;
 
 // checks if the container provides all properties the context requires
-type CheckContextProperties<A, C, T, P = Flatten<Omit<Filter<Flatten<Paths<C>>, never, false>, keyof Flatten<Paths<T>>>>> =
+type CheckContextProperties<A, C, T, P = Combine<Omit<Filter<Combine<Paths<C>>, never, false>, keyof Combine<Paths<T>>>>> =
     IsEmpty<P> extends true ? A : CheckError<'Dependency missing', UnionToTuple<Keys<P>>, 'https://docs.ginject.io/#context'>;
 
 // TODO(@@dd): remove the recursion by first getting all paths in M and then Mapping all Fn1 to their Ctx. Then switch from MergeObject to Merge.
 export type ReflectContainer<M,
-    _Functions = Filter<M, Fn1>,                                 // { f1: (ctx: C1) = any, f2: ... }
+    _Functions = Filter<M, Fn<[any]>>,                           // { f1: (ctx: C1) = any, f2: ... }
     _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>, // ((ctx: C) => any)[]
     _ContextArray = MapFunctionsToContexts<_FunctionArray>,      // C[]
     _Ctx = MergeArray<_ContextArray>,                            // C | never
@@ -57,7 +57,7 @@ export type ReflectContainer<M,
 
 type MapFunctionsToContexts<T> =
     T extends [] ? [] :
-        T extends [Fn1<infer Ctx>, ...infer Tail]
+        T extends [Fn<[infer Ctx, ...any[]]>, ...infer Tail]
             ? Is<Ctx, unknown> extends true ? MapFunctionsToContexts<Tail> : [Ctx, ...MapFunctionsToContexts<Tail>]
             : never; // we expect only functions in array T
 
@@ -104,7 +104,7 @@ type MergeFunctions<S extends Fn, T extends Fn> =
 
 // TODO(@@dd): Workaround for infinite deep type error when calling Merge. Remove `export` and use Merge instead.
 export type MergeObjects<S, T> =
-    Flatten<{
+    Combine<{
         [K in keyof S | keyof T]: K extends keyof S
             ? (K extends keyof T ? Merge<S[K], T[K]> : S[K])
             : (K extends keyof T ? T[K] : never)

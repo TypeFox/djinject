@@ -63,7 +63,7 @@
     "shx": "^0.3.4",
     "typelevel-assert": "^0.1.1",
     "typescript": "^4.8.4",
-    "typescript-typelevel": "^0.8.0",
+    "typescript-typelevel": "^0.8.1",
     "vitest": "^0.23.2"
   }
 }

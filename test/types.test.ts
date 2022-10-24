@@ -188,7 +188,7 @@ describe('Check', () => {
                     }
                 }
             }) => 1
-        },]>;
+        }]>;
         type Expected = {
             ginject_error: [
                 CheckError<"Dependency conflict", ['b.c.d', 'b.e.f'], "https://docs.ginject.io/#context">
