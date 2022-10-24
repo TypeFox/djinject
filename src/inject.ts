@@ -11,8 +11,8 @@ const isEager = Symbol();
 
 const isRequested = Symbol();
 
-// TODO(@@dd): allow to define a module with an activation handler: { ginject: { onActivation: <C>(ctx: C) = <T>(factory: Factory<C, T>) => factory(ctx) } }
-// TODO(@@dd): lib/inject.d.ts of the bundled application does not compile because ts-expect-error was removed. Does it work for consumers of ginject?
+// TODO(@@dd): allow to define a module with an activation handler: { djinject: { onActivation: <C>(ctx: C) = <T>(factory: Factory<C, T>) => factory(ctx) } }
+// TODO(@@dd): lib/inject.d.ts of the bundled application does not compile because ts-expect-error was removed. Does it work for consumers of djinject?
 
 // @ts-expect-error ts(2370)
 export function inject<M extends [Module, ...Module[]]>(...modules: Check<M>): Container<M> {
@@ -37,7 +37,7 @@ function proxify<C, T>(module: Module<C, T>, container?: C, path: string = ''): 
     const get = (obj: Record<PropertyKey, unknown>, prop: PropertyKey, proxy: T) => {
         const name = path + '[' + String(prop) + ']';
         if (obj[prop] === isRequested) {
-            throw new Error('Cyclic dependency ' + name + '. See https://ginject.io/#cyclic-dependencies');
+            throw new Error('Cyclic dependency ' + name + '. See https://djinject.io/#cyclic-dependencies');
         }
         const ctr = container || (proxy as any);
         const val = (module as any)[prop];

@@ -1,5 +1,5 @@
 {
-  "name": "ginject",
+  "name": "djinject",
   "version": "0.1.0",
   "description": "Dependency injection done right.",
   "keywords": [
@@ -15,23 +15,23 @@
   ],
   "types": "lib/index.d.ts",
   "main": "lib/index.js",
-  "module": "lib/ginject.module.js",
-  "umd:main": "lib/ginject.umd.js",
-  "unpkg": "lib/ginject.min.js",
+  "module": "lib/djinject.module.js",
+  "umd:main": "lib/djinject.umd.js",
+  "unpkg": "lib/djinject.min.js",
   "source": "src/index.ts",
   "exports": {
     ".": {
       "types": "./lib/index.d.ts",
-      "browser": "./lib/ginject.module.js",
-      "umd": "./lib/ginject.umd.js",
-      "import": "./lib/ginject.mjs",
-      "require": "./lib/ginject.js"
+      "browser": "./lib/djinject.module.js",
+      "umd": "./lib/djinject.umd.js",
+      "import": "./lib/djinject.mjs",
+      "require": "./lib/djinject.js"
     }
   },
   "scripts": {
     "prepare": "npm run clean && npm run build && npm run lint && npm run bundle",
     "build": "tsc",
-    "bundle": "microbundle build -o lib/ginject.js --name ginject",
+    "bundle": "microbundle build -o lib/djinject.js --name djinject",
     "clean": "shx rm -rf lib",
     "coverage": "vitest run --coverage",
     "lint": "eslint src test --ext .ts",
@@ -40,11 +40,11 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/langium/ginject.git"
+    "url": "git+https://github.com/langium/djinject.git"
   },
-  "homepage": "https://github.com/langium/ginject#readme",
+  "homepage": "https://github.com/langium/djinject#readme",
   "bugs": {
-    "url": "https://github.com/langium/ginject/issues"
+    "url": "https://github.com/langium/djinject/issues"
   },
   "author": {
     "name": "Daniel Dietrich",

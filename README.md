@@ -1,6 +1,6 @@
-<div id="ginject-logo" align="center">
-  <a href="https://github.com/langium/ginject">
-    <img alt="Ginject Logo" width="450" src="https://user-images.githubusercontent.com/743833/193610222-cf9a7feb-b1d9-4d5c-88de-6ce9fbca8299.png">
+<div id="djinject-logo" align="center">
+  <a href="https://github.com/langium/djinject">
+    <img alt="Djinject Logo" width="450" src="https://user-images.githubusercontent.com/743833/197622552-e613a4cc-bfd7-4757-b8ef-7679249e109f.png">
   </a>
   <h3>
     Dependency injection done right.
@@ -9,30 +9,30 @@
 
 <div id="badges" align="center">
 
-[![npm version](https://img.shields.io/npm/v/ginject?logo=npm&style=flat-square)](https://www.npmjs.com/package/ginject/)
-[![build](https://img.shields.io/github/workflow/status/langium/ginject/Build/main?logo=github&style=flat-square)](https://github.com/langium/ginject/actions/workflows/build.yml)
-[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod&style=flat-square)](https://gitpod.io/#https://github.com/langium/ginject)
+[![npm version](https://img.shields.io/npm/v/djinject?logo=npm&style=flat-square)](https://www.npmjs.com/package/djinject/)
+[![build](https://img.shields.io/github/workflow/status/langium/djinject/Build/main?logo=github&style=flat-square)](https://github.com/langium/djinject/actions/workflows/build.yml)
+[![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod&style=flat-square)](https://gitpod.io/#https://github.com/langium/djinject)
 
 </div>
 
 <br>
 
-**Ginject** [ʤɪnject] is a non-intrusive and typesafe dependency injection library for Node.js and JavaScript, powered by TypeScript.
+**Djinject** is a non-intrusive and typesafe dependency injection library for Node.js and JavaScript, powered by TypeScript.
 
-**Ginject** empowers developers designing decoupled applications and frameworks. **Ginject**'s main goal is increasing the developer experience by offering a tiny, yet powerful API, keeping dependencies in central module definitions and by using TypeScript's type system to restrain runtime challenges.
+**Djinject** empowers developers designing decoupled applications and frameworks. **Djinject**'s main goal is increasing the developer experience by offering a tiny, yet powerful API, keeping dependencies in central module definitions and by using TypeScript's type system to restrain runtime challenges.
 
-The concept of **ginject**'s central module definition is inspired by [Google Guice](https://github.com/google/guice). However, **ginject** is going further by lifting the API to the functional level.
+The concept of **djinject**'s central module definition is inspired by [Google Guice](https://github.com/google/guice). However, **djinject** is going further by lifting the API to the functional level.
 
-Despite its simplicity, **ginject** is powerful enough to cover all features provided by [Inversify](https://github.com/inversify/InversifyJS). Direct support for classes and constructors, property injection, rebinding dependencies and dependency cycle detection are just a few of the features worth mentioning.
+Despite its simplicity, **djinject** is powerful enough to cover all features provided by [Inversify](https://github.com/inversify/InversifyJS). Direct support for classes and constructors, property injection, rebinding dependencies and dependency cycle detection are just a few of the features worth mentioning.
 
 <br>
 
-<div id="ginject vs inversify" align="center">
+<div id="djinject vs inversify" align="center">
 
-|                  |   ginject  |  inversify  |
+|                  |   djinject  |  inversify  |
 |------------------|:----------:|:-----------:|
-| minified         | [![minified size](https://img.shields.io/bundlephobia/min/ginject?label=&style=flat-square)](https://bundlephobia.com/result?p=ginject@latest) | [![minified size](https://img.shields.io/bundlephobia/min/inversify?label=&style=flat-square)](https://bundlephobia.com/result?p=inversify@latest) |
-| minzipped        | [![minzipped size](https://img.shields.io/bundlephobia/minzip/ginject?label=&style=flat-square)](https://bundlephobia.com/result?p=ginject@latest) | [![minzipped size](https://img.shields.io/bundlephobia/minzip/inversify?label=&style=flat-square)](https://bundlephobia.com/result?p=inversify@latest) |
+| minified         | [![minified size](https://img.shields.io/bundlephobia/min/djinject?label=&style=flat-square)](https://bundlephobia.com/result?p=djinject@latest) | [![minified size](https://img.shields.io/bundlephobia/min/inversify?label=&style=flat-square)](https://bundlephobia.com/result?p=inversify@latest) |
+| minzipped        | [![minzipped size](https://img.shields.io/bundlephobia/minzip/djinject?label=&style=flat-square)](https://bundlephobia.com/result?p=djinject@latest) | [![minzipped size](https://img.shields.io/bundlephobia/minzip/inversify?label=&style=flat-square)](https://bundlephobia.com/result?p=inversify@latest) |
 | typesafe         |      ✅    |      ❌      |
 | requirements     |    none    | decorators  |
 | style            | functional | imperative  |
@@ -44,16 +44,16 @@ Despite its simplicity, **ginject** is powerful enough to cover all features pro
 
 ## Quickstart
 
-The first step is to add **ginject** to your application.
+The first step is to add **djinject** to your application.
 
 ```sh
-npm i ginject
+npm i djinject
 ```
 
 Bascially, the only thing needed is to define **modules** of **factories** and finally call **inject**. The resulting **container** provides concrete **instances**.
 
 ```ts
-import { inject } from 'ginject';
+import { inject } from 'djinject';
 
 // create an inversion of control container
 const container = inject({
@@ -61,8 +61,8 @@ const container = inject({
     sayHi: () => (name: string) => `${container.hi} ${name}!`
 });
 
-// prints 'Hi Ginject!'
-console.log(container.sayHi('Ginject'));
+// prints 'Hi Djinject!'
+console.log(container.sayHi('Djinject'));
 ```
 
 ## API
@@ -72,7 +72,7 @@ console.log(container.sayHi('Ginject'));
 The **inject** function is turning **modules** into a **container**. A **module** is a plain vanilla JS object, composed of nested **groups** and **dependency factories**. Factories may return any JS value, e.g. constants, singletons and providers. Unlike [Inversify](https://github.com/inversify/InversifyJS), there is no need to decorate classes.
 
 ```ts
-import { inject, Module } from 'ginject';
+import { inject, Module } from 'djinject';
 
 // Defining a _context_ of dependencies
 type Context = {
@@ -138,7 +138,7 @@ A dependency **container.group.value** is **lazily** initialized when first acce
 A use case for **eager initialization** would be to ensure that **side effects** take place during the initialization of the **container**. 
 
 ```ts
-import { eager, inject, Module } from 'ginject';
+import { eager, inject, Module } from 'djinject';
 
 type C = {
     gin: string

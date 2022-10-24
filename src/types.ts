@@ -25,20 +25,20 @@ export type Check<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>
                 CheckTypes<A, T>,
                 CheckContextTypes<A, C>,
                 CheckContextProperties<A, C, T>
-            ], 'ginject_error'>
+            ], 'djinject_error'>
             : never;
 
 // checks if merged module types are valid
 type CheckTypes<A, T, P = Filter<Combine<Paths<T>>, never>> =
-    IsEmpty<P> extends true ? A : CheckError<'Type conflict', UnionToTuple<Keys<P>>, 'https://docs.ginject.io/#modules'>;
+    IsEmpty<P> extends true ? A : CheckError<'Type conflict', UnionToTuple<Keys<P>>, 'https://docs.djinject.io/#modules'>;
 
 // checks if same properties in different contexts have compatible types
 type CheckContextTypes<A, C, P = Filter<Combine<Paths<C>>, never>> =
-    IsEmpty<P> extends true ? A : CheckError<'Dependency conflict', UnionToTuple<Keys<P>>, 'https://docs.ginject.io/#context'>;
+    IsEmpty<P> extends true ? A : CheckError<'Dependency conflict', UnionToTuple<Keys<P>>, 'https://docs.djinject.io/#context'>;
 
 // checks if the container provides all properties the context requires
 type CheckContextProperties<A, C, T, P = Combine<Omit<Filter<Combine<Paths<C>>, never, false>, keyof Combine<Paths<T>>>>> =
-    IsEmpty<P> extends true ? A : CheckError<'Dependency missing', UnionToTuple<Keys<P>>, 'https://docs.ginject.io/#context'>;
+    IsEmpty<P> extends true ? A : CheckError<'Dependency missing', UnionToTuple<Keys<P>>, 'https://docs.djinject.io/#context'>;
 
 // TODO(@@dd): remove the recursion by first getting all paths in M and then Mapping all Fn1 to their Ctx. Then switch from MergeObject to Merge.
 export type ReflectContainer<M,

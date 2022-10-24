@@ -121,8 +121,8 @@ describe('Check', () => {
             f: (ctx: { b: 1 }) => 1
         }]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
+            djinject_error: [
+                CheckError<"Dependency missing", ['b'], "https://docs.djinject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -133,8 +133,8 @@ describe('Check', () => {
             f: (ctx: { b: never }) => 1
         }]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
+            djinject_error: [
+                CheckError<"Dependency conflict", ['b'], "https://docs.djinject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -151,8 +151,8 @@ describe('Check', () => {
             }) => 1
         },]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Dependency conflict", ['b.c.d'], "https://docs.ginject.io/#context">
+            djinject_error: [
+                CheckError<"Dependency conflict", ['b.c.d'], "https://docs.djinject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -169,8 +169,8 @@ describe('Check', () => {
             }) => 1
         },]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Dependency missing", ['b.c.d'], "https://docs.ginject.io/#context">
+            djinject_error: [
+                CheckError<"Dependency missing", ['b.c.d'], "https://docs.djinject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -190,8 +190,8 @@ describe('Check', () => {
             }) => 1
         }]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Dependency conflict", ['b.c.d', 'b.e.f'], "https://docs.ginject.io/#context">
+            djinject_error: [
+                CheckError<"Dependency conflict", ['b.c.d', 'b.e.f'], "https://docs.djinject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -205,8 +205,8 @@ describe('Check', () => {
             g: (ctx: { b: string }) => 1
         }]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
+            djinject_error: [
+                CheckError<"Dependency conflict", ['b'], "https://docs.djinject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -219,8 +219,8 @@ describe('Check', () => {
             b: (ctx: { b: string }) => string
         }]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Dependency conflict", ['b'], "https://docs.ginject.io/#context">
+            djinject_error: [
+                CheckError<"Dependency conflict", ['b'], "https://docs.djinject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -231,8 +231,8 @@ describe('Check', () => {
             f: (ctx: { b: boolean }) => 1
         }]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Dependency missing", ['b'], "https://docs.ginject.io/#context">
+            djinject_error: [
+                CheckError<"Dependency missing", ['b'], "https://docs.djinject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -263,8 +263,8 @@ describe('Check', () => {
             f: () => ''
         }]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">
+            djinject_error: [
+                CheckError<"Type conflict", ["f"], "https://docs.djinject.io/#modules">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -277,10 +277,10 @@ describe('Check', () => {
             f: (ctx: { a: number, b: string }) => ''
         }]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Type conflict", ["f"], "https://docs.ginject.io/#modules">,
-                CheckError<"Dependency conflict", ["b"], "https://docs.ginject.io/#context">,
-                CheckError<"Dependency missing", ["a"], "https://docs.ginject.io/#context">
+            djinject_error: [
+                CheckError<"Type conflict", ["f"], "https://docs.djinject.io/#modules">,
+                CheckError<"Dependency conflict", ["b"], "https://docs.djinject.io/#context">,
+                CheckError<"Dependency missing", ["a"], "https://docs.djinject.io/#context">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -308,8 +308,8 @@ describe('Check', () => {
     it('should check factory returning never', () => {
         type Actual= Check<[{ _: () => never }]>;
         type Expected = {
-            ginject_error: [
-                CheckError<"Type conflict", ["_"], "https://docs.ginject.io/#modules">
+            djinject_error: [
+                CheckError<"Type conflict", ["_"], "https://docs.djinject.io/#modules">
             ]
         };
         assertType<Is<Actual, Expected>>();

@@ -7,11 +7,11 @@ labels: 'bug'
 
 # Bug Report
 
-Ginject version:
+Djinject version:
 
 <!--
   Please provide a clear and concise description of what the bug is. Include
-  screenshots if needed. Please test using the latest version of Ginject to
+  screenshots if needed. Please test using the latest version of Djinject to
   make sure your issue has not already been fixed.
 -->
 
@@ -22,7 +22,7 @@ Ginject version:
 
 <!--
   Your bug will get fixed much faster if we can run your code and it doesn't
-  have dependencies other than Ginject. Issues without reproduction steps or
+  have dependencies other than Djinject. Issues without reproduction steps or
   code examples may be immediately closed as not actionable.
 -->
 

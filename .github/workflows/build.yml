@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    name: Ginject
+    name: Djinject
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
