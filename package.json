@@ -1,7 +1,7 @@
 {
   "name": "ginject",
   "version": "0.0.0",
-  "description": "Ginject is a featherweight dependency injection solution for decoupling JavaScript and Node.js apps.",
+  "description": "Dependency injection done right.",
   "keywords": [
     "inject",
     "dependency injection",
@@ -10,14 +10,33 @@
     "ioc"
   ],
   "files": [
-    "dist"
+    "lib",
+    "src"
   ],
-  "types": "./dist/index.d.ts",
-  "main": "./dist/index.js",
+  "types": "lib/index.d.ts",
+  "main": "lib/index.js",
+  "module": "lib/ginject.module.js",
+  "umd:main": "lib/ginject.umd.js",
+  "unpkg": "lib/ginject.min.js",
+  "source": "src/index.ts",
+  "exports": {
+    ".": {
+      "types": "./lib/index.d.ts",
+      "browser": "./lib/ginject.module.js",
+      "umd": "./lib/ginject.umd.js",
+      "import": "./lib/ginject.mjs",
+      "require": "./lib/ginject.js"
+    }
+  },
   "scripts": {
+    "prepare": "npm run clean && npm run build && npm run lint && npm run bundle",
     "build": "tsc",
+    "bundle": "microbundle build -o lib/ginject.js --name ginject",
+    "clean": "shx rm -rf lib",
     "coverage": "vitest run --coverage",
-    "test": "vitest"
+    "lint": "eslint src test --ext .ts",
+    "test": "vitest",
+    "watch": "tsc -w"
   },
   "repository": {
     "type": "git",
@@ -34,8 +53,17 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.38.1",
+    "@typescript-eslint/parser": "^5.38.1",
     "@vitest/coverage-c8": "^0.23.2",
-    "typescript": "^4.8.3",
+    "eslint": "^8.24.0",
+    "eslint-plugin-typescript-enum": "^2.1.0",
+    "eslint-plugin-unused-imports": "^2.0.0",
+    "microbundle": "^0.15.1",
+    "shx": "^0.3.4",
+    "typelevel-assert": "^0.1.1",
+    "typescript": "^4.8.4",
+    "typescript-typelevel": "^0.8.3",
     "vitest": "^0.23.2"
   }
 }
