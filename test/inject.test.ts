@@ -515,6 +515,69 @@ describe('The inject function', () => {
 
 });
 
+describe('A module', () => {
+
+    it('may contain optional service when defined based on a context type', () => {
+        type Ctx = {
+            group: {
+                service?: number
+            }
+        };
+        const module: Module<Ctx> = {
+            group: {
+            }
+        };
+        const ctr = inject(module);
+        const { service } = ctr.group;
+        assertType<Is<typeof service, number | undefined>>();
+        expect(service).toBeUndefined();
+    });
+
+    it('may contain optional group when defined based on a context type', () => {
+        type Ctx = {
+            group?: {
+                service: number
+            }
+        };
+        const module: Module<Ctx> = {};
+        const ctr = inject(module);
+        const { group } = ctr;
+        assertType<Is<typeof group, { service: number } | undefined>>();
+        expect(group).toBeUndefined();
+    });
+
+    it('may contain a mixture of optional services and groups', () => {
+        type Ctx = {
+            group1: {
+                service1?: number
+            }
+            group2?: {
+                service2: number
+            }
+            group3: {
+                service3: number
+            }
+        };
+        const module: Module<Ctx> = {
+            group1: {
+            },
+            group3: {
+                service3: () => 1
+            }
+        };
+        const ctr = inject(module);
+        assertType<Is<typeof ctr, Ctx>>();
+        expect(ctr).toEqual({
+            group1: {
+            },
+            group3: {
+                service3: 1
+            }
+        });
+    });
+
+});
+
 describe('The inject result', () => {
 
     it('should be immutable', () => {
