@@ -37,7 +37,7 @@ type CheckContextTypes<A, C, P = Filter<Combine<Paths<C>>, never>> =
     IsEmpty<P> extends true ? A : CheckError<'Dependency conflict', UnionToTuple<Keys<P>>, 'https://docs.djinject.io/#context'>;
 
 // checks if the container provides all properties the context requires
-type CheckContextProperties<A, C, T, P = Combine<Omit<Filter<Combine<Paths<C>>, never, false>, keyof Combine<Paths<T>>>>> =
+type CheckContextProperties<A, C, T, P = Combine<Omit<Filter<Combine<Paths<C>>, never, { Cond: false }>, keyof Combine<Paths<T>>>>> =
     IsEmpty<P> extends true ? A : CheckError<'Dependency missing', UnionToTuple<Keys<P>>, 'https://docs.djinject.io/#context'>;
 
 // TODO(@@dd): remove the recursion by first getting all paths in M and then Mapping all Fn1 to their Ctx. Then switch from MergeObject to Merge.
