@@ -47,9 +47,8 @@
     "url": "https://github.com/langium/djinject/issues"
   },
   "author": {
-    "name": "Daniel Dietrich",
-    "email": "cafebab3@gmail.com",
-    "url": "https://danieldietrich.dev"
+    "name": "TypeFox",
+    "url": "https://www.typefox.io"
   },
   "license": "MIT",
   "devDependencies": {
