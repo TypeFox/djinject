@@ -151,6 +151,13 @@ describe('A cyclic dependency', () => {
 
 describe('The dependency initialization', () => {
 
+    it('should not inject undefined', () => {
+        expect(() => {
+            // @ts-expect-error
+            inject(undefined);
+        }).toThrow();
+    });
+
     it('should not inject null', () => {
         expect(() => {
             // @ts-expect-error
