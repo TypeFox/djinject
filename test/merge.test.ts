@@ -314,8 +314,6 @@ describe('type Merge', () => {
             assertType<Is<Actual, Expected>>()
         });
 
-        // TODO(@@dd): classes are functions
-
     });
 
     describe('object types', () => {

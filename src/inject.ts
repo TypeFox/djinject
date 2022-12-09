@@ -11,9 +11,6 @@ const isEager = Symbol();
 
 const isRequested = Symbol();
 
-// TODO(@@dd): allow to define a module with an activation handler: { djinject: { onActivation: <C>(ctx: C) = <T>(factory: Factory<C, T>) => factory(ctx) } }
-// TODO(@@dd): lib/inject.d.ts of the bundled application does not compile because ts-expect-error was removed. Does it work for consumers of djinject?
-
 // @ts-expect-error ts(2370)
 export function inject<M extends [Module, ...Module[]]>(...modules: Check<M>): Container<M> {
     const module = (modules as Module[]).reduce(merge, {});

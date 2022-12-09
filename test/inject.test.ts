@@ -30,9 +30,8 @@ describe('A generic dependency type', () => {
     it('should be lambda', () => checkType(() => { }));
 
     function checkType<T>(t: T): void {
-        // TODO(@@dd): remove the need for ts-expect-error, a naked type parameter T can be seen as 'any' or 'unknown'
-        // @ts-expect-error ts(2345)
-        const ctr = inject({ _: () => t });
+        const module: Module = { _: () => t };
+        const ctr = inject(module);
         expect(typeof ctr._).toBe(typeof t);
         expect(ctr._).toBe(t);
     }

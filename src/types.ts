@@ -102,7 +102,7 @@ type MergeFunctions<S extends Fn, T extends Fn> =
             : never
         : never;
 
-// TODO(@@dd): Workaround for infinite deep type error when calling Merge. Remove `export` and use Merge instead.
+// TODO(@@dd): Workaround for infinite deep type error when calling Merge. Remove `export` and use Merge on the use-site instead.
 export type MergeObjects<S, T> =
     Combine<{
         [K in keyof S | keyof T]: K extends keyof S
