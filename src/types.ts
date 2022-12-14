@@ -64,7 +64,7 @@ export type ReflectContainer<M,
 type MapFunctionsToContexts<T> =
     T extends [] ? [] :
         T extends [Fn<[infer Ctx, ...any[]]>, ...infer Tail]
-            ? Is<Ctx, unknown> extends true ? MapFunctionsToContexts<Tail> : [Ctx, ...MapFunctionsToContexts<Tail>]
+            ? Or<Is<Ctx, any>, Is<Ctx, unknown>> extends true ? MapFunctionsToContexts<Tail> : [Ctx, ...MapFunctionsToContexts<Tail>]
             : never; // we expect only functions in array T
 
 type MergeArray<A> =
