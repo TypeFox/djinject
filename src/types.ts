@@ -12,12 +12,18 @@ export type Module<C = any, T = C> = {
 
 export type Factory<C, T> = (ctx: C) => T;
 
-export type Container<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
+export type Container<A extends Module | Module[]> =
+    [A] extends [Module[]] ? _Container<A> :
+        [A] extends [Module] ? _Container<[A]> : never
+
+type _Container<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
     IsEmpty<M> extends true ? {} :
         M extends Module<unknown, infer T> ?
             T extends C ? T : never : never;
 
-export type Check<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
+export type Check<A extends Module[]> = _Check<A>;
+
+type _Check<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
     IsEmpty<M> extends true
         ? A
         : M extends Module<unknown, infer T>
@@ -61,7 +67,7 @@ type MapFunctionsToContexts<T> =
             ? Is<Ctx, unknown> extends true ? MapFunctionsToContexts<Tail> : [Ctx, ...MapFunctionsToContexts<Tail>]
             : never; // we expect only functions in array T
 
-export type MergeArray<A> =
+type MergeArray<A> =
     A extends unknown[]
         ? A extends [infer Head, ...infer Tail]
             ? Tail extends []
@@ -103,7 +109,7 @@ type MergeFunctions<S extends Fn, T extends Fn> =
         : never;
 
 // TODO(@@dd): Workaround for infinite deep type error when calling Merge. Remove `export` and use Merge on the use-site instead.
-export type MergeObjects<S, T> =
+type MergeObjects<S, T> =
     Combine<{
         [K in keyof S | keyof T]: K extends keyof S
             ? (K extends keyof T ? Merge<S[K], T[K]> : S[K])
