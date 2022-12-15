@@ -6,11 +6,11 @@
 
 import { CheckError, CheckResult, Combine, Filter, Fn, Is, IsEmpty, Keys, Obj, Or, Paths, UnionToIntersection, UnionToTuple, Values } from 'typescript-typelevel';
 
-export type Module<C = any, T = C> = {
-    [K in keyof T]: Module<C, T[K]> | Factory<any, T[K]>
+export type Module<T = any> = {
+    [K in keyof T]: Module<T[K]> | Factory<T[K]>
 };
 
-export type Factory<C, T> = (ctx: C) => T;
+export type Factory<T> = (ctx: any) => T;
 
 export type Container<A extends Module | Module[]> =
     [A] extends [Module[]] ? _Container<A> :
@@ -18,7 +18,7 @@ export type Container<A extends Module | Module[]> =
 
 type _Container<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
     IsEmpty<M> extends true ? {} :
-        M extends Module<unknown, infer T> ?
+        M extends Module<infer T> ?
             T extends C ? T : never : never;
 
 export type Check<A extends Module[]> = _Check<A>;
@@ -26,7 +26,7 @@ export type Check<A extends Module[]> = _Check<A>;
 type _Check<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
     IsEmpty<M> extends true
         ? A
-        : M extends Module<unknown, infer T>
+        : M extends Module<infer T>
             ? CheckResult<A, [
                 CheckTypes<A, T>,
                 CheckContextTypes<A, C>,

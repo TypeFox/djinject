@@ -347,7 +347,7 @@ describe('The inject function', () => {
         it('should check module 1', () => {
 
             type Actual1 = Check<[typeof m1]>
-            type Expected1 = [Module<C1, C1>];
+            type Expected1 = [Module<C1>];
             assertType<Is<Actual1, Expected1>>();
             const ctr1 = inject(m1);
             const expected1 = {
@@ -363,7 +363,7 @@ describe('The inject function', () => {
         it('should check module 2', () => {
 
             type Actual2 = Check<[typeof m2]>
-            type Expected2 = [Module<C2, C2>];
+            type Expected2 = [Module<C2>];
             assertType<Is<Actual2, Expected2>>();
             const ctr2 = inject(m2);
             const expected2 = {
@@ -381,7 +381,7 @@ describe('The inject function', () => {
         it('should check module 3', () => {
 
             type Actual2 = Check<[typeof m2]>
-            type Expected2 = [Module<C2, C2>];
+            type Expected2 = [Module<C2>];
             assertType<Is<Actual2, Expected2>>();
             const ctr2 = inject(m2);
             const expected2 = {
@@ -450,7 +450,7 @@ describe('The inject function', () => {
         expect(ctr.sayHi()).toBe('¡Hola!');
     });
 
-    it('sould infer the type of factories of mergable modules', () => {
+    it('should infer the type of factories of mergable modules', () => {
         class A {
             a = 'a'
         }
@@ -479,7 +479,7 @@ describe('The inject function', () => {
         assertType<Is<typeof container.d.e, B>>();
     });
 
-    it('sould infer the type of curried factories of non-mergable modules', () => {
+    it('should infer the type of curried factories of non-mergable modules', () => {
         class A {
             a = 'a'
         }
