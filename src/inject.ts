@@ -19,7 +19,7 @@ export function inject<M extends [Module, ...Module[]]>(...modules: Check<M>): C
     return container;
 }
 
-export function eager<T, F extends Factory<T>>(factory: F): F {
+export function eager<C, T, F extends Factory<C, T>>(factory: F): F {
     return (isEager in factory) ? factory : Object.assign(((ctr: any) => factory(ctr)) as F, { [isEager]: true });
 }
 

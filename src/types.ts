@@ -6,11 +6,11 @@
 
 import { CheckError, CheckResult, Combine, Filter, Fn, Is, IsEmpty, Keys, Obj, Or, Paths, UnionToIntersection, UnionToTuple, Values } from 'typescript-typelevel';
 
-export type Module<T = any> = {
-    [K in keyof T]: Module<T[K]> | Factory<T[K]>
+export type Module<T = any, C = any> = {
+    [K in keyof T]: Module<T[K]> | Factory<C, T[K]>
 };
 
-export type Factory<T> = (ctx: any) => T;
+export type Factory<C, T> = (ctx: C) => T;
 
 export type Container<A extends Module | Module[]> =
     [A] extends [Module[]] ? _Container<A> :
