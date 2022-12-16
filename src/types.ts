@@ -7,7 +7,7 @@
 import { CheckError, CheckResult, Combine, Filter, Fn, Is, IsEmpty, Keys, Obj, Or, Paths, UnionToIntersection, UnionToTuple, Values } from 'typescript-typelevel';
 
 export type Module<T = any, C = any> = {
-    [K in keyof T]: Module<T[K]> | Factory<C, T[K]>
+    [K in keyof T]: Module<T[K], C> | Factory<C, T[K]>
 };
 
 export type Factory<C, T> = (ctx: C) => T;
