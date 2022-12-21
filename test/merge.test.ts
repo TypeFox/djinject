@@ -258,19 +258,22 @@ describe('type Merge', () => {
             assertType<Is<Merge<(a: 1) => void, (a: 1) => void>, (a: 1) => void>>();
         });
 
-        it('should never merge different function', () => {
-            assertType<Is<Merge<(a: number) => void, (a: string) => void>, (a: never) => void>>();
-            assertType<Is<Merge<(a: string) => void, (a: number) => void>, (a: never) => void>>();
+        it('should merge functions with different arguments and void return type', () => {
+            assertType<Is<Merge<(a: number) => void, (a: string) => void>, (a: string) => void>>();
+            assertType<Is<Merge<(a: string) => void, (a: number) => void>, (a: number) => void>>();
+        });
+
+        it('should merge functions with no arguments and incompatible return type', () => {
             assertType<Is<Merge<() => string, () => number>, () => never>>();
             assertType<Is<Merge<() => number, () => string>, () => never>>();
         });
 
-        it('should merge if source Fn ignores target Fn args', () => {
-            assertType<Is<Merge<() => void, (a: string) => void>, () => void>>();
+        it('should merge if source Fn has no args and target Fn has args', () => {
+            assertType<Is<Merge<() => void, (a: string) => void>, (a: string) => void>>();
         });
 
-        it('should never merge if source Fn requires more args than target Fn', () => {
-            assertType<Is<Merge<(a: string) => void, () => void>, (a: never) => void>>();
+        it('should merge if source Fn has args than target Fn has no args', () => {
+            assertType<Is<Merge<(a: string) => void, () => void>, () => void>>();
         });
 
         it('should merge if source Fn returns 1 and target Fn returns void', () => {
@@ -297,8 +300,11 @@ describe('type Merge', () => {
             assertType<Is<Actual, Expected>>();
         });
 
-        it('should merge any function Fn with () => void', () => {
-            assertType<Is<Merge<() => void, Fn>, () => void>>();
+        it('should merge () => void with Fn', () => {
+            assertType<Is<Merge<() => void, Fn>, (...args: any[]) => void>>();
+        });
+
+        it('should merge Fn with () => void', () => {
             assertType<Is<Merge<Fn, () => void>, () => any>>();
         });
 
@@ -309,9 +315,37 @@ describe('type Merge', () => {
                 b: (ctx: { b: string }) => number,
             }>;
             type Expected = {
-                b: (ctx: { b: never }) => number
+                b: (ctx: { b: string }) => number
             }
             assertType<Is<Actual, Expected>>()
+        });
+
+        it('should merge a function with no arguments with a function with arguments', () => {
+            type A = {
+                f: () => void
+            };
+            type B = {
+                f: (b: B) => void
+            };
+            type Actual = Merge<A, B>;
+            type Expected = {
+                f: (b: B) => void
+            };
+            assertType<Is<Actual, Expected>>();
+        });
+
+        it('should merge a function with arguments with a function with no arguments', () => {
+            type A = {
+                f: (a: A) => void
+            };
+            type B = {
+                f: () => void
+            };
+            type Actual = Merge<A, B>;
+            type Expected = {
+                f: () => void
+            };
+            assertType<Is<Actual, Expected>>();
         });
 
     });
@@ -792,13 +826,13 @@ describe('type Merge', () => {
 
             it('should merge source: [string] with target: any[]', () => {
                 type Actual = Merge<{ a: [string] }, { a: any[] }>;
-                type Expected = { a: [never] }; // any[] isn't [any] and could be [], so this is ok!
+                type Expected = { a: [string] };
                 assertType<Is<Actual, Expected>>();
             });
 
             it('should never merge source: any[] with target: [string]', () => {
                 type Actual = Merge<{ a: any[] }, { a: [string] }>;
-                type Expected = { a: [] };
+                type Expected = { a: [string] };
                 assertType<Is<Actual, Expected>>();
             });
 
@@ -832,7 +866,7 @@ describe('type Merge', () => {
 
             it('should merge source: () => void with target: Fn', () => {
                 type Actual = Merge<{ a: () => void }, { a: Fn }>;
-                type Expected = { a: () => void };
+                type Expected = { a: (...a: any[]) => void };
                 assertType<Is<Actual, Expected>>();
             });
 

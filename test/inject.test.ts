@@ -129,15 +129,15 @@ describe('A cyclic dependency', () => {
 
     class B<T> {
         a: () => A<T>;
-        constructor(ctr: API<T>) {
-            this.a = () => ctr.a;
+        constructor(ctx: API<T>) {
+            this.a = () => ctx.a;
         }
     }
 
     function createCycle<T>(testee: T): API<T> {
         return inject({
             a: ({ b }: API<T>) => new A(b, testee),
-            b: (ctr: API<T>) => new B(ctr)
+            b: (ctx: API<T>) => new B(ctx)
         });
     }
 
@@ -249,10 +249,10 @@ describe('The inject function', () => {
         }
         class B {
             a: () => A;
-            constructor(ctr: API) { this.a = () => ctr.a; }
+            constructor(ctx: API) { this.a = () => ctx.a; }
         }
         expect(() =>
-            inject({ a: (ctr: API) => new A(ctr), b: (ctr: API) => new B(ctr) }).a
+            inject({ a: (ctx: API) => new A(ctx), b: (ctx: API) => new B(ctx) }).a
         ).not.toThrow();
     });
 
@@ -261,7 +261,7 @@ describe('The inject function', () => {
         type A = { b: B }
         type B = { a: () => A }
         const createA = ({ b }: API) => ({ b });
-        const createB = (ctr: API) => ({ a: () => ctr.a });
+        const createB = (ctx: API) => ({ a: () => ctx.a });
         expect(() =>
             inject({ a: createA, b: createB }).a
         ).not.toThrow();
@@ -428,7 +428,7 @@ describe('The inject function', () => {
         };
         const module: Module<Services> = {
             hi: () => 'Hi!',
-            sayHi: (ctr) => () => ctr.hi
+            sayHi: (ctx) => () => ctx.hi
         };
         const ctr = inject(module);
         assertType<Is<typeof ctr.hi, string>>();

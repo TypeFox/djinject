@@ -23,14 +23,14 @@ export function eager<C, T, F extends Factory<C, T>>(factory: F): F {
     return (isEager in factory) ? factory : Object.assign(((ctr: any) => factory(ctr)) as F, { [isEager]: true });
 }
 
-function initializeEagerServices<C, T, M extends Module<T>>(module: M, context: C): void {
+function initializeEagerServices<C, T, M extends Module<C, T>>(module: M, context: C): void {
     keys(module).forEach(key => {
         const t = module[key];
         (typeof t === 'function') ? ((isEager in t) && t(context)) : initializeEagerServices(t, context);
     });
 }
 
-function proxify<C, T>(module: Module<T>, container?: C, path: string = ''): T {
+function proxify<C, T>(module: Module<C, T>, container?: C, path: string = ''): T {
     const get = (obj: Record<PropertyKey, unknown>, prop: PropertyKey, proxy: T) => {
         const name = path + '[' + String(prop) + ']';
         if (obj[prop] === isRequested) {

@@ -6,8 +6,9 @@
 
 import { CheckError, CheckResult, Combine, Filter, Fn, Is, IsEmpty, Keys, Obj, Or, Paths, UnionToIntersection, UnionToTuple, Values } from 'typescript-typelevel';
 
-export type Module<T = any, C = any> = {
-    [K in keyof T]: Module<T[K], C> | Factory<C, T[K]>
+export type Module<C = any, T = C> = {
+    // TODO(@@dd): use [K in keyof Partial<T>] ???
+    [K in keyof T]: Module<C, T[K]> | Factory<C, T[K]>
 };
 
 export type Factory<C, T> = (ctx: C) => T;
@@ -18,7 +19,7 @@ export type Container<A extends Module | Module[]> =
 
 type _Container<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
     IsEmpty<M> extends true ? {} :
-        M extends Module<infer T> ?
+        M extends Module<any, infer T> ?
             T extends C ? T : never : never;
 
 export type Check<A extends Module[]> = _Check<A>;
@@ -26,7 +27,7 @@ export type Check<A extends Module[]> = _Check<A>;
 type _Check<A extends Module[], M = MergeArray<A>, C = ReflectContainer<M>> =
     IsEmpty<M> extends true
         ? A
-        : M extends Module<infer T>
+        : M extends Module<any, infer T>
             ? CheckResult<A, [
                 CheckTypes<A, T>,
                 CheckContextTypes<A, C>,
@@ -96,15 +97,13 @@ type MergeArrays<S extends any[], T extends any[]> =
     S extends [infer HeadS, ...infer TailS]
         ? T extends [infer HeadT, ...infer TailT]
             ? [Merge<HeadS, HeadT>, ...MergeArrays<TailS, TailT>]
-            : [never] // T = [], users which expect T don't provide more elements required by S
-        : []; // S = [], S ignores additions elements required by users of T
+            : S
+        : T;
 
 type MergeFunctions<S extends Fn, T extends Fn> =
-    S extends (...args: infer ArgsS) => infer ResS
-        ? T extends (...args: infer ArgsT) => infer ResT
-            ? Merge<ArgsS, ArgsT> extends infer A
-                ? A extends any[] ? (...args: A) => Merge<ResS, ResT> : never
-                : never
+    S extends (...args: any[]) => infer ResS
+        ? T extends (...args: infer Args) => infer ResT
+            ? (...args: Args) => Merge<ResS, ResT>
             : never
         : never;
 
