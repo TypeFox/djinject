@@ -7,36 +7,36 @@
 import { assertType } from 'typelevel-assert';
 import { CheckError, Is } from 'typescript-typelevel';
 import { describe, it } from 'vitest'
-import { ReflectContainer, Check } from '../src/types';
+import { ReflectContext, Check } from '../src/types';
 
-describe('ReflectContainer', () => {
+describe('ReflectContext', () => {
 
     it('should reflect any', () => {
-        type Actual = ReflectContainer<any>;
+        type Actual = ReflectContext<any>;
         type Expected = unknown;
         assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect unknown', () => {
-        type Actual = ReflectContainer<unknown>;
+        type Actual = ReflectContext<unknown>;
         type Expected = unknown;
         assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect never', () => {
-        type Actual = ReflectContainer<never>;
+        type Actual = ReflectContext<never>;
         type Expected = never;
         assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect null', () => {
-        type Actual = ReflectContainer<null>;
+        type Actual = ReflectContext<null>;
         type Expected = unknown;
         assertType<Is<Actual, Expected>>();
     });
 
     it('should reflect undefined', () => {
-        type Actual = ReflectContainer<undefined>;
+        type Actual = ReflectContext<undefined>;
         type Expected = unknown;
         assertType<Is<Actual, Expected>>();
     });
@@ -45,7 +45,7 @@ describe('ReflectContainer', () => {
         const module = {
             f: () => 1
         };
-        type Actual = ReflectContainer<typeof module>;
+        type Actual = ReflectContext<typeof module>;
         type Expected = {};
         assertType<Is<Actual, Expected>>();
     });
@@ -54,7 +54,7 @@ describe('ReflectContainer', () => {
         const module = {
             f: (ctx: { f: number }) => 1
         };
-        type Actual = ReflectContainer<typeof module>;
+        type Actual = ReflectContext<typeof module>;
         type Expected = {
             f: number
         };
@@ -65,7 +65,7 @@ describe('ReflectContainer', () => {
         const module = {
             f: (ctx: { g: number }) => 1
         };
-        type Actual = ReflectContainer<typeof module>;
+        type Actual = ReflectContext<typeof module>;
         type Expected = {
             g: number
         };
@@ -90,7 +90,7 @@ describe('ReflectContainer', () => {
                 }
             }
         };
-        type Actual = ReflectContainer<typeof module>;
+        type Actual = ReflectContext<typeof module>;
         type Expected = {
             x: boolean
             y: {
@@ -105,7 +105,7 @@ describe('ReflectContainer', () => {
         type M = {
             b: (ctx: { b: never }) => number
         };
-        type Actual = ReflectContainer<M>;
+        type Actual = ReflectContext<M>;
         type Expected = {
             b: never
         };
@@ -122,7 +122,7 @@ describe('Check', () => {
         }]>;
         type Expected = {
             djinject_error: [
-                CheckError<"Dependency missing", ['b'], "https://docs.djinject.io/#context">
+                CheckError<"Dependency missing", ['b'], "https://docs.djinject.io/#dependency-missing">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -134,7 +134,8 @@ describe('Check', () => {
         }]>;
         type Expected = {
             djinject_error: [
-                CheckError<"Dependency conflict", ['b'], "https://docs.djinject.io/#context">
+                CheckError<"Dependency conflict", ['b'], "https://docs.djinject.io/#dependency-conflict">,
+                CheckError<"Dependency missing", ['b'], "https://docs.djinject.io/#dependency-missing">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -152,7 +153,8 @@ describe('Check', () => {
         },]>;
         type Expected = {
             djinject_error: [
-                CheckError<"Dependency conflict", ['b.c.d'], "https://docs.djinject.io/#context">
+                CheckError<"Dependency conflict", ['b.c.d'], "https://docs.djinject.io/#dependency-conflict">,
+                CheckError<"Dependency missing", ['b.c.d'], "https://docs.djinject.io/#dependency-missing">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -170,7 +172,7 @@ describe('Check', () => {
         },]>;
         type Expected = {
             djinject_error: [
-                CheckError<"Dependency missing", ['b.c.d'], "https://docs.djinject.io/#context">
+                CheckError<"Dependency missing", ['b.c.d'], "https://docs.djinject.io/#dependency-missing">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -191,7 +193,8 @@ describe('Check', () => {
         }]>;
         type Expected = {
             djinject_error: [
-                CheckError<"Dependency conflict", ['b.c.d', 'b.e.f'], "https://docs.djinject.io/#context">
+                CheckError<"Dependency conflict", ['b.c.d', 'b.e.f'], "https://docs.djinject.io/#dependency-conflict">,
+                CheckError<"Dependency missing", ['b.c.d', 'b.e.f'], "https://docs.djinject.io/#dependency-missing">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -206,7 +209,8 @@ describe('Check', () => {
         }]>;
         type Expected = {
             djinject_error: [
-                CheckError<"Dependency conflict", ['b'], "https://docs.djinject.io/#context">
+                CheckError<"Dependency conflict", ['b'], "https://docs.djinject.io/#dependency-conflict">,
+                CheckError<"Dependency missing", ['b'], "https://docs.djinject.io/#dependency-missing">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -220,7 +224,7 @@ describe('Check', () => {
         }]>;
         type Expected = {
             djinject_error: [
-                CheckError<"Dependency conflict", ['b'], "https://docs.djinject.io/#context">
+                CheckError<"Dependency conflict", ['b'], "https://docs.djinject.io/#dependency-conflict">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -232,7 +236,7 @@ describe('Check', () => {
         }]>;
         type Expected = {
             djinject_error: [
-                CheckError<"Dependency missing", ['b'], "https://docs.djinject.io/#context">
+                CheckError<"Dependency missing", ['b'], "https://docs.djinject.io/#dependency-missing">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -246,11 +250,9 @@ describe('Check', () => {
             f: () => 1
         }]>;
         type Expected = [{
-            f: (ctx: {
-                b: boolean;
-            }) => 1;
+            f: (ctx: { b: boolean; }) => 1
         }, {
-            f: () => 1;
+            f: () => 1
         }];
         assertType<Is<Actual, Expected>>();
     });
@@ -264,7 +266,7 @@ describe('Check', () => {
         }]>;
         type Expected = {
             djinject_error: [
-                CheckError<"Type conflict", ["f"], "https://docs.djinject.io/#modules">
+                CheckError<"Type conflict", ["f"], "https://docs.djinject.io/#type-conflict">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -276,11 +278,40 @@ describe('Check', () => {
         }, {
             f: (ctx: { a: number, b: string }) => ''
         }]>;
+        // especially, the different types of b are irrelevant
+        // because the second module re-defines how b is used
         type Expected = {
             djinject_error: [
-                CheckError<"Type conflict", ["f"], "https://docs.djinject.io/#modules">,
-                CheckError<"Dependency conflict", ["b"], "https://docs.djinject.io/#context">,
-                CheckError<"Dependency missing", ["a"], "https://docs.djinject.io/#context">
+                CheckError<"Type conflict", ["f"], "https://docs.djinject.io/#type-conflict">, // because f returns different types
+                CheckError<"Dependency missing", ["b", "a"], "https://docs.djinject.io/#dependency-missing"> // because f requires a and b
+            ]
+        };
+        assertType<Is<Actual, Expected>>();
+    });
+
+    it('should recognize dependency type conflict between 1) container and 2) context when using two modules', () => {
+        type Actual = Check<[{
+            a: () => number // 1) a is a number in the container
+        }, {
+            f: (ctx: { a: string }) => void // 2) a is a string in the context
+        }]>;
+        type Expected = {
+            djinject_error: [
+                CheckError<"Dependency conflict", ["a"], "https://docs.djinject.io/#dependency-conflict">
+            ]
+        };
+        assertType<Is<Actual, Expected>>();
+    });
+
+    it('should recognize dependency type conflict between 1) context and 2) container when using two modules', () => {
+        type Actual = Check<[{
+            f: (ctx: { a: string }) => void // 1) a is a string in the context
+        }, {
+            a: () => number // 2) a is a number in the container
+        }]>;
+        type Expected = {
+            djinject_error: [
+                CheckError<"Dependency conflict", ["a"], "https://docs.djinject.io/#dependency-conflict">
             ]
         };
         assertType<Is<Actual, Expected>>();
@@ -309,7 +340,7 @@ describe('Check', () => {
         type Actual= Check<[{ _: () => never }]>;
         type Expected = {
             djinject_error: [
-                CheckError<"Type conflict", ["_"], "https://docs.djinject.io/#modules">
+                CheckError<"Type conflict", ["_"], "https://docs.djinject.io/#type-conflict">
             ]
         };
         assertType<Is<Actual, Expected>>();
