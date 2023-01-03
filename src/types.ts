@@ -55,12 +55,12 @@ type CheckDependencyMissing<A, C, T, P = Combine<Omit<Combine<Paths<C>>, keyof C
     IsEmpty<P> extends true ? A : CheckError<'Dependency missing', UnionToTuple<Keys<P>>, 'https://docs.djinject.io/#dependency-missing'>;
 
 export type ReflectContext<M,
-    _Functions = Filter<M, Fn>,                                      // { f1: (ctx: C1) = any, f2: ... }
-    _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>,     // ((ctx: C) => any)[]
-    _ContextArray = MapFunctionsToContexts<_FunctionArray>,          // C[]
-    Ctx = MergeArray<_ContextArray>,                                 // C | never
-    _SubModules = Filter<M, Obj>,                                    // {} | {}
-    SubModule = UnionToIntersection<Values<_SubModules>>             // {}
+    _Functions = Filter<M, Fn>,                                  // { f1: (ctx: C1) = any, f2: ... }
+    _FunctionArray = UnionToTuple<_Functions[keyof _Functions]>, // ((ctx: C) => any)[]
+    _ContextArray = MapFunctionsToContexts<_FunctionArray>,      // C[]
+    Ctx = MergeArray<_ContextArray>,                             // C | never
+    _SubModules = Filter<M, Obj>,                                // {} | {}
+    SubModule = UnionToIntersection<Values<_SubModules>>         // {}
 > =
     Or<Is<M, any>, Is<Ctx, never>> extends true
         ? unknown
