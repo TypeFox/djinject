@@ -10,7 +10,7 @@
 <div id="badges" align="center">
 
 [![npm version](https://img.shields.io/npm/v/djinject?logo=npm&style=flat-square)](https://www.npmjs.com/package/djinject/)
-[![build](https://img.shields.io/github/workflow/status/langium/djinject/Build/main?logo=github&style=flat-square)](https://github.com/langium/djinject/actions/workflows/build.yml)
+[![build](https://img.shields.io/github/actions/workflow/status/langium/djinject/build.yml?branch=main&logo=github&style=flat-square)](https://github.com/langium/djinject/actions/workflows/build.yml)
 [![Gitpod ready-to-code](https://img.shields.io/badge/Gitpod-ready--to--code-blue?logo=gitpod&style=flat-square)](https://gitpod.io/#https://github.com/langium/djinject)
 
 </div>
