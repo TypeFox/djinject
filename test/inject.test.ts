@@ -8,7 +8,7 @@ import { assertType } from 'typelevel-assert';
 import { Is } from 'typescript-typelevel';
 import { describe, expect, it } from 'vitest';
 import { eager, inject } from '../src/inject';
-import { Module, Check } from '../src/types';
+import { Module, Check, PartialModule } from '../src/types';
 
 describe('A generic dependency type', () => {
 
@@ -497,14 +497,14 @@ describe('The inject function', () => {
         }, {
             a: () => 2,
             b: {
-                c: () => () => 'hallo' as string
+                c: () => () => 'hallo'
             },
             d: {
                 e: () => new B()
             }
         }, {
             b: {
-                c: () => () => 'salut' as string
+                c: () => () => 'salut'
             }
         });
         assertType<Is<typeof container.a, number>>();
@@ -512,11 +512,91 @@ describe('The inject function', () => {
         assertType<Is<typeof container.d.e, B>>();
     });
 
-    it('should disallow to use wrong module types', () => {
-        // @ts-expect-error
-        inject({
-            hi: (ctx: false) => 'Hi!'
-        });
+    it('should merge curried functions', () => {
+        type A = {
+            f: (a: number) => number
+            g: (a: A) => number
+        };
+        type B = {
+            f: (a: string) => string
+            g: (a: B) => string
+        };
+        const ma: Module<A> = {
+            f: () => (a: number) => a,
+            g: () => (a: A) => a.f(0)
+        };
+        const mb: Module<B> = {
+            f: () => (a: string) => a,
+            g: () => (b: B) => b.f('')
+        };
+        const ctr = inject(ma, mb);
+        type Actual = typeof ctr;
+        type Expected = {
+            f: (a: string) => never
+            g: (a: B) => never
+        };
+        assertType<Is<Actual, Expected>>();
+    });
+
+    it('should rebind dependencies using a partial module', () => {
+        type A = {
+            a: {
+                b: number
+                c: number
+            }
+        };
+        const module: Module<A> = {
+            a: {
+                b: () => 1,
+                c: () => 1
+            }
+        };
+        const partialModule = {
+            a: {
+                c: () => 2
+            }
+        } satisfies PartialModule<A>;
+        const ctr: A = inject(module, partialModule);
+        expect(ctr.a.b).toBe(1);
+        expect(ctr.a.c).toBe(2);
+    });
+
+    it('should inject dependencies using partial modules only', () => {
+        type A = {
+            a: {
+                b: number
+                c: number
+            }
+        };
+        const partialModule1 = {
+            a: {
+                b: () => 1
+            }
+        } satisfies PartialModule<A>;
+        const partialModule2 = {
+            a: {
+                c: (ctx) => ctx.a.b + 1
+            }
+        } satisfies PartialModule<A>;
+        const ctr: A = inject(partialModule1, partialModule2);
+        expect(ctr.a.b).toBe(1);
+        expect(ctr.a.c).toBe(2);
+    });
+
+    it('should detect incomplete partial modules', () => {
+        type A = {
+            a: {
+                b: number
+                c: number
+            }
+        };
+        const partialModule = {
+            a: {
+                c: () => 1
+            }
+        } satisfies PartialModule<A>;
+        // @ts-expect-error Property 'b' is missing in type '{ c: number; }' but required in type '{ b: number; c: number; }'.
+        const ctr: A = inject(partialModule);
     });
 
 });
@@ -580,6 +660,25 @@ describe('A module', () => {
                 service3: 1
             }
         });
+    });
+
+    it('should return provider of same shape', () => {
+        type A = {
+            f: (a: number) => void
+        };
+        const ma: Module<A> = {
+            f: () => (a: number) => {}
+        };
+    });
+
+    it('should disallow provider of different shape', () => {
+        type A = {
+            f: (a: number) => number
+        };
+        const ma: Module<A> = {
+            // @ts-expect-error Type '() => (a: number) => () => number' is not assignable to type 'Factory<A, (a: number) => number>'.
+            f: () => (a: number) => () => 0
+        };
     });
 
 });
