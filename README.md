@@ -17,15 +17,7 @@
 
 <br>
 
-**Djinject** is a non-intrusive and typesafe dependency injection library for Node.js and JavaScript, powered by TypeScript.
-
 **Djinject** empowers developers designing decoupled applications and frameworks. **Djinject**'s main goal is increasing the developer experience by offering a tiny, yet powerful API, keeping dependencies in central module definitions and by using TypeScript's type system to restrain runtime challenges.
-
-The concept of **djinject**'s central module definition is inspired by [Google Guice](https://github.com/google/guice). However, **djinject** is going further by lifting the API to the functional level.
-
-Despite its simplicity, **djinject** is powerful enough to cover all features provided by [Inversify](https://github.com/inversify/InversifyJS). Direct support for classes and constructors, property injection, rebinding dependencies and dependency cycle detection are just a few of the features worth mentioning.
-
-<br>
 
 <div id="djinject vs inversify" align="center">
 
@@ -40,7 +32,19 @@ Despite its simplicity, **djinject** is powerful enough to cover all features pr
 
 </div>
 
-<br>
+## Features
+
+* type-safe
+* tiny footprint
+* property injection
+* rebinding dependencies
+* dependency cycle detection
+* lazy and eager initialization
+* no magic, no global state
+* no decorators
+* no dependencies
+* no configuration
+* no boilerplate
 
 ## Quickstart
 
@@ -82,14 +86,14 @@ type Context = {
 }
 
 // A _module_ contains nested _groups_ (optional) and _factories_
-const module: Module<Context> = {
+const module = {
     group: {
         // a factory of type Factory<Context, Value>
         value: (ctx: Context) => new Value(ctx)
     }
-};
+} satisfies Module<Context>;
 
-// A _container_ of type Container<Module<Context>> = Context
+// A _container_ of type Container<[Module<Context>]> = Context
 const container = inject(module);
 
 // Values can be obtained from the container
@@ -105,6 +109,7 @@ type C = {
     value: string
 }
 
+// ❌ compiler error: value is missing
 const container = inject({
     factory: (ctx: C) => () => ctx.value
 });
@@ -115,65 +120,64 @@ The **context** of type **C** provides a **value** that can't be resolved. The *
 Such **missing dependencies** need to be provided by adding additional **modules** to the **inject** call.
 
 ```ts
+// ✅ fixed, value is defined
 const container = inject({
-    factory: (ctx: C) => () => ctx.value
+    createValue: (ctx: C) => () => ctx.value
 }, {
-    value: () => '🍸'
+    value: () => '🧞‍♀️'
 });
 ```
 
 Now the compiler is satisfied and we can start using the **container**.
 
 ```ts
-// prints 🍸
-console.log(container.factory());
+// prints 🧞‍♀️
+console.log(container.createValue());
 ```
 
-You might have noticed that the **container** automatically calls the **factory** and **injects** itself as the **context**. The use-site receives the **value**.
+You might have noticed that the **container** automatically **injects** itself as the **context** when calling the **createValue** function.
 
 ### Eager vs lazy initialization
 
-A dependency **container.group.value** is **lazily** initialized when first accessed on the container. Turn a factory **eager** to initialize the dependency at the time of the **inject** call.
+A dependency **container.group.value** is **lazily** initialized when first accessed on the container. Initialize a factory **eagerly** at the time of the **inject** call by wrapping it in an **init** call. Hint: groups can be eagerly initialized as well.
 
-A use case for **eager initialization** would be to ensure that **side effects** take place during the initialization of the **container**. 
+A use case for **eager initialization** would be to ensure that **side effects** take place during the initialization of the **container**.
 
 ```ts
-import { eager, inject, Module } from 'djinject';
+import { init, inject, Module } from 'djinject';
 
 type C = {
-    gin: string
+    logger: string
 }
 
-const module: Module<C> = {
-    gin: eager(() => {
-        const gin = '🍸';
-        console.log('Gin mixed');
-        return gin;
+const module = {
+    service: init(() => {
+        console.log('Service initialized');
     })
-}
+} satisfies Module<C>;
 
 const ctr = inject(module);
 
 console.log('App started');
 
-ctr.gin
+ctr.service
 ```
 
 In the **eager** case, the output is
 
-```
-Gin mixed
+```plain
+Service initialized
 App started
 ```
 
 In the **lazy** case, the output is
 
-```
+```plain
 App started
-Gin mixed
+Service initialized
 ```
 
-Please note that **eager factories** overwrite **lazy factories** vice versa when **rebinding** them.
+Please note that **eager factories** overwrite **lazy factories** vice versa when **rebinding** them using **additional modules** in the **inject** call.
 
 ### Rebinding dependencies
 
@@ -185,25 +189,23 @@ The behavior of an application can be enhanced by overwriting existing functiona
 
 ```ts
 type C = {
-    readonly print: () => void
+    test: () => void
     eval: (a: number, b: number) => number
 }
 
-const module_0: Module<C> = {
-    print: (ctx) => () => {
+const m1 = {
+    test: (ctx) => () => {
         console.log(ctx.eval(1, 1));
     },
     eval: () => (a, b) => a + b
-};
+} satisfies Module<C, C>; // requires C
 
-const ctr = inject(module_0, {
-    eval: () => (a: number, b: number) => a * b
-});
+const m2 = {
+    eval: () => (a, b) => a * b
+} satisfies Module<C>; // partial C
+
+const ctr = inject(m1, m2);
 
 // = 1
-ctr.print();
+ctr.test();
 ```
-
-### Cyclic Dependencies
-
-### Asynchronous Factories
