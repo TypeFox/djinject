@@ -66,7 +66,6 @@
         "@typescript-eslint/array-type": ["error", {                // string[] instead of Array<string>
             "default": "array"
         }],
-        "@typescript-eslint/indent": "error",                        // consistent indentation
         "@typescript-eslint/consistent-type-assertions": "error",    // needed for .tsx, bad = <Foo>bar, good = bar as Foo
         "@typescript-eslint/no-misused-new": "error",                // no constructors for interfaces or new for classes
         "@typescript-eslint/no-parameter-properties": "error",       // no property definitions in class constructors

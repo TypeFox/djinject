@@ -1,5 +1,6 @@
 .DS_Store
 *.tgz
+.vscode/
 coverage/
 lib/
 node_modules/
